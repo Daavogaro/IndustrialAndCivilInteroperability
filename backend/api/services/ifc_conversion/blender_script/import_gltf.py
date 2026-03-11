@@ -4,6 +4,15 @@ import bpy
 import sys
 import os
 
+
+def select_hierarchy(obj):
+    obj.select_set(True)
+    selected = [obj]
+
+    for child in obj.children:
+        selected.extend(select_hierarchy(child))
+
+    return selected
 def create_hierarchy(node: dict, parent=None):
 
     file_url = node.get("fileUrl")
@@ -17,6 +26,18 @@ def create_hierarchy(node: dict, parent=None):
         if parent:
             node_obj.parent = parent
             node_obj.matrix_world = world_matrix
+        else:
+            if node_obj.name != node.get("id").split("#")[1]:
+                obj = bpy.data.objects.get(node.get("id").split("#")[1] )
+                if obj:
+                    world_matrix = obj.matrix_world.copy()
+                    obj.parent=None
+                    obj.matrix_world = world_matrix
+                    bpy.ops.object.select_all(action='DESELECT')
+                    selected_objects = select_hierarchy(obj)
+                    unselected_objects = [obj for obj in bpy.data.objects if obj not in selected_objects]
+                    for unselected in unselected_objects:
+                        bpy.data.objects.remove(unselected, do_unlink=True)
 
     else:
         bpy.ops.object.empty_add(type='PLAIN_AXES', align='WORLD', location=(0, 0, 0), scale=(1, 1, 1))
@@ -42,7 +63,6 @@ save_blend = len(argv) > 2 and argv[1].strip().lower() in {"1", "true", "yes"}
 with open(json_path, encoding="utf-8") as f:
     node = json.load(f)
 
-gltf_urls = create_hierarchy(node)
 
 
 # Clear the existing scene (optional)
