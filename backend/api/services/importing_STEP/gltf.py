@@ -3,6 +3,10 @@ import numpy as np
 import base64
 import os
 
+from ...services.importing_STEP.RDF_conversion import NameAndNumber
+
+from ...services.db_requests.name_and_number import name_and_number_query
+
 # ------------------------------------------------------------
 # BUFFER PRELOAD (read each buffer only once)
 # ------------------------------------------------------------
@@ -81,12 +85,38 @@ def get_mesh_dimensions(gltf, mesh_index, buffer_cache):
 # NODE HIERARCHY BUILDER (with mesh dimension cache)
 # ------------------------------------------------------------
 
-def build_node_hierarchy(gltf, buffer_cache, node_index, mesh_cache):
+def build_node_hierarchy(gltf, buffer_cache, node_index, mesh_cache, nameAndNumberList):
     node = gltf.nodes[node_index]
-    name = node.name or f"<Node {node_index}>"
+    raw_name = node.name or f"Node_{node_index}"
+    clean_name = (
+    raw_name.replace(" ", "_")
+    .replace("/", "_")
+    .replace("\\", "_")
+    .replace(":", "_")
+    .replace("*", "_")
+    .replace("?", "_")
+    .replace("<", "_")
+    .replace(">", "_")
+    .replace("[", "_")
+    .replace("]", "_")
+    .replace("=", "_")
+)
+    
 
+    parts = clean_name.split(".")
+    label= ".".join(parts[:-1]) if len(parts) > 1 else clean_name
+    number = 1
+    def get_by_name(items: list[NameAndNumber], target: str) -> NameAndNumber | None:
+        return next((item for item in items if item["name"] == target), None)
+    name_and_number = get_by_name(nameAndNumberList, label)
+    if name_and_number is not None:
+        number = name_and_number["number"] + 1
+        name_and_number["number"] = number
+    else:
+        nameAndNumberList.append({"name": label, "number": number})   
+    node.name = f"{label}.{str(number)}"
     node_data = {
-        "name": name.replace(" ", "_").replace("/", "_").replace("\\", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace("<", "_").replace(">", "_").replace("[", "_").replace("]", "_").replace("=", "_"),  # RDF-friendly names
+        "name": f"{label}.{str(number)}",
         "index": node_index,
         "dimensions": None,
         "children": []
@@ -108,7 +138,7 @@ def build_node_hierarchy(gltf, buffer_cache, node_index, mesh_cache):
     if node.children:
         for child_idx in node.children:
             node_data["children"].append(
-                build_node_hierarchy(gltf, buffer_cache, child_idx, mesh_cache)
+                build_node_hierarchy(gltf, buffer_cache, child_idx, mesh_cache, nameAndNumberList)
             )
 
     return node_data
@@ -121,6 +151,7 @@ def build_node_hierarchy(gltf, buffer_cache, node_index, mesh_cache):
 async def return_gltf_hierarchy(gltf_path):
     gltf_dir = os.path.dirname(gltf_path)
     gltf = GLTF2().load(gltf_path)
+    nameAndNumberList = await name_and_number_query()
 
     buffer_cache = preload_buffers(gltf, gltf_dir)
     mesh_cache = {}
@@ -139,10 +170,13 @@ async def return_gltf_hierarchy(gltf_path):
                     gltf,
                     buffer_cache,
                     root_node_idx,
-                    mesh_cache
+                    mesh_cache,
+                    nameAndNumberList
                 )
             )
 
         scenes_data.append(scene_data)
+
+    gltf.save(gltf_path) 
 
     return scenes_data

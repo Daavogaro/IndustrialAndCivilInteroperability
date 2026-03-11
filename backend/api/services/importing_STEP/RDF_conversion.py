@@ -49,19 +49,11 @@ def convert_hierarchy_in_rdf(
 
     def add_node(node: GeometryNode, nameAndNumberList: list[NameAndNumber],parent_uri=None):
         original_name = node.name
-        parts = node.name.split(".")
-        label= ".".join(parts[:-1]) if len(parts) > 1 else original_name
-        number = 1
-        def get_by_name(items: list[NameAndNumber], target: str) -> NameAndNumber | None:
-            return next((item for item in items if item["name"] == target), None)
-        name_and_number = get_by_name(nameAndNumberList, label)
-        if name_and_number is not None:
-            number = name_and_number["number"] + 1
-            name_and_number["number"] = number
-        else:
-            nameAndNumberList.append({"name": label, "number": number})   
+        parts = original_name.split(".")
+        label= ".".join(parts[:-1])
+        number = parts[-1] 
 
-        node_uri = GRAPH_NAMESPACE[label+"."+str(number)]
+        node_uri = GRAPH_NAMESPACE[original_name]
         metadata_uri = GRAPH_NAMESPACE[label]
         g.add((metadata_uri, RDF.type, X3D_NAMESPACE.MetadataString))
         g.add((node_uri, X3D_NAMESPACE.hasMetadata, metadata_uri))
