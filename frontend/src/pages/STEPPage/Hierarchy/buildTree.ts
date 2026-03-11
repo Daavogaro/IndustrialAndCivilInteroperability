@@ -9,6 +9,7 @@ export type TreeNode = {
   ifcClass?: string;
   predefinedType?: string;
   userdefinedType?: string;
+  fileUrl?: string;
   children: TreeNode[];
 };
 
@@ -22,6 +23,7 @@ export function buildTree(
     display?: string;
     dimensions?: string;
     attrib?: string;
+    fileUrl?: string;
   }[],
   roots: {
     uri: string;
@@ -31,6 +33,7 @@ export function buildTree(
     visible?: string;
     display?: string;
     attrib?: string;
+    fileUrl?: string;
   }[],
   ifcData: {
     node: string;
@@ -65,11 +68,15 @@ export function buildTree(
     display,
     dimensions,
     attrib,
+    fileUrl,
   } of edges) {
     const parentNode = getNode(parent);
     const childNode = getNode(child);
     childNode.cadType = cadType;
     childNode.metadata = metadata;
+    if (fileUrl) {
+      childNode.fileUrl = fileUrl;
+    }
 
     if (!parentNode.children.includes(childNode)) {
       parentNode.children.push(childNode);
@@ -102,7 +109,16 @@ export function buildTree(
 
   // Resolve roots
   return roots.map(
-    ({ uri, cadType, metadata, dimensions, visible, display, attrib }) => {
+    ({
+      uri,
+      cadType,
+      metadata,
+      dimensions,
+      visible,
+      display,
+      attrib,
+      fileUrl,
+    }) => {
       const rootNode = getNode(uri);
       rootNode.cadType = cadType;
       rootNode.metadata = metadata;
@@ -118,6 +134,9 @@ export function buildTree(
       }
       if (attrib === "Fundamental_Node") {
         rootNode.isFundamental = true;
+      }
+      if (fileUrl) {
+        rootNode.fileUrl = fileUrl;
       }
 
       return rootNode;

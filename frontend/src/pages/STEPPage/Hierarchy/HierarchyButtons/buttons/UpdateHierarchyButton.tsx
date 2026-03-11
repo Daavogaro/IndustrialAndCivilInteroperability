@@ -13,7 +13,7 @@ export function UpdateHierarchyButton({
   const graphName = "http://localhost:8890/Elettra2/";
   const queryRootElement = `
     PREFIX x3d:  <https://www.web3d.org/specifications/X3dOntology4.0#>
-    SELECT ?root ?cadType ?metadata ?visible ?display ?dimensions ?attrib 
+    SELECT ?root ?cadType ?metadata ?visible ?display ?dimensions ?attrib ?fileUrl
     FROM <${graphName}>
     WHERE {
       ?root a x3d:CADAssembly .
@@ -23,6 +23,10 @@ export function UpdateHierarchyButton({
       OPTIONAL { ?root x3d:bboxSize ?dimensions . }
       OPTIONAL { ?root x3d:attrib ?attrib . }
       OPTIONAL { ?root x3d:visible ?visible . }.
+      OPTIONAL { 
+      ?root x3d:hasParentX3D ?urlObject .
+      ?urlObject x3d:url ?fileUrl .
+      }
       FILTER NOT EXISTS {
         ?root x3d:hasParentCADPart ?p .
       }
@@ -33,7 +37,7 @@ export function UpdateHierarchyButton({
 
   const queryChildren = `
     PREFIX x3d:  <https://www.web3d.org/specifications/X3dOntology4.0#>
-    SELECT ?parent ?child ?cadType ?metadata ?visible ?display ?dimensions ?attrib
+    SELECT ?parent ?child ?cadType ?metadata ?visible ?display ?dimensions ?attrib ?fileUrl
     FROM <${graphName}>
     WHERE {
       ?child x3d:hasParentCADPart ?parent .
@@ -43,6 +47,10 @@ export function UpdateHierarchyButton({
       OPTIONAL { ?child x3d:bboxDisplay ?display . }
       OPTIONAL { ?child x3d:bboxSize ?dimensions . }
       OPTIONAL { ?child x3d:attrib ?attrib . }
+      OPTIONAL { 
+      ?child x3d:hasParentX3D ?urlObject .
+      ?urlObject x3d:url ?fileUrl .
+      }
       FILTER(STRSTARTS(STR(?cadType), "https://www.web3d.org/specifications/X3dOntology4.0#"))
     }
       
@@ -86,6 +94,7 @@ export function UpdateHierarchyButton({
         dimensions: r.dimensions,
         cadType: r.cadType,
         metadata: r.metadata,
+        fileUrl: r.fileUrl,
       }));
 
       // fetch edges
@@ -99,6 +108,7 @@ export function UpdateHierarchyButton({
         display: e.display,
         dimensions: e.dimensions,
         attrib: e.attrib,
+        fileUrl: e.fileUrl,
       }));
       const ifcData = await fetchQuery(ifcQuery);
       const ifcs = ifcData.map((i: any) => ({

@@ -44,7 +44,7 @@ async def websocket_ifc_convert(websocket: WebSocket):
             partial(
                 run_blender_script,
                 IMPORT_GLTF_SCRIPT,
-                [GLTF_PATH, tmp_path, str(save_blend).lower()],
+                [tmp_path, str(save_blend).lower()],
                 on_output=on_output,
             )
         )

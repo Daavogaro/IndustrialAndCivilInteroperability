@@ -4,35 +4,58 @@ import bpy
 import sys
 import os
 
+def create_hierarchy(node: dict, parent=None):
+
+    file_url = node.get("fileUrl")
+
+    if file_url:
+        bpy.ops.import_scene.gltf(filepath=file_url)
+        node_obj = bpy.context.view_layer.objects.active
+
+        world_matrix = node_obj.matrix_world.copy()
+
+        if parent:
+            node_obj.parent = parent
+            node_obj.matrix_world = world_matrix
+
+    else:
+        bpy.ops.object.empty_add(type='PLAIN_AXES', align='WORLD', location=(0, 0, 0), scale=(1, 1, 1))
+        empty_obj = bpy.context.view_layer.objects.active
+        print(empty_obj)
+        empty_obj.name = node.get("id").split("#")[1]
+
+        if parent:
+            empty_obj.parent = parent
+
+        for child in node.get("children", []):
+            create_hierarchy(child, empty_obj)
+
+
 # Get arguments after `--`
 argv = sys.argv
 argv = argv[argv.index("--") + 1:]  # only args after --
 
-if len(argv) < 2:
-    raise ValueError("Expected GLTF path and JSON path after --")
 
-gltf_path = os.path.abspath(argv[0])
-json_path = os.path.abspath(argv[1])
-save_blend = len(argv) > 2 and argv[2].strip().lower() in {"1", "true", "yes"}
+json_path = os.path.abspath(argv[0])
+save_blend = len(argv) > 2 and argv[1].strip().lower() in {"1", "true", "yes"}
 
 with open(json_path, encoding="utf-8") as f:
-    data = json.load(f)
+    node = json.load(f)
 
-if not os.path.exists(gltf_path):
-    raise FileNotFoundError(f"File not found: {gltf_path}")
+gltf_urls = create_hierarchy(node)
+
 
 # Clear the existing scene (optional)
 bpy.ops.wm.read_factory_settings(use_empty=True)
 
 # Import the GLTF file
 print("STATUS: Loading node data")
-print(f"STATUS: Starting GLTF import from {gltf_path}")
-bpy.ops.import_scene.gltf(filepath=gltf_path)
+create_hierarchy(node)
 
 print("STATUS: GLTF import completed")
 
 if save_blend:
-    output_blend = os.path.splitext(gltf_path)[0] + "_imported.blend"
+    output_blend = os.path.splitext(json_path)[0] + "_imported.blend"
     print(f"STATUS: Saving blend file to {output_blend}")
     bpy.ops.wm.save_as_mainfile(filepath=output_blend)
     print(f"STATUS: GLTF imported and saved to {output_blend}")
