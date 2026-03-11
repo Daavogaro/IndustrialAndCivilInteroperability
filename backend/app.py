@@ -1,0 +1,41 @@
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+from api.routes import upload_STEP
+from api.routes import mayo_and_gltf
+from api.routes import sparql_query
+from api.routes import add_child
+from api.routes import update_deletion
+from api.routes import update_simplification
+from api.routes import add_fundamental_node
+from api.routes import add_ifc_prop
+from api.routes import ifc_conversion
+from api.services.importing_STEP import mayo
+from api.services.ifc_conversion import blender
+
+# FASTAPi è un framework web per costruire API in Python. In questo file, stiamo creando un'app FastAPI.
+app = FastAPI()
+# Aggiungere permessi in modo che non ci siano problemi di CORS (Cross-Origin Resource Sharing) quando il frontend React chiama le API del backend.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"], 
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+# Un router è un modo per organizzare le rotte in FastAPI. Vuol dire che ogni volta che verrà richiamato il router verrà aggiunto  il prefisso "/api" a tutte le rotte definite in api.router. In questo modo, tutte le rotte definite in api.router saranno accessibili tramite URL che iniziano con "/api".
+# Ogni router che usiamo nel backend deve essere incluso in questo file main.py, altrimenti non sarà accessibile. Quindi, se definiamo una nuova rotta in un nuovo file, dobbiamo ricordarci di importare quel file e includere il router qui.
+app.include_router(upload_STEP.router, prefix="/api")
+app.include_router(mayo_and_gltf.router, prefix="/api")
+app.include_router(sparql_query.router, prefix="/api")
+app.include_router(add_child.router, prefix="/api")
+app.include_router(update_deletion.router, prefix="/api")
+app.include_router(update_simplification.router, prefix="/api")
+app.include_router(add_fundamental_node.router, prefix="/api")
+app.include_router(add_ifc_prop.router, prefix="/api")
+app.include_router(ifc_conversion.router, prefix="/api")
+app.include_router(mayo.router, prefix="/api")
+app.include_router(blender.router, prefix="/api")
+
+# app.mount("/files", StaticFiles(directory="tmp"), name="files")
+

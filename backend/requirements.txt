@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+requests
+SPARQLWrapper
+python-multipart
+pygltflib
+numpy
+httpx
+ifcopenshell
