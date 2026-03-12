@@ -5,10 +5,11 @@ from pydantic import BaseModel
 import requests
 from rdflib import Graph, Namespace, Literal, RDF, URIRef
 
-from ..models.models import VIRTUOSO_URL,GRAPH_NAMESPACE, X3D_NAMESPACE
+from ..models.models import VIRTUOSO_URL,GRAPH_NAMESPACE, X3D_NAMESPACE, XSD_NAMESPACE
 
 from ..services.db_requests.name_and_number import name_and_number_query
-from ..services.importing_STEP.RDF_conversion import NameAndNumber
+from ..services.importing_STEP.RDF_conversion import ExistingProps, NameAndNumber
+from ..services.db_requests.existing_nodes import existing_nodes
 
 router = APIRouter()
 
@@ -21,24 +22,35 @@ class URIs(BaseModel):
 async def add_child(request: URIs):
     g = Graph()
     g.bind("ex", GRAPH_NAMESPACE)
-    nameAndNumberList = await name_and_number_query()
+    exist_nodes=await existing_nodes()
     number = 1
     
-    def get_by_name(items: list[NameAndNumber], target: str) -> NameAndNumber | None:
+    def get_by_name(items: list[ExistingProps], target: str) -> ExistingProps | None:
         return next((item for item in items if item["name"] == target), None)
-    name_and_number = get_by_name(nameAndNumberList, request.child)
-    if name_and_number is not None:
-        number = name_and_number["number"] + 1
-        name_and_number["number"] = number
+    existing_props = get_by_name(exist_nodes, request.child)
+    if existing_props is not None:
+        number = existing_props["number"] + 1
+        existing_props["number"] = number
     else:
-        nameAndNumberList.append({"name": request.child, "number": 1})
+        exist_nodes.append({"name": request.child, "number": 1})
     child_uri = GRAPH_NAMESPACE[request.child+"."+str(number)]
     metadata_uri = GRAPH_NAMESPACE[request.child]
     g.add((child_uri, RDF.type, X3D_NAMESPACE.CADAssembly))
-    g.add((child_uri, X3D_NAMESPACE.visible, Literal(False,datatype=X3D_NAMESPACE.boolean)))
     g.add((child_uri, X3D_NAMESPACE.name, Literal(str(number))))
     g.add((metadata_uri, RDF.type, X3D_NAMESPACE.MetadataString))
     g.add((child_uri, X3D_NAMESPACE.hasMetadata, metadata_uri))
+    if existing_props:
+        if existing_props["visible"] is not None:
+            g.add((child_uri, X3D_NAMESPACE.visible, Literal(existing_props["visible"],datatype=XSD_NAMESPACE.boolean)))
+        else:
+            g.add((child_uri, X3D_NAMESPACE.visible, Literal(False,datatype=XSD_NAMESPACE.boolean)))
+        if existing_props["display"] is not None:
+            g.add((child_uri, X3D_NAMESPACE.bboxDisplay, Literal(existing_props["display"],datatype=XSD_NAMESPACE.boolean)))
+        if existing_props["attrib"]:
+            g.add((child_uri, X3D_NAMESPACE.attrib, Literal(existing_props["attrib"],datatype=XSD_NAMESPACE.string)))
+    else:
+        g.add((child_uri, X3D_NAMESPACE.visible, Literal(False,datatype=XSD_NAMESPACE.boolean)))
+    
     if request.parent:
         parent_uri = URIRef(request.parent)
         g.add((parent_uri, X3D_NAMESPACE.children, child_uri))

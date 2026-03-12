@@ -10,6 +10,7 @@ import json
 import httpx
 from ..services.importing_STEP.RDF_conversion import GeometryNode
 from ..services.db_requests.name_and_number import name_and_number_query
+from ..services.db_requests.existing_nodes import existing_nodes
 
 # I servizi Windows hanno bisogno di path reali all'interno del PC, non del container.
 
@@ -85,7 +86,7 @@ async def websocket_convert(websocket: WebSocket):
             await websocket.send_json({"status": "wip", "text": "Converting hierarchy to RDF"})
             data = await run_in_threadpool(read_json_file, hierarchy_file) # Leggiamo il file JSON della gerarchia in un thread separato. La funzione read_json_file è una funzione sincrona che legge un file JSON e restituisce un dizionario. Anche questa operazione potrebbe richiedere del tempo, quindi la eseguiamo in un thread separato. 
             hierarchy_nodes = await run_in_threadpool(validate_geometry_nodes, data)
-            nameAndNumberList = await name_and_number_query()
+            exist_nodes=await existing_nodes()
             # Viene lanciata una query SPARQL per ottenere la lista dei nomi e dei numeri già presenti nel database, in modo da poter assegnare un numero univoco a ogni nodo della gerarchia che stiamo importando.
             input_file_url = GLTF_FOLDER + "/" + filename.replace(".stp", ".gltf")
             input_filename = filename.replace(".stp", ".gltf")
@@ -94,7 +95,7 @@ async def websocket_convert(websocket: WebSocket):
                 convert_hierarchy_in_rdf,
                 hierarchy_nodes,
                 parent_uri,
-                nameAndNumberList,
+                exist_nodes,
                 "https://elettra2.0#",
                 input_filename,
                 input_file_url

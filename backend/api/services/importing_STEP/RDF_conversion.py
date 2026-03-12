@@ -7,6 +7,14 @@ class NameAndNumber(TypedDict):
     name: str
     number: int
 
+class ExistingProps(TypedDict):
+    name: str
+    number:int
+    visible: bool | None
+    display:bool|None
+    attrib: str |None
+
+
 class Dimensions(TypedDict):
     x: float
     y: float
@@ -20,7 +28,7 @@ class GeometryNode(BaseModel):
 def convert_hierarchy_in_rdf(
     hierarchy: list[GeometryNode],
     parent_uri: str|None,
-    nameAndNumberList: list[NameAndNumber],
+    existing_nodes: list[ExistingProps],
     graphName: str,
     fileName: str,
     fileURL: str
@@ -46,35 +54,54 @@ def convert_hierarchy_in_rdf(
     g.add((urlObjectNode_uri, RDF.type, X3D_NAMESPACE.X3DUrlObject))
     g.add((urlObjectNode_uri, URIRef(str(X3D_NAMESPACE) + "url"), Literal(fileURL, datatype=XSD_NAMESPACE.string)))
 
-
-    def add_node(node: GeometryNode, nameAndNumberList: list[NameAndNumber],parent_uri=None):
+    def add_node(node: GeometryNode, existing_nodes: list[ExistingProps], parent_uri=None):
         original_name = node.name
         parts = original_name.split(".")
         label= ".".join(parts[:-1])
-        number = parts[-1] 
+        number = int(parts[-1])
 
         node_uri = GRAPH_NAMESPACE[original_name]
         metadata_uri = GRAPH_NAMESPACE[label]
+
         g.add((metadata_uri, RDF.type, X3D_NAMESPACE.MetadataString))
         g.add((node_uri, X3D_NAMESPACE.hasMetadata, metadata_uri))
-        g.add((node_uri, X3D_NAMESPACE.name, Literal(str(number), datatype=XSD_NAMESPACE.string)))
-        # TODO Da capire perchè cazzo non funziona
+        g.add((node_uri, X3D_NAMESPACE.name, Literal(number, datatype=XSD_NAMESPACE.integer)))
         g.add((node_uri, X3D_NAMESPACE.hasParentX3D, urlObjectNode_uri))
-        # Da capire se questa dopo serve veramente
-        # g.add((metadata_uri, X3D_NAMESPACE.reference, Literal(original_name, datatype=XSD.string)))
 
+        def get_by_names(items:list[ExistingProps], target: str):
+            return next((item for item in items if item["name"] == target), None)
+        existing_prop=get_by_names(existing_nodes,label)
+        
         # Type assignment
         if node.dimensions is None:
             g.add((node_uri, RDF.type, X3D_NAMESPACE.CADAssembly))
-            g.add((node_uri, X3D_NAMESPACE.visible, Literal(False,datatype=XSD_NAMESPACE.string)))
+            if existing_prop:
+                if existing_prop["visible"] is not None:
+                    g.add((node_uri, X3D_NAMESPACE.visible, Literal(existing_prop["visible"],datatype=XSD_NAMESPACE.boolean)))
+                else:
+                    g.add((node_uri, X3D_NAMESPACE.visible, Literal(False,datatype=XSD_NAMESPACE.boolean)))
+                if existing_prop["display"] is not None:
+                    g.add((node_uri, X3D_NAMESPACE.bboxDisplay, Literal(existing_prop["display"],datatype=XSD_NAMESPACE.boolean)))
+                if existing_prop["attrib"]:
+                    g.add((node_uri, X3D_NAMESPACE.attrib, Literal(existing_prop["attrib"],datatype=XSD_NAMESPACE.string)))
+            else:
+                g.add((node_uri, X3D_NAMESPACE.visible, Literal(False,datatype=XSD_NAMESPACE.boolean)))
+            
         else:
             g.add((node_uri, RDF.type, X3D_NAMESPACE.CADPart))
-
             bbox_value = f"{node.dimensions['x']} {node.dimensions['y']} {node.dimensions['z']}"
             g.add((node_uri, X3D_NAMESPACE.bboxSize, Literal(bbox_value, datatype=XSD_NAMESPACE.string)))
             # TODO Adesso teniamo la soglia per nascondere i nodi per tutti gli oggetti, ma bisogna ricordarsi che quando un nodo si trasforma in un fundamental node bisogna eliminare questa proprietà
-            if node.dimensions['x'] <0.05 and node.dimensions['y'] <0.05 and node.dimensions['z'] <0.05:
-                g.add((node_uri, X3D_NAMESPACE.visible, Literal(False, datatype=XSD_NAMESPACE.string)))
+            if existing_prop:
+                if existing_prop["visible"] is not None:
+                    g.add((node_uri, X3D_NAMESPACE.visible, Literal(existing_prop["visible"],datatype=XSD_NAMESPACE.boolean)))
+                if existing_prop["display"] is not None:
+                    g.add((node_uri, X3D_NAMESPACE.bboxDisplay, Literal(existing_prop["display"],datatype=XSD_NAMESPACE.boolean)))
+                if existing_prop["attrib"]:
+                    g.add((node_uri, X3D_NAMESPACE.attrib, Literal(existing_prop["attrib"],datatype=XSD_NAMESPACE.string)))
+            else:
+                if node.dimensions['x'] <0.05 and node.dimensions['y'] <0.05 and node.dimensions['z'] <0.05:
+                    g.add((node_uri, X3D_NAMESPACE.visible, Literal(False, datatype=XSD_NAMESPACE.boolean)))
 
         # Parent-child relation
         if parent_uri is not None:
@@ -83,12 +110,12 @@ def convert_hierarchy_in_rdf(
 
         # Recurse
         for child in node.children:
-            add_node(child, nameAndNumberList, parent_uri=node_uri)
+            add_node(child, existing_nodes, parent_uri=node_uri)
 
     for root in hierarchy:
         if parent_uri is not None:
-            add_node(root, nameAndNumberList, parent_uri=URIRef(parent_uri))
+            add_node(root, existing_nodes, parent_uri=URIRef(parent_uri))
         else:
-            add_node(root, nameAndNumberList)
+            add_node(root, existing_nodes)
 
     return g.serialize(format="nt")

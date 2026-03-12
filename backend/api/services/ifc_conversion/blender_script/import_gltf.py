@@ -66,7 +66,10 @@ with open(json_path, encoding="utf-8") as f:
 
 
 # Clear the existing scene (optional)
-bpy.ops.wm.read_factory_settings(use_empty=True)
+# bpy.ops.wm.read_factory_settings(use_empty=True)
+bpy.ops.bim.create_project()
+bpy.ops.bim.new_project(preset='metric_m')
+
 
 # Import the GLTF file
 print("STATUS: Loading node data")
