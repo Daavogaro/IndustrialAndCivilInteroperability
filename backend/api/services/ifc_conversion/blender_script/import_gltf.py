@@ -62,6 +62,34 @@ def reparent_children(obj, new_parent):
             child.parent = new_parent
             child.matrix_world = world_matrix
 
+def reduce_mesh(obj):
+    if obj.type == 'MESH':
+        bpy.context.view_layer.objects.active = obj
+        obj.select_set(True)
+        print(obj.name)
+        for window in context.window_manager.windows:
+            screen = window.screen
+            for area in screen.areas:
+                if area.type == 'VIEW_3D':
+                    with context.temp_override(window=window, area=area):
+                        bpy.ops.object.editmode_toggle()
+                        bpy.ops.mesh.select_all(action='SELECT')
+                        bpy.ops.mesh.quads_convert_to_tris()
+                        bpy.ops.mesh.remove_doubles()
+                        bpy.ops.mesh.select_all(action='SELECT')
+                        bpy.ops.mesh.tris_convert_to_quads()
+                        bpy.ops.mesh.select_all(action='SELECT')
+                        bpy.ops.mesh.delete_loose()
+                        bpy.ops.mesh.select_all(action='SELECT')
+                        bpy.ops.mesh.face_make_planar()
+                        bpy.ops.mesh.select_all(action='SELECT')
+                        bpy.ops.mesh.dissolve_limited()   
+                        bpy.ops.mesh.dissolve_limited(angle_limit=0.261799)
+                        bpy.ops.mesh.dissolve_limited(angle_limit=0.04)
+                        bpy.ops.object.editmode_toggle()
+                        bpy.ops.object.select_all(action='DESELECT')
+                    break
+
 
 def clean_hierarchy(node, fundamental_parent=None):
     obj_name = node["id"].split("#")[1]
@@ -96,6 +124,10 @@ def clean_hierarchy(node, fundamental_parent=None):
         reparent_children(obj, fundamental_parent)
         create_bbox(obj, fundamental_parent)
         bpy.data.objects.remove(obj, do_unlink=True)
+    
+    if not to_delete and not to_simplify and obj.type == "MESH":
+        reduce_mesh(obj)
+        bpy.context.view_layer.objects.active = None
 
 def find_node_by_id(node, target_id):
     if node["id"].split("#")[1] == target_id:
@@ -105,6 +137,8 @@ def find_node_by_id(node, target_id):
         if result:
             return result
     return None
+
+
 
 def join_children(obj: bpy.types.Object, node: dict):
     mesh_children = []
