@@ -10,6 +10,7 @@ MAYO_SERVICE_URL = "http://localhost:8000/api/convert"
 BLENDER_SERVICE_URL = "http://localhost:8000/api/blender_run_scripts"
 
 
+
 STEP_FOLDER = r"C:\Users\Utente\Desktop\IndustrialAndCivilInteroperability\tmp\STEP"
 GLTF_FOLDER = r"C:\Users\Utente\Desktop\IndustrialAndCivilInteroperability\tmp\gLTF"
 JSON_FOLDER = r"C:\Users\Utente\Desktop\IndustrialAndCivilInteroperability\tmp\JSON"

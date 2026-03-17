@@ -113,10 +113,6 @@ def clean_hierarchy(node, fundamental_parent=None):
         create_bbox(obj, fundamental_parent)
         bpy.data.objects.remove(obj, do_unlink=True)
 
-# ------------------------------------------------------------
-# Load JSON and start process
-# ------------------------------------------------------------
-
 def find_node_by_id(node, target_id):
     if node["id"].split("#")[1] == target_id:
         return node
@@ -151,14 +147,14 @@ def join_children(obj: bpy.types.Object, node: dict):
         world_matrix = joined_obj.matrix_world.copy()
         children= obj.children
         sobstitute_parent = False
-        # if len(children) > 1:
-        #     for child in children:
-        #         if not child==joined_obj and not child.type == "MESH":
-        #             sobstitute_parent = False
-        #         if not child==joined_obj and child.type == "MESH":
-        #             sobstitute_parent = True
-        # if len(children) == 1:
-        #     sobstitute_parent = True
+        if len(children) > 1:
+            for child in children:
+                if not child==joined_obj and not child.type == "MESH":
+                    sobstitute_parent = False
+                if not child==joined_obj and child.type == "MESH":
+                    sobstitute_parent = True
+        if len(children) == 1:
+            sobstitute_parent = True
         if sobstitute_parent:
             # Sobstitute the father node with a mesh node that contains the joined meshes
             new_obj= bpy.data.objects.new(joined_obj.name,joined_obj.data.copy())
@@ -194,6 +190,6 @@ with open(json_path, encoding="utf-8") as f:
             clean_hierarchy(data, root_obj)
         else:
             clean_hierarchy(data)
-        # join_children(root_obj,data)
+        join_children(root_obj,data)
     else:
         print(f"Root object '{root_name}' not found in scene")

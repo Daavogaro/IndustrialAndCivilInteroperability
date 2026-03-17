@@ -45,12 +45,16 @@ export function DownloadIFCButton({
   };
 
   return (
-    <>
-      <span
-        className="generalButton material-icons-round "
-        onClick={() => handleConversion(node)}>
-        download
-      </span>
-    </>
+    <div
+      className="generalButton"
+      style={{
+        padding: 5,
+        border: "1px solid var(--grey-2)",
+        borderRadius: 10,
+        cursor: "pointer",
+      }}
+      onClick={() => handleConversion(node)}>
+      <img src="./blender-logo.png" style={{ height: 30 }} />
+    </div>
   );
 }

@@ -1,23 +1,24 @@
 services:
-  frontend:
-    build:
-      context: ./frontend
-      target: development
-    ports:
-      - "3000:80"
-    depends_on:
-      - backend
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     target: development
+  #   ports:
+  #     - "3000:80"
+  #   depends_on:
+  #     - backend
 
-  backend:
-    build: ./backend
-    ports:
-      - "8000:8000"
-    depends_on:
-      - virtuoso
-    environment:
-      - DB_HOST=virtuoso
-      - DB_USER=dba
-      - DB_PASSWORD=ddd
+  # backend:
+  #   build: ./backend
+  #   ports:
+  #     - "8000:8000"
+  #   depends_on:
+  #     - virtuoso
+  #   environment:
+  #     - DB_HOST=virtuoso
+  #     - DB_USER=dba
+  #     - DB_PASSWORD=ddd
+  #     - DB_PATH=
 
   virtuoso:
     image: tenforce/virtuoso
@@ -27,8 +28,11 @@ services:
     environment:
       DBA_PASSWORD: ddd
       SPARQL_UPDATE: 1
+        - DB_HOST=virtuoso
+        - DB_USER=dba
+        - DB_PASSWORD=ddd
     volumes:
-      - virtuoso-data:/database
+      - virtuoso-data:/data
 
 volumes:
   virtuoso-data:
