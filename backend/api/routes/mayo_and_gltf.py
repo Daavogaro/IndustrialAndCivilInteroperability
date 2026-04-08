@@ -5,6 +5,7 @@ from ..models.models import JSON_FOLDER, MAYO_SERVICE_URL,GLTF_FOLDER,STEP_FOLDE
 from ..services.importing_STEP.gltf import return_gltf_hierarchy
 from ..services.db_requests.import_in_DB import import_to_db
 from ..services.importing_STEP.RDF_conversion import NameAndNumber, convert_hierarchy_in_rdf
+from ..services.importing_STEP.mayo import convert_with_mayo
 import os
 import json
 import httpx
@@ -41,7 +42,12 @@ def split_batches(text: str, batch_size: int):
 def validate_geometry_nodes(data):
     GeometryNode.model_rebuild()
     return [GeometryNode.model_validate(obj) for obj in data[0]["nodes"]]
-
+def safe_convert_with_mayo(input_file, output_file):
+    try:
+        convert_with_mayo(input_file, output_file)
+        return "ok"
+    except Exception as e:
+        return str(e)
 
 # Un websocket è una connessione bidirezionale tra client e server che permette di inviare dati in tempo reale. In questo caso, lo usiamo per comunicare con il frontend React durante tutto il processo di conversione e parsing, in modo da poter aggiornare l'utente sullo stato dell'operazione.
 @router.websocket("/ws/convert")
@@ -64,8 +70,7 @@ async def websocket_convert(websocket: WebSocket):
         async with httpx.AsyncClient() as client: # Dato che la chiamata al servizio Windows potrebbe richiedere del tempo, usiamo httpx.AsyncClient per fare una richiesta HTTP asincrona. In questo modo, il server FastAPI non si bloccherà in attesa della risposta e potrà continuare a gestire altre richieste o websocket.
             # Chiamata a Mayo
             print(f"Calling Mayo service for file: {input_file}")
-            res = await client.post(MAYO_SERVICE_URL,json={"input_file": input_file, "output_file": output_file},timeout=None)
-            res.raise_for_status() # Se la risposta ha un codice di stato diverso da 200, viene sollevata un'eccezione che verrà catturata dal blocco except.
+            await run_in_threadpool(convert_with_mayo, input_file, output_file)
             await websocket.send_json({"status": "success", "text": "Conversion Done with Mayo"}) # Se la conversione è andata a buon fine, inviamo un messaggio al client per indicare che la conversione è stata completata con successo.
             
             # Parsing gerarchia

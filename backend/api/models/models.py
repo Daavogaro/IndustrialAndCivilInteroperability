@@ -1,20 +1,23 @@
 import os
 
 from rdflib import Namespace
+from pathlib import Path
 
 
 MAYO_EXE = r"C:\Program Files\Fougue\Mayo\mayo-conv.exe"
 BLENDER_EXE = r"C:\Program Files\Blender Foundation\Blender 5.0\blender.exe"
-INI_FILE = r"C:\Users\Utente\Desktop\IndustrialAndCivilInteroperability\backend\api\services\importing_STEP\mayo-gui.ini"
+
 MAYO_SERVICE_URL = "http://localhost:8000/api/convert"
 BLENDER_SERVICE_URL = "http://localhost:8000/api/blender_run_scripts"
 
+BASE_DIR = Path(__file__).resolve().parents[3]
 
+INI_FILE = BASE_DIR / "backend" / "api" / "services" / "importing_STEP" / "mayo-gui.ini"
 
-STEP_FOLDER = r"C:\Users\Utente\Desktop\IndustrialAndCivilInteroperability\tmp\STEP"
-GLTF_FOLDER = r"C:\Users\Utente\Desktop\IndustrialAndCivilInteroperability\tmp\gLTF"
-JSON_FOLDER = r"C:\Users\Utente\Desktop\IndustrialAndCivilInteroperability\tmp\JSON"
-RDF_FOLDER = r"C:\Users\Utente\Desktop\IndustrialAndCivilInteroperability\tmp\RDF"
+STEP_FOLDER = str(BASE_DIR / "tmp" / "STEP")
+GLTF_FOLDER = str(BASE_DIR / "tmp" / "gLTF")
+JSON_FOLDER = str(BASE_DIR / "tmp" / "JSON")
+RDF_FOLDER = str(BASE_DIR / "tmp" / "RDF")
 
 
 VIRTUOSO_HOST = os.getenv("DB_HOST", "localhost")    

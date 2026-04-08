@@ -7,3 +7,4 @@ pygltflib
 numpy
 httpx
 ifcopenshell
+rdflib
