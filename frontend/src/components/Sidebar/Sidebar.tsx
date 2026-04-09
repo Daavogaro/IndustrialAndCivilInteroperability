@@ -24,6 +24,12 @@ export function Sidebar({ message }: SidebarProps) {
               IFC Hierarchy
             </li>
           </Router.Link>
+          <Router.Link to="/STEPViewer">
+            <li>
+              <span className="material-icons-round">view_in_ar</span>
+              STEP Viewer
+            </li>
+          </Router.Link>
 
           <MessagePanel message={message} />
         </ul>

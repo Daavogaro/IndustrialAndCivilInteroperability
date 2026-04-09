@@ -16,6 +16,7 @@ INI_FILE = BASE_DIR / "backend" / "api" / "services" / "importing_STEP" / "mayo-
 
 STEP_FOLDER = str(BASE_DIR / "tmp" / "STEP")
 GLTF_FOLDER = str(BASE_DIR / "tmp" / "gLTF")
+GLB_FOLDER = str(BASE_DIR / "tmp" / "GLB")
 JSON_FOLDER = str(BASE_DIR / "tmp" / "JSON")
 RDF_FOLDER = str(BASE_DIR / "tmp" / "RDF")
 

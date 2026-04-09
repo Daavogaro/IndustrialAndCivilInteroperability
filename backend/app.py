@@ -9,6 +9,7 @@ from api.routes import update_deletion
 from api.routes import update_simplification
 from api.routes import add_fundamental_node
 from api.routes import add_ifc_prop
+from api.routes import gltf_upload
 from api.routes import ifc_conversion
 from api.services.importing_STEP import mayo
 from api.services.ifc_conversion import blender
@@ -36,6 +37,8 @@ app.include_router(add_ifc_prop.router, prefix="/api")
 app.include_router(ifc_conversion.router, prefix="/api")
 app.include_router(mayo.router, prefix="/api")
 app.include_router(blender.router, prefix="/api")
+app.include_router(gltf_upload.router, prefix="/api")
 
 # app.mount("/files", StaticFiles(directory="tmp"), name="files")
+app.mount("/api/glb", StaticFiles(directory="tmp/GLB"), name="glb")
 

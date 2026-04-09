@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { StatusString } from "./components/Sidebar/MessagePanel";
 import { IFCHierarchyPage } from "./pages/IFCPage/IFCHierarchyPage";
 import { TreeNode } from "./pages/STEPPage/Hierarchy/buildTree";
+import { STEPViewerPage } from "./pages/STEPViewerPage/STEPViewerPage";
 
 function App() {
   const [message, setMessage] = useState<{
@@ -51,6 +52,10 @@ function App() {
               setNodeUri={setNodeUri}
             />
           }
+        />
+        <Route
+          path="/STEPViewer"
+          element={<STEPViewerPage />}
         />
       </Routes>
     </div>
