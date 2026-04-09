@@ -45,7 +45,7 @@ def create_bbox(obj, fundamental_parent=None):
     for slot in obj.material_slots:
         if slot.material:
             bbox.data.materials.append(slot.material)
-
+    bpy.data.objects.remove(obj, do_unlink=True)
     print(f"Bounding box created for: {original_object_name}")
 
     return bbox
@@ -61,6 +61,12 @@ def reparent_children(obj, new_parent):
             world_matrix = child.matrix_world.copy()
             child.parent = new_parent
             child.matrix_world = world_matrix
+
+def reparent(obj, new_parent):
+    if new_parent:
+        world_matrix = obj.matrix_world.copy()
+        obj.parent = new_parent
+        obj.matrix_world = world_matrix
 
 def reduce_mesh(obj):
     if obj.type == 'MESH':
@@ -91,7 +97,8 @@ def reduce_mesh(obj):
                     break
 
 
-def clean_hierarchy(node, fundamental_parent=None):
+
+def clean_hierarchy(node, current_fundamental=None):
     obj_name = node["id"].split("#")[1]
     obj = bpy.data.objects.get(obj_name)
 
@@ -102,32 +109,41 @@ def clean_hierarchy(node, fundamental_parent=None):
     is_fundamental = node.get("isFundamental", False)
     to_delete = node.get("toBeDeleted", False)
     to_simplify = node.get("toBeSimplified", False)
+    children = node.get("children", [])
 
-    # update fundamental parent
-    if is_fundamental and node.get("children",False):
-        fundamental_parent = obj
+    # ----------------------------
+    # CASE 1: FUNDAMENTAL NODE
+    # ----------------------------
+    if is_fundamental:
+        if current_fundamental and obj != current_fundamental:
+            reparent(obj, current_fundamental)
 
-    # process children first
-    for child in node.get("children", []):
-        clean_hierarchy(child, fundamental_parent)
+        new_fundamental = obj
 
-    # delete takes priority
-    if to_delete:
-        print(f"Deleting object: {obj.name}")
-        reparent_children(obj, fundamental_parent)
-        bpy.data.objects.remove(obj, do_unlink=True)
-        return
+        for child in children:
+            clean_hierarchy(child, new_fundamental)
 
-    # simplify
-    if to_simplify and obj.type == "MESH":
-        print(f"Simplifying object: {obj.name}")
-        reparent_children(obj, fundamental_parent)
-        create_bbox(obj, fundamental_parent)
-        bpy.data.objects.remove(obj, do_unlink=True)
-    
-    if not to_delete and not to_simplify and obj.type == "MESH":
-        reduce_mesh(obj)
-        bpy.context.view_layer.objects.active = None
+    # ----------------------------
+    # CASE 2: NON-FUNDAMENTAL NODE
+    # ----------------------------
+    else:
+        # ---- DELETE ----
+        if to_delete and obj.type == "MESH":
+            bpy.data.objects.remove(obj, do_unlink=True)
+            return  # stop recursion entirely
+
+        # ---- SIMPLIFY ----
+        if to_simplify and obj.type == "MESH":
+            new_obj = create_bbox(obj)
+            obj = new_obj  # continue processing with the new bbox object
+
+        # ---- REPARENT ----
+        if current_fundamental and obj != current_fundamental:
+            reparent(obj, current_fundamental)
+
+        # ---- RECURSE ----
+        for child in children:
+            clean_hierarchy(child, current_fundamental)
 
 def find_node_by_id(node, target_id):
     if node["id"].split("#")[1] == target_id:
@@ -151,7 +167,10 @@ def join_children(obj: bpy.types.Object, node: dict):
             if child_node and not child_node.get("isFundamental", False):
                 mesh_children.append(child)
         else:
-            assembly_children.append(child)
+            if len(child.children)>0:
+                assembly_children.append(child)
+            else:
+                bpy.data.objects.remove(child, do_unlink=True)
     if len(mesh_children) > 0:
         for child in mesh_children:
             child.select_set(True)
@@ -199,11 +218,16 @@ def join_children(obj: bpy.types.Object, node: dict):
                 old_world = child.matrix_world.copy()
                 child.parent = new_obj
                 child.matrix_world = old_world
+        else:
+            if len(children) > 1:
+                joined_obj.name = f"{obj.name}_Part"
+                joined_obj.data.name = f"{obj.name}_Part"
     if len(assembly_children) > 0:
         for child in assembly_children:
             child_node = find_node_by_id(node, child.name)
             if child_node:
                 join_children(child, child_node)
+
 
 def select_hierarchy(obj):
     obj.select_set(True)
@@ -228,8 +252,6 @@ def create_hierarchy(node: dict, parent=None):
             node_obj.matrix_world = world_matrix
             if node.get("isFundamental", False):
                 clean_hierarchy(node, node_obj)
-            else:
-                clean_hierarchy(node)
             join_children(node_obj, node)
         else:
             if node_obj.name != node.get("id").split("#")[1]:
@@ -245,9 +267,11 @@ def create_hierarchy(node: dict, parent=None):
                         bpy.data.objects.remove(unselected, do_unlink=True)
                     if node.get("isFundamental", False):
                         clean_hierarchy(node, obj)
-                    else:
-                        clean_hierarchy(node)
                     join_children(obj, node)
+            else:
+                if node.get("isFundamental", False):
+                    clean_hierarchy(node, node_obj)
+                join_children(node_obj, node)
 
     else:
         bpy.ops.object.empty_add(type='PLAIN_AXES', align='WORLD', location=(0, 0, 0), scale=(1, 1, 1))
