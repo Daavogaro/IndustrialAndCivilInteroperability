@@ -161,17 +161,21 @@ export function IFCNodeDetails({
       });
 
     // TODO: aggiungere logiche per editing esistenti e non solo per aggiungere nuovi nodi
-    const res = await fetch("/api/add-ifc-properties", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    
+    const body = ({
         graph: graphName,
         metadata: treeNodeData?.metadata,
         ifc_class: ifcClass,
         predefined_type: predefinedType,
         userdefined_type: userdefinedType,
         property_sets: selectedPropertySets,
-      }),
+      })
+      console.log(body)
+    
+    const res = await fetch("/api/add-ifc-properties", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
     });
 
     const data = await res.json();
