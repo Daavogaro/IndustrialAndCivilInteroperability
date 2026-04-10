@@ -3,6 +3,7 @@ from pydantic import BaseModel
 import requests
 from rdflib import  Graph, Namespace, Literal, RDF, URIRef
 import ifcopenshell
+from typing import Dict, Any
 from ..services.db_requests.import_in_DB import import_to_db
 from ..models.models import VIRTUOSO_URL,GRAPH_NAMESPACE, IFC_NAMESPACE, XSD_NAMESPACE
 
@@ -14,6 +15,7 @@ class IFCProps(BaseModel):
     ifc_class: str
     predefined_type: str
     userdefined_type: str|None
+    property_sets: Dict[str, Dict[str, Any]] | None = None
 
 
 @router.post("/add-ifc-properties")
@@ -23,6 +25,10 @@ async def add_ifc_properties(request: IFCProps):
     ifc_class = request.ifc_class
     predefined_type = request.predefined_type
     userdefined_type = request.userdefined_type
+    property_sets = request.property_sets or {}
+
+    def sanitize_name(name: str) -> str:
+        return "".join(ch if ch.isalnum() else "_" for ch in name)
 
     metadata_select_query = f"""
     PREFIX x3d: <https://www.web3d.org/specifications/X3dOntology4.0#>
@@ -66,6 +72,36 @@ async def add_ifc_properties(request: IFCProps):
         g.add((subject, IFC_NAMESPACE["predefinedType_" + ifc_class], predefined_type_uri))
         if object_type_label_uri:
             g.add((subject, IFC_NAMESPACE["objectType_IfcObject"], object_type_label_uri))
+
+        for pset_name, properties in property_sets.items():
+            pset_suffix = sanitize_name(pset_name)
+            pset_uri = GRAPH_NAMESPACE[f"PSet_{subject.split('#')[-1]}_{pset_suffix}"]
+            g.add((pset_uri, RDF.type, IFC_NAMESPACE["IfcPropertySet"]))
+            g.add((subject, IFC_NAMESPACE["hasPropertySets_IfcObject"], pset_uri))
+
+            for prop_name, prop_value in properties.items():
+                prop_suffix = sanitize_name(prop_name)
+                prop_uri = GRAPH_NAMESPACE[
+                    f"Property_{subject.split('#')[-1]}_{pset_suffix}_{prop_suffix}"
+                ]
+                g.add((prop_uri, RDF.type, IFC_NAMESPACE["IfcPropertySingleValue"]))
+                g.add((pset_uri, IFC_NAMESPACE["hasProperties_IfcPropertySet"], prop_uri))
+
+                if prop_value is None:
+                    continue
+
+                value_uri = GRAPH_NAMESPACE[
+                    f"PropertyValue_{subject.split('#')[-1]}_{pset_suffix}_{prop_suffix}"
+                ]
+                g.add((value_uri, RDF.type, IFC_NAMESPACE["IfcLabel"]))
+                g.add(
+                    (
+                        value_uri,
+                        RDF.value,
+                        Literal(str(prop_value), datatype=XSD_NAMESPACE.string),
+                    )
+                )
+                g.add((prop_uri, IFC_NAMESPACE["nominalValue_IfcPropertySingleValue"], value_uri))
     serialized_graph=g.serialize(format="nt")    
     await import_to_db(None, graph,serialized_graph)
             
