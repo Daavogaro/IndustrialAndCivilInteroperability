@@ -14,7 +14,7 @@ export function Sidebar({ message }: SidebarProps) {
         <ul id="nav-buttons">
           <Router.Link to="/">
             <li>
-              <span className="material-icons-round">view_in_ar</span>
+              <img src="./STEP-logo.png" alt="" style={{ height: 20 }} />
               STEP Hierarchy
             </li>
           </Router.Link>
@@ -24,10 +24,10 @@ export function Sidebar({ message }: SidebarProps) {
               IFC Hierarchy
             </li>
           </Router.Link>
-          <Router.Link to="/STEPViewer">
+          <Router.Link to="/IFCViewer">
             <li>
-              <img src="./STEP-logo.png" alt="" style={{ height: 20 }} />
-              STEP Viewer
+              <img src="./IFC-logo.png" alt="" style={{ height: 20 }} />
+              IFC Viewer
             </li>
           </Router.Link>
 

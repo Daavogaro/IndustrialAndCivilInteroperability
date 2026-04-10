@@ -27,4 +27,4 @@ VIRTUOSO_URL = f"http://{VIRTUOSO_HOST}:8890/sparql"
 GRAPH_NAMESPACE = Namespace("https://elettra2.0#")
 X3D_NAMESPACE = Namespace("https://www.web3d.org/specifications/X3dOntology4.0#")
 XSD_NAMESPACE = Namespace("http://www.w3.org/2001/XMLSchema#")
-IFC_NAMESPACE = Namespace("https://standards.buildingsmart.org/IFC/DEV/IFC4/ADD2_TC1/OWL#")
+IFC_NAMESPACE = Namespace("https://w3id.org/ifc/IFC4X3_ADD2#")

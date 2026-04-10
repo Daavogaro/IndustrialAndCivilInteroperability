@@ -17,6 +17,7 @@ def generate_temp_file(folder: str, node: dict):
         return tmp_path
 
 IMPORT_GLTF_SCRIPT = r"backend\api\services\ifc_conversion\blender_script\import_gltf.py"
+
 GLTF_PATH = r"tmp\gLTF\PSI_SLS2_Girder_Superbend.gltf"
 router = APIRouter()
 # Un websocket è una connessione bidirezionale tra client e server che permette di inviare dati in tempo reale. In questo caso, lo usiamo per comunicare con il frontend React durante tutto il processo di conversione e parsing, in modo da poter aggiornare l'utente sullo stato dell'operazione.

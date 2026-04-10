@@ -139,6 +139,7 @@ def clean_hierarchy(node, current_fundamental=None):
 
         # ---- REPARENT ----
         if current_fundamental and obj != current_fundamental:
+            reduce_mesh(obj)
             reparent(obj, current_fundamental)
 
         # ---- RECURSE ----

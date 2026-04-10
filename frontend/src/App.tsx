@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { StatusString } from "./components/Sidebar/MessagePanel";
 import { IFCHierarchyPage } from "./pages/IFCPage/IFCHierarchyPage";
 import { TreeNode } from "./pages/STEPPage/Hierarchy/buildTree";
-import { STEPViewerPage } from "./pages/STEPViewerPage/STEPViewerPage";
+import { IFCViewerPage } from "./pages/IFCViewerPage/IFCViewerPage";
 
 function App() {
   const [message, setMessage] = useState<{
@@ -55,8 +55,8 @@ function App() {
             }
           />
           <Route
-            path="/STEPViewer"
-            element={<STEPViewerPage />}
+            path="/IFCViewer"
+            element={<IFCViewerPage />}
           />
         </Routes>
       </main>

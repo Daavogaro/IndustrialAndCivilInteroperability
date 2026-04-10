@@ -1,12 +1,12 @@
 import { Topbar } from "../../components/Topbar";
 import { GLTFViewer } from "../STEPPage/NodeDetails/gLTFViewer/gLTFViewer";
 
-type STEPViewerPageProps = {};
+type IFCViewerPageProps = {};
 
-export function STEPViewerPage({}: STEPViewerPageProps) {
+export function IFCViewerPage({}: IFCViewerPageProps) {
   return (
     <div>
-      <Topbar title="STEP Viewer" />
+      <Topbar title="IFC Viewer" />
     </div>
   );
 }

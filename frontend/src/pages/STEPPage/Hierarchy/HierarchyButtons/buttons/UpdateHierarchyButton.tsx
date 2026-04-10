@@ -58,7 +58,7 @@ export async function refreshStepHierarchy(
 
   const ifcQuery = `
     PREFIX x3d:  <https://www.web3d.org/specifications/X3dOntology4.0#>
-    PREFIX ifc: <https://standards.buildingsmart.org/IFC/DEV/IFC4/ADD2_TC1/OWL#>
+    PREFIX ifc: <https://w3id.org/ifc/IFC4X3_ADD2#>
     PREFIX express: <https://w3id.org/express#>
     SELECT ?node ?ifcClass ?gidValue ?predefinedType ?userdefinedType
     FROM <${graphName}>
@@ -73,8 +73,8 @@ export async function refreshStepHierarchy(
       ?node ifc:objectType_IfcObject ?label .
       ?label rdf:value ?userdefinedType .}
 
-      FILTER(STRSTARTS(STR(?ifcClass), "https://standards.buildingsmart.org/IFC/DEV/IFC4/ADD2_TC1/OWL#"))
-      FILTER(STRSTARTS(STR(?p), "https://standards.buildingsmart.org/IFC/DEV/IFC4/ADD2_TC1/OWL#predefinedType_"))
+      FILTER(STRSTARTS(STR(?ifcClass), "https://w3id.org/ifc/IFC4X3_ADD2#"))
+      FILTER(STRSTARTS(STR(?p), "https://w3id.org/ifc/IFC4X3_ADD2#predefinedType_"))
 
 
 
