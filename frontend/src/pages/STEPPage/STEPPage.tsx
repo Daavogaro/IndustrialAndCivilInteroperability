@@ -7,6 +7,8 @@ import { UploadSTEPModal } from "./UploadSTEPModal";
 import { StatusString } from "../../components/Sidebar/MessagePanel";
 import { NodeDetails } from "./NodeDetails/NodeDetails";
 import { GLTFViewer } from "./NodeDetails/gLTFViewer/gLTFViewer";
+import { useEffect, useState } from "react";
+import { refreshStepHierarchy } from "./Hierarchy/HierarchyButtons/buttons/UpdateHierarchyButton";
 
 type STEPPageProps = {
   setTree: (tree: TreeNode[]) => void;
@@ -24,6 +26,17 @@ export function STEPPage({
   nodeUri,
 }: STEPPageProps) {
   const graphName = "http://localhost:8890/Elettra2/";
+  const [hoveredUri, setHoveredUri] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!nodeUri) {
+      setHoveredUri(null);
+    }
+  }, [nodeUri]);
+
+  useEffect(() => {
+    refreshStepHierarchy(setTree, setMessage);
+  }, [setTree, setMessage]);
 
   const handleSelectNode = async (uri: string) => {
     setNodeUri(uri);
@@ -94,8 +107,10 @@ export function STEPPage({
               <NodeDetails
                 uri={nodeUri}
                 tree={tree}
+                setTree={setTree}
                 setNodeUri={setNodeUri}
                 setMessage={setMessage}
+                setHoveredUri={setHoveredUri}
               />
             ) : (
               <p>Select a node to see details.</p>
@@ -106,7 +121,7 @@ export function STEPPage({
               borderRadius: 5,
               backgroundColor: "var(--background-100)",
               padding: "8px",}}>
-            <GLTFViewer uri={nodeUri}/>
+            <GLTFViewer uri={nodeUri} hoverUri={hoveredUri} />
           </div>
         </div>
       </div>

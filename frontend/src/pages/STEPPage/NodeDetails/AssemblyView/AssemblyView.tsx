@@ -5,6 +5,7 @@ type AssemblyViewProps = {
   onSelectNode: (uri: string) => void;
   onToggleDelete: (metadata: string, value: boolean) => void;
   onToggleSimplify: (metadata: string, value: boolean) => void;
+  onRowHover: (uri: string | null) => void;
 };
 
 export function AssemblyView({
@@ -12,6 +13,7 @@ export function AssemblyView({
   onSelectNode,
   onToggleDelete,
   onToggleSimplify,
+  onRowHover,
 }: AssemblyViewProps) {
   if (!childrenNodes.length) {
     return (
@@ -63,7 +65,10 @@ export function AssemblyView({
           const metadataLabel = child.metadata.split("#")[1];
 
           return (
-            <tr key={child.id}>
+            <tr
+              key={child.id}
+              onMouseEnter={() => onRowHover(child.id)}
+              onMouseLeave={() => onRowHover(null)}>
               <td>{cadTypeLabel}</td>
 
               <td onClick={() => onSelectNode(child.id)}>

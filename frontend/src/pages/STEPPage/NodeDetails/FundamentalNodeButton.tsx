@@ -3,11 +3,13 @@ import { StatusString } from "../../../components/Sidebar/MessagePanel";
 type FundamentalNodeButtonProps = {
   metadata: string;
   setMessage: (message: { status: StatusString; text: string }) => void;
+  onUpdated: () => Promise<void>;
 };
 
 export function FundamentalNodeButton({
   metadata: metadata,
   setMessage,
+  onUpdated,
 }: FundamentalNodeButtonProps) {
   const graphName = "http://localhost:8890/Elettra2/";
   const fetchFundamentalNode = async (graph: string, metadata: string) => {
@@ -29,6 +31,7 @@ export function FundamentalNodeButton({
 
     const data = await res.json();
     setMessage({ status: data.status, text: data.text });
+    await onUpdated();
   };
 
   return (

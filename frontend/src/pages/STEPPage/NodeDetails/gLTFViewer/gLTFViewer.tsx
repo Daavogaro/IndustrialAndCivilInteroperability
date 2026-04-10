@@ -7,10 +7,11 @@ import { MeshoptDecoder } from 'meshoptimizer';
 
 type GLTFViewerProps = {
   uri: string | null;
+  hoverUri?: string | null;
 };
 
 
-export function GLTFViewer({ uri }: GLTFViewerProps) {
+export function GLTFViewer({ uri, hoverUri = null }: GLTFViewerProps) {
   const [loadedFiles, setLoadedFiles] = React.useState<string[]>([])
   const [visibleFiles, setVisibleFiles] = React.useState<Record<string, boolean>>({})
   const sceneRef = React.useRef<THREE.Scene | null>(null)
@@ -92,7 +93,6 @@ export function GLTFViewer({ uri }: GLTFViewerProps) {
       }
 
       const targetName = inputUri.split("#")[1].replace(/_/g," ")
-      console.log(targetName)
       if (!targetName) {
         return
       }
@@ -415,8 +415,9 @@ export function GLTFViewer({ uri }: GLTFViewerProps) {
   }, [clearUriHighlight])
 
   React.useEffect(() => {
-    applyUriHighlight(uri)
-  }, [uri, loadedFiles, applyUriHighlight])
+    const activeUri = hoverUri ?? uri
+    applyUriHighlight(activeUri)
+  }, [uri, hoverUri, loadedFiles, applyUriHighlight])
 
   return (
     <div style={{ width: "100%", height: "50vh", position: "relative" }}>

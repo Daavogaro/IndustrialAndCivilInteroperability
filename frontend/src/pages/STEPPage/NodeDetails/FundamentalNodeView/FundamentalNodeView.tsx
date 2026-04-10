@@ -5,6 +5,7 @@ type FundamentalNodeViewProps = {
   onSelectNode: (uri: string) => void;
   onToggleDelete: (metadata: string, value: boolean) => void;
   onToggleSimplify: (metadata: string, value: boolean) => void;
+  onRowHover: (uri: string | null) => void;
 };
 
 export function FundamentalNodeView({
@@ -12,6 +13,7 @@ export function FundamentalNodeView({
   onSelectNode,
   onToggleDelete,
   onToggleSimplify,
+  onRowHover,
 }: FundamentalNodeViewProps) {
   if (!childrenNodes.length) {
     return (
@@ -63,7 +65,10 @@ export function FundamentalNodeView({
           const metadataLabel = child.metadata.split("#")[1];
 
           return (
-            <tr key={child.id}>
+            <tr
+              key={child.id}
+              onMouseEnter={() => onRowHover(child.id)}
+              onMouseLeave={() => onRowHover(null)}>
               <td>{cadTypeLabel}</td>
 
               <td onClick={() => onSelectNode(child.id)}>
@@ -75,7 +80,7 @@ export function FundamentalNodeView({
               <td style={{ textAlign: "center" }}>
                 <input
                   type="checkbox"
-                  checked={child.toBeDeleted}
+                  checked={!!child.toBeDeleted}
                   onChange={(e) =>
                     onToggleDelete(child.metadata, e.target.checked)
                   }
@@ -85,7 +90,7 @@ export function FundamentalNodeView({
               <td style={{ textAlign: "center" }}>
                 <input
                   type="checkbox"
-                  checked={child.toBeSimplified}
+                  checked={!!child.toBeSimplified}
                   disabled={cadTypeLabel === "CADAssembly"}
                   onChange={(e) =>
                     onToggleSimplify(child.metadata, e.target.checked)

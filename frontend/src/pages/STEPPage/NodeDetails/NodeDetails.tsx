@@ -4,12 +4,15 @@ import { FundamentalNodeButton } from "./FundamentalNodeButton";
 import { AssemblyView } from "./AssemblyView/AssemblyView";
 import { FundamentalNodeView } from "./FundamentalNodeView/FundamentalNodeView";
 import { TreeNode } from "../Hierarchy/buildTree";
+import { refreshStepHierarchy } from "../Hierarchy/HierarchyButtons/buttons/UpdateHierarchyButton";
 
 type NodeDetailsProps = {
   uri: string | null;
   tree: TreeNode[];
+  setTree: (tree: TreeNode[]) => void;
   setNodeUri: (uri: string | null) => void;
   setMessage: (message: { status: StatusString; text: string }) => void;
+  setHoveredUri: (uri: string | null) => void;
 };
 const findNode = (nodes: TreeNode[], uri: string | null): TreeNode | null => {
   for (const node of nodes) {
@@ -55,13 +58,45 @@ export const getDescendantsWithDimensions = (
 export function NodeDetails({
   uri,
   tree,
+  setTree,
   setNodeUri,
   setMessage,
+  setHoveredUri,
 }: NodeDetailsProps) {
   const [treeNodeData, setTreeNodeData] = useState<TreeNode | null>(null);
-  const [childrenNodes, setChildrenNodes] = useState<TreeNode[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const updateNodeFlagByMetadata = (
+    nodes: TreeNode[],
+    metadata: string,
+    patch: Partial<Pick<TreeNode, "toBeDeleted" | "toBeSimplified">>,
+  ): TreeNode[] => {
+    return nodes.map((node) => {
+      const updatedChildren = updateNodeFlagByMetadata(
+        node.children,
+        metadata,
+        patch,
+      );
+
+      if (node.metadata === metadata) {
+        return {
+          ...node,
+          ...patch,
+          children: updatedChildren,
+        };
+      }
+
+      if (updatedChildren !== node.children) {
+        return {
+          ...node,
+          children: updatedChildren,
+        };
+      }
+
+      return node;
+    });
+  };
 
   const onChangeToBeDeleted = async (metadata: string, value: boolean) => {
     const res = await fetch("/api/update-deletion", {
@@ -78,12 +113,7 @@ export function NodeDetails({
     const responseData = await res.json();
     setMessage({ status: responseData.status, text: responseData.text });
 
-    // Optimistic local update
-    setChildrenNodes((prev) =>
-      prev.map((child) =>
-        child.metadata === metadata ? { ...child, toBeDeleted: value } : child,
-      ),
-    );
+    setTree(updateNodeFlagByMetadata(tree, metadata, { toBeDeleted: value }));
   };
 
   const onChangeToBeSimplified = async (metadata: string, value: boolean) => {
@@ -101,13 +131,8 @@ export function NodeDetails({
     const responseData = await res.json();
     setMessage({ status: responseData.status, text: responseData.text });
 
-    // Optimistic local update
-    setChildrenNodes((prev) =>
-      prev.map((child) =>
-        child.metadata === metadata
-          ? { ...child, toBeSimplified: value }
-          : child,
-      ),
+    setTree(
+      updateNodeFlagByMetadata(tree, metadata, { toBeSimplified: value }),
     );
   };
 
@@ -129,7 +154,7 @@ export function NodeDetails({
     };
 
     fetchData();
-  }, [uri]);
+  }, [uri, tree]);
 
   if (!uri) return <p>No node selected.</p>;
   if (loading) return <p>Loading...</p>;
@@ -193,7 +218,7 @@ export function NodeDetails({
           border: "1px solid var(--grey-2)",
           borderRadius: 5,
           marginTop: 10,
-          height: "calc(100% - 10px)",
+          height: "calc(100% - 35px)",
           minHeight: 0,
           display: "flex",
           flexDirection: "column",
@@ -206,6 +231,7 @@ export function NodeDetails({
           <FundamentalNodeButton
             metadata={treeNodeData.metadata}
             setMessage={setMessage}
+            onUpdated={() => refreshStepHierarchy(setTree, setMessage)}
           />
         </div>
         {treeNodeData.cadType ===
@@ -256,6 +282,7 @@ export function NodeDetails({
                 onSelectNode={setNodeUri}
                 onToggleDelete={onChangeToBeDeleted}
                 onToggleSimplify={onChangeToBeSimplified}
+                onRowHover={setHoveredUri}
               />
             </div>
             <div
@@ -268,6 +295,7 @@ export function NodeDetails({
                 onSelectNode={setNodeUri}
                 onToggleDelete={onChangeToBeDeleted}
                 onToggleSimplify={onChangeToBeSimplified}
+                onRowHover={setHoveredUri}
               />
             </div>
           </div>

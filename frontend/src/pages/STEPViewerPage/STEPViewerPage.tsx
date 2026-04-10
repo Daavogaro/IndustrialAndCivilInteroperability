@@ -7,7 +7,6 @@ export function STEPViewerPage({}: STEPViewerPageProps) {
   return (
     <div>
       <Topbar title="STEP Viewer" />
-      <GLTFViewer uri={null} />
     </div>
   );
 }
