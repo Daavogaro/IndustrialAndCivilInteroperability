@@ -1,0 +1,1257 @@
+{
+  "classes": [
+    {
+      "name": "IfcActuator",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcAirTerminal",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcAirTerminalBox",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcAirToAirHeatRecovery",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcAlarm",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcAudioVisualAppliance",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcBeam",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcBearing",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcBoiler",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcBorehole",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcBuildingElementPart",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcBuildingElementProxy",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcBuiltElement",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcBurner",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcCableCarrierFitting",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcCableCarrierSegment",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcCableFitting",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcCableSegment",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcCaissonFoundation",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcChiller",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcChimney",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcCivilElement",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcCoil",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcColumn",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcCommunicationsAppliance",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcCompressor",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcCondenser",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcController",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcConveyorSegment",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcCooledBeam",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcCoolingTower",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcCourse",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcCovering",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcCurtainWall",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcDamper",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcDeepFoundation",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcDiscreteAccessory",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcDistributionBoard",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcDistributionChamberElement",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcDistributionControlElement",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcDistributionElement",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcDistributionFlowElement",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcDoor",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcDuctFitting",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcDuctSegment",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcDuctSilencer",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcEarthworksCut",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcEarthworksElement",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcEarthworksFill",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcElectricAppliance",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcElectricDistributionBoard",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcElectricFlowStorageDevice",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcElectricFlowTreatmentDevice",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcElectricGenerator",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcElectricMotor",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcElectricTimeControl",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcElement",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcElementAssembly",
+      "predefinedTypes": [
+        "NOTDEFINED",
+        "ACCESSORY_ASSEMBLY",
+        "ARCH",
+        "BEAM_GRID",
+        "BRACED_FRAME",
+        "GIRDER",
+        "REINFORCEMENT_UNIT",
+        "RIGID_FRAME",
+        "SLAB_FIELD",
+        "TRUSS",
+        "USERDEFINED"
+      ],
+      "propertySets": [
+        {
+          "name": "Pset_ElementAssemblyCommon",
+          "properties": [
+            {
+              "name": "Reference",
+              "inputType": "text"
+            },
+            {
+              "name": "Status",
+              "inputType": "select",
+              "options": [
+                "NEW",
+                "EXISTING",
+                "DEMOLISH",
+                "TEMPORARY",
+                "NOTKNOWN",
+                "UNSET"
+              ]
+            },
+            {
+              "name": "IsExternal",
+              "inputType": "boolean"
+            },
+            {
+              "name": "LoadBearing",
+              "inputType": "boolean"
+            },
+            {
+              "name": "FireRating",
+              "inputType": "text"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "IfcElementComponent",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcEnergyConversionDevice",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcEngine",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcEvaporativeCooler",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcEvaporator",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcFan",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcFastener",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcFeatureElement",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcFeatureElementAddition",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcFeatureElementSubtraction",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcFilter",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcFireSuppressionTerminal",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcFlowController",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcFlowFitting",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcFlowInstrument",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcFlowMeter",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcFlowMovingDevice",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcFlowSegment",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcFlowStorageDevice",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcFlowTerminal",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcFlowTreatmentDevice",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcFooting",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcFurnishingElement",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcFurniture",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcGeographicElement",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcGeomodel",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcGeoslice",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcGeotechnicalAssembly",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcGeotechnicalElement",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcGeotechnicalStratum",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcHeatExchanger",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcHumidifier",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcImpactProtectionDevice",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcInterceptor",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcJunctionBox",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcKerb",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcLamp",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcLightFixture",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcLiquidTerminal",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcMechanicalFastener",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcMedicalDevice",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcMember",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcMobileTelecommunicationsAppliance",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcMooringDevice",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcMotorConnection",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcNavigationElement",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcOpeningElement",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcOutlet",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcPavement",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcPile",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcPipeFitting",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcPipeSegment",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcPlate",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcProjectionElement",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcProtectiveDevice",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcProtectiveDeviceTrippingUnit",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcPump",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcRail",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcRailing",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcRamp",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcRampFlight",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcReinforcedSoil",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcReinforcingBar",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcReinforcingElement",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcReinforcingMesh",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcRoof",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcSanitaryTerminal",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcSensor",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcShadingDevice",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcSign",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcSignal",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcSlab",
+      "predefinedTypes": [
+        "NOTDEFINED",
+        "FLOOR",
+        "ROOF",
+        "LANDING",
+        "BASESLAB",
+        "USERDEFINED"
+      ],
+      "propertySets": [
+        {
+          "name": "Pset_SlabCommon",
+          "properties": [
+            {
+              "name": "Reference",
+              "inputType": "text"
+            },
+            {
+              "name": "IsExternal",
+              "inputType": "boolean"
+            },
+            {
+              "name": "LoadBearing",
+              "inputType": "boolean"
+            },
+            {
+              "name": "PitchAngle",
+              "inputType": "number"
+            },
+            {
+              "name": "FireRating",
+              "inputType": "text"
+            }
+          ]
+        },
+        {
+          "name": "Pset_SlabCommon2",
+          "properties": [
+            {
+              "name": "Reference",
+              "inputType": "text"
+            },
+            {
+              "name": "IsExternal",
+              "inputType": "boolean"
+            },
+            {
+              "name": "LoadBearing",
+              "inputType": "boolean"
+            },
+            {
+              "name": "PitchAngle",
+              "inputType": "number"
+            },
+            {
+              "name": "FireRating",
+              "inputType": "text"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "IfcSolarDevice",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcSpaceHeater",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcStackTerminal",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcStair",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcStairFlight",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcSurfaceFeature",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcSwitchingDevice",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcSystemFurnitureElement",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcTank",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcTendon",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcTendonAnchor",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcTendonConduit",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcTrackElement",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcTransformer",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcTransportationDevice",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcTransportElement",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcTubeBundle",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcUnitaryControlElement",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcUnitaryEquipment",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcValve",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcVehicle",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcVibrationDamper",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcVibrationIsolator",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcVirtualElement",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcVoidingFeature",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcWall",
+      "predefinedTypes": [
+        "NOTDEFINED",
+        "MOVABLE",
+        "PARAPET",
+        "PARTITIONING",
+        "PLUMBINGWALL",
+        "POLYGONAL",
+        "SHEAR",
+        "SOLIDWALL",
+        "STANDARD",
+        "ELEMENTEDWALL",
+        "USERDEFINED"
+      ],
+      "propertySets": [
+        {
+          "name": "Pset_WallCommon",
+          "properties": [
+            {
+              "name": "Reference",
+              "inputType": "text"
+            },
+            {
+              "name": "IsExternal",
+              "inputType": "boolean"
+            },
+            {
+              "name": "LoadBearing",
+              "inputType": "boolean"
+            },
+            {
+              "name": "ThermalTransmittance",
+              "inputType": "number"
+            },
+            {
+              "name": "FireRating",
+              "inputType": "text"
+            },
+            {
+              "name": "AcousticRating",
+              "inputType": "text"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "IfcWallStandardCase",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcWasteTerminal",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    },
+    {
+      "name": "IfcWindow",
+      "predefinedTypes": [
+        "NOTDEFINED"
+      ],
+      "propertySets": []
+    }
+  ]
+}

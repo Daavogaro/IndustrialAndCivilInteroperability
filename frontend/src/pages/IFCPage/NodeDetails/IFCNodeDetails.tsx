@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { TreeNode } from "../../STEPPage/Hierarchy/buildTree";
 import { StatusString } from "../../../components/Sidebar/MessagePanel";
 import { DownloadIFCButton } from "./DownloadIFCButton";
+import ifcPropertySchemaData from "./ifcPropertySchema.json";
 
 type PropertyInputType = "text" | "number" | "boolean" | "select";
 
@@ -16,53 +17,30 @@ type PSetSpec = {
   properties: PropertySpec[];
 };
 
-const IFC_CLASS_TO_PREDEFINED_TYPES: Record<string, string[]> = {
-  IfcElementAssembly: ["NOTDEFINED", "ACCESSORY_ASSEMBLY", "ARCH", "BEAM_GRID", "BRACED_FRAME", "GIRDER", "REINFORCEMENT_UNIT", "RIGID_FRAME", "SLAB_FIELD", "TRUSS", "USERDEFINED"],
-  IfcWall: ["NOTDEFINED", "MOVABLE", "PARAPET", "PARTITIONING", "PLUMBINGWALL", "POLYGONAL", "SHEAR", "SOLIDWALL", "STANDARD", "ELEMENTEDWALL", "USERDEFINED"],
-  IfcSlab: ["NOTDEFINED", "FLOOR", "ROOF", "LANDING", "BASESLAB", "USERDEFINED"],
+type IFCClassSchema = {
+  name: string;
+  predefinedTypes: string[];
+  propertySets: PSetSpec[];
 };
 
-const IFC_CLASSES = Object.keys(IFC_CLASS_TO_PREDEFINED_TYPES);
-
-const IFC_CLASS_TO_PSETS: Record<string, PSetSpec[]> = {
-  IfcElementAssembly: [
-    {
-      name: "Pset_ElementAssemblyCommon",
-      properties: [
-        { name: "Reference", inputType: "text" },
-        { name: "Status", inputType: "select", options: ["NEW", "EXISTING", "DEMOLISH", "TEMPORARY", "NOTKNOWN", "UNSET"] },
-        { name: "IsExternal", inputType: "boolean" },
-        { name: "LoadBearing", inputType: "boolean" },
-        { name: "FireRating", inputType: "text" },
-      ],
-    },
-  ],
-  IfcWall: [
-    {
-      name: "Pset_WallCommon",
-      properties: [
-        { name: "Reference", inputType: "text" },
-        { name: "IsExternal", inputType: "boolean" },
-        { name: "LoadBearing", inputType: "boolean" },
-        { name: "ThermalTransmittance", inputType: "number" },
-        { name: "FireRating", inputType: "text" },
-        { name: "AcousticRating", inputType: "text" },
-      ],
-    },
-  ],
-  IfcSlab: [
-    {
-      name: "Pset_SlabCommon",
-      properties: [
-        { name: "Reference", inputType: "text" },
-        { name: "IsExternal", inputType: "boolean" },
-        { name: "LoadBearing", inputType: "boolean" },
-        { name: "PitchAngle", inputType: "number" },
-        { name: "FireRating", inputType: "text" },
-      ],
-    },
-  ],
+type IFCPropertySchema = {
+  classes: IFCClassSchema[];
 };
+
+const IFC_PROPERTY_SCHEMA = ifcPropertySchemaData as IFCPropertySchema;
+const IFC_CLASSES = IFC_PROPERTY_SCHEMA.classes.map((item) => item.name);
+
+const IFC_CLASS_TO_PREDEFINED_TYPES: Record<string, string[]> =
+  IFC_PROPERTY_SCHEMA.classes.reduce<Record<string, string[]>>((acc, item) => {
+    acc[item.name] = item.predefinedTypes;
+    return acc;
+  }, {});
+
+const IFC_CLASS_TO_PSETS: Record<string, PSetSpec[]> =
+  IFC_PROPERTY_SCHEMA.classes.reduce<Record<string, PSetSpec[]>>((acc, item) => {
+    acc[item.name] = item.propertySets;
+    return acc;
+  }, {});
 
 type IFCNodeDetailsProps = {
   uri: string | null;
@@ -379,7 +357,7 @@ export function IFCNodeDetails({
                     {pset.properties.map((property) => {
                       const value = propertyValues[pset.name]?.[property.name];
                       return (
-                        <div key={property.name}>
+                        <div key={property.name} style={{border: "1px solid var(--grey-3)",padding: 10, borderRadius: 5, backgroundColor: "var(--background-100)"}}>
                           <label
                             htmlFor={`${pset.name}-${property.name}`}
                             style={{ display: "block", marginBottom: 4 }}>
