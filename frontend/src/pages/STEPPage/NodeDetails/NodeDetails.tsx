@@ -185,81 +185,94 @@ export function NodeDetails({
     }) || [];
 
   return (
-    <div
-      style={{
-        backgroundColor: "var(--background-100)",
-        padding: 10,
-        border: "1px solid var(--grey-2)",
-        borderRadius: 5,
-        marginTop: 10,
-      }}>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <h3 style={{ marginBottom: 10 }}>
-          {treeNodeData.metadata.split("#")[1]}
-        </h3>
-        <FundamentalNodeButton
-          metadata={treeNodeData.metadata}
-          setMessage={setMessage}
-        />
-      </div>
-      {treeNodeData.cadType ===
-        "https://www.web3d.org/specifications/X3dOntology4.0#CADPart" && (
-        <div>
-          <p>
-            <strong>To be deleted:</strong>{" "}
-            {treeNodeData.toBeDeleted ? "Yes" : "No"}
-          </p>
-
-          <p>
-            <strong>To be simplified:</strong>{" "}
-            {treeNodeData.toBeSimplified ? "Yes" : "No"}
-          </p>
-
-          <p>
-            <strong>Size:</strong> {treeNodeData.dimensions}
-          </p>
+    <div style={{ height: "100%", minHeight: 0 }}>
+      <div
+        style={{
+          backgroundColor: "var(--background-100)",
+          padding: 10,
+          border: "1px solid var(--grey-2)",
+          borderRadius: 5,
+          marginTop: 10,
+          height: "calc(100% - 10px)",
+          minHeight: 0,
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <h3 style={{ marginBottom: 10 }}>
+            {treeNodeData.metadata.split("#")[1]}
+          </h3>
+          <FundamentalNodeButton
+            metadata={treeNodeData.metadata}
+            setMessage={setMessage}
+          />
         </div>
-      )}
-      {treeNodeData.cadType ===
-        "https://www.web3d.org/specifications/X3dOntology4.0#CADAssembly" && (
-        <>
-          <div style={{ marginTop: 10, display: "flex" }}>
-            <h5
-              id="fundamental-view"
-              className="toogle-view active"
-              style={{
-                borderTopLeftRadius: 10,
-              }}
-              onClick={onFundamentalViewClick}>
-              Fundamental Node
-            </h5>
-            <h5
-              id="assembly-view"
-              className="toogle-view "
-              style={{ borderTopRightRadius: 10, borderLeft: "none" }}
-              onClick={onAssemblyViewClick}>
-              Assembly
-            </h5>
-          </div>
+        {treeNodeData.cadType ===
+          "https://www.web3d.org/specifications/X3dOntology4.0#CADPart" && (
+          <div>
+            <p>
+              <strong>To be deleted:</strong>{" "}
+              {treeNodeData.toBeDeleted ? "Yes" : "No"}
+            </p>
 
-          <div id="fundamental-view-content">
-            <FundamentalNodeView
-              childrenNodes={getDescendantsWithDimensions(tree, uri)}
-              onSelectNode={setNodeUri}
-              onToggleDelete={onChangeToBeDeleted}
-              onToggleSimplify={onChangeToBeSimplified}
-            />
+            <p>
+              <strong>To be simplified:</strong>{" "}
+              {treeNodeData.toBeSimplified ? "Yes" : "No"}
+            </p>
+
+            <p>
+              <strong>Size:</strong> {treeNodeData.dimensions}
+            </p>
           </div>
-          <div id="assembly-view-content" style={{ display: "none" }}>
-            <AssemblyView
-              childrenNodes={assemblyChildren}
-              onSelectNode={setNodeUri}
-              onToggleDelete={onChangeToBeDeleted}
-              onToggleSimplify={onChangeToBeSimplified}
-            />
+        )}
+        {treeNodeData.cadType ===
+          "https://www.web3d.org/specifications/X3dOntology4.0#CADAssembly" && (
+          <div style={{ marginTop: 10, display: "flex", flexDirection: "column", minHeight: 0, flex: 1 }}>
+            <div style={{ display: "flex" }}>
+              <h5
+                id="fundamental-view"
+                className="toogle-view active"
+                style={{
+                  borderTopLeftRadius: 10,
+                }}
+                onClick={onFundamentalViewClick}
+              >
+                Fundamental Node
+              </h5>
+              <h5
+                id="assembly-view"
+                className="toogle-view "
+                style={{ borderTopRightRadius: 10, borderLeft: "none" }}
+                onClick={onAssemblyViewClick}
+              >
+                Assembly
+              </h5>
+            </div>
+
+            <div id="fundamental-view-content" className="panel-scroll" style={{ minHeight: 0, flex: 1 }}>
+              <FundamentalNodeView
+                childrenNodes={getDescendantsWithDimensions(tree, uri)}
+                onSelectNode={setNodeUri}
+                onToggleDelete={onChangeToBeDeleted}
+                onToggleSimplify={onChangeToBeSimplified}
+              />
+            </div>
+            <div
+              id="assembly-view-content"
+              className="panel-scroll"
+              style={{ display: "none", minHeight: 0, flex: 1 }}
+            >
+              <AssemblyView
+                childrenNodes={assemblyChildren}
+                onSelectNode={setNodeUri}
+                onToggleDelete={onChangeToBeDeleted}
+                onToggleSimplify={onChangeToBeSimplified}
+              />
+            </div>
           </div>
-        </>
-      )}
+        )}
+      </div>
     </div>
   );
 }

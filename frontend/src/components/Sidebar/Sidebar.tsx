@@ -9,7 +9,7 @@ export function Sidebar({ message }: SidebarProps) {
   return (
     <div>
       <aside id="sidebar">
-        <img src="./elettra-logo.png" alt="" />
+        <img src="./psi-logo.png" alt="" />
 
         <ul id="nav-buttons">
           <Router.Link to="/">
@@ -26,7 +26,7 @@ export function Sidebar({ message }: SidebarProps) {
           </Router.Link>
           <Router.Link to="/STEPViewer">
             <li>
-              <span className="material-icons-round">view_in_ar</span>
+              <img src="./STEP-logo.png" alt="" style={{ height: 20 }} />
               STEP Viewer
             </li>
           </Router.Link>

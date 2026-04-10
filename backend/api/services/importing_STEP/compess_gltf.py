@@ -24,7 +24,7 @@ def compress_gltf(input_path, output_path):
         str(gltfpack_path),
         "-i", input_path,
         "-o", output_path,
-        "-c", "-tc", "-kn", "-km"
+        "-c", "-tc", "-kn", "-km","-noq"
     ]
 
     result = subprocess.run(cmd, capture_output=True, text=True)

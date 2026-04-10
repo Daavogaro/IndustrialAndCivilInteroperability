@@ -6,6 +6,7 @@ import { HierarchyButtons } from "./Hierarchy/HierarchyButtons/HierarchyButtons"
 import { UploadSTEPModal } from "./UploadSTEPModal";
 import { StatusString } from "../../components/Sidebar/MessagePanel";
 import { NodeDetails } from "./NodeDetails/NodeDetails";
+import { GLTFViewer } from "./NodeDetails/gLTFViewer/gLTFViewer";
 
 type STEPPageProps = {
   setTree: (tree: TreeNode[]) => void;
@@ -29,7 +30,13 @@ export function STEPPage({
   };
 
   return (
-    <div>
+    <div
+      style={{
+        display: "grid",
+        gridTemplateRows: "auto auto 1fr",
+        height: "100vh",
+        overflow: "hidden",
+      }}>
       <AddChildModal uri={nodeUri} />
       <UploadSTEPModal uri={nodeUri} setMessage={setMessage} />
       <Topbar title="STEP Hierarchy" />
@@ -44,10 +51,11 @@ export function STEPPage({
         style={{
           display: "grid",
           gridTemplateColumns: "1fr 1fr",
+          minHeight: 0,
           margin: "0px 10px 10px 10px",
           gap: "10px",
         }}>
-        <div>
+        <div style={{ display: "grid", gridTemplateRows: "auto 1fr", minHeight: 0 }}>
           <div
             style={{
               display: "flex",
@@ -58,25 +66,48 @@ export function STEPPage({
             <h2>Hierarchy</h2>
             <HierarchyButtons setTree={setTree} setMessage={setMessage} />
           </div>
-          {tree.length > 0 ? (
-            <TreeList tree={tree} handleSelectNode={handleSelectNode} />
-          ) : (
-            <p>No hierarchy built yet.</p>
-          )}
+          <div
+            style={{
+              minHeight: 0,
+              border: "1px solid var(--grey-2)",
+              borderRadius: 5,
+              backgroundColor: "var(--background-100)",
+              padding: "8px",
+            }}
+            className="panel-scroll">
+            {tree.length > 0 ? (
+              <TreeList tree={tree} handleSelectNode={handleSelectNode} />
+            ) : (
+              <p>No hierarchy built yet.</p>
+            )}
+          </div>
         </div>
 
-        <div style={{}}>
+        <div style={{ display: "grid", gridTemplateRows: "auto 1fr 1fr", minHeight: 0 }}>
           <h2>Node Details</h2>
-          {nodeUri ? (
-            <NodeDetails
-              uri={nodeUri}
-              tree={tree}
-              setNodeUri={setNodeUri}
-              setMessage={setMessage}
-            />
-          ) : (
-            <p>Select a node to see details.</p>
-          )}
+          <div
+            style={{
+              minHeight: 0,
+              overflow: "hidden",
+            }}>
+            {nodeUri ? (
+              <NodeDetails
+                uri={nodeUri}
+                tree={tree}
+                setNodeUri={setNodeUri}
+                setMessage={setMessage}
+              />
+            ) : (
+              <p>Select a node to see details.</p>
+            )}
+          </div>
+          <div style={{marginTop:10,minHeight: 0,
+              border: "1px solid var(--grey-2)",
+              borderRadius: 5,
+              backgroundColor: "var(--background-100)",
+              padding: "8px",}}>
+            <GLTFViewer uri={nodeUri}/>
+          </div>
         </div>
       </div>
     </div>

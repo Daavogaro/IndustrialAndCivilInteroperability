@@ -28,36 +28,38 @@ function App() {
   return (
     <div id="app">
       <Sidebar message={message} />
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <STEPPage
-              setMessage={setMessage}
-              tree={tree}
-              setTree={setTree}
-              nodeUri={nodeUri}
-              setNodeUri={setNodeUri}
-            />
-          }
-        />
-        <Route
-          path="/IFCHierarchy"
-          element={
-            <IFCHierarchyPage
-              setMessage={setMessage}
-              tree={tree}
-              setTree={setTree}
-              nodeUri={nodeUri}
-              setNodeUri={setNodeUri}
-            />
-          }
-        />
-        <Route
-          path="/STEPViewer"
-          element={<STEPViewerPage />}
-        />
-      </Routes>
+      <main style={{ minHeight: 0, overflow: "hidden" }}>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <STEPPage
+                setMessage={setMessage}
+                tree={tree}
+                setTree={setTree}
+                nodeUri={nodeUri}
+                setNodeUri={setNodeUri}
+              />
+            }
+          />
+          <Route
+            path="/IFCHierarchy"
+            element={
+              <IFCHierarchyPage
+                setMessage={setMessage}
+                tree={tree}
+                setTree={setTree}
+                nodeUri={nodeUri}
+                setNodeUri={setNodeUri}
+              />
+            }
+          />
+          <Route
+            path="/STEPViewer"
+            element={<STEPViewerPage />}
+          />
+        </Routes>
+      </main>
     </div>
   );
 }
