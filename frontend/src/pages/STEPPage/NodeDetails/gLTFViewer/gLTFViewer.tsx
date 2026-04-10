@@ -15,6 +15,12 @@ export function GLTFViewer({ uri }: GLTFViewerProps) {
   const [visibleFiles, setVisibleFiles] = React.useState<Record<string, boolean>>({})
   const sceneRef = React.useRef<THREE.Scene | null>(null)
   const loadedObjectsRef = React.useRef<Record<string, THREE.Object3D>>({})
+  const highlightedMeshesRef = React.useRef<
+    Record<string, THREE.Material | THREE.Material[]>
+  >({})
+  const dimmedMeshesRef = React.useRef<
+    Record<string, THREE.Material | THREE.Material[]>
+  >({})
 
   const toggleModelVisibility = (url: string, isVisible: boolean) => {
     const object = loadedObjectsRef.current[url]
@@ -25,6 +31,129 @@ export function GLTFViewer({ uri }: GLTFViewerProps) {
     object.visible = isVisible
     setVisibleFiles((prev) => ({ ...prev, [url]: isVisible }))
   }
+
+  const clearUriHighlight = React.useCallback(() => {
+    Object.entries(highlightedMeshesRef.current).forEach(([uuid, originalMaterial]) => {
+      const mesh = sceneRef.current?.getObjectByProperty("uuid", uuid) as THREE.Mesh | undefined
+      if (!mesh) {
+        return
+      }
+
+      mesh.material = originalMaterial
+    })
+
+    Object.entries(dimmedMeshesRef.current).forEach(([uuid, originalMaterial]) => {
+      const mesh = sceneRef.current?.getObjectByProperty("uuid", uuid) as THREE.Mesh | undefined
+      if (!mesh) {
+        return
+      }
+
+      mesh.material = originalMaterial
+    })
+
+    highlightedMeshesRef.current = {}
+    dimmedMeshesRef.current = {}
+  }, [])
+
+  const buildUriHighlightMaterial = React.useCallback((material: THREE.Material): THREE.Material => {
+    const highlighted = material.clone()
+    const shaded = highlighted as THREE.MeshStandardMaterial
+
+    if ("emissive" in shaded) {
+      shaded.emissive = new THREE.Color("#ffd54f")
+      shaded.emissiveIntensity = 0.55
+    }
+
+    if ("color" in shaded) {
+      shaded.color = shaded.color.clone().multiplyScalar(1.1)
+    }
+
+    return highlighted
+  }, [])
+
+  const buildDimmedMaterial = React.useCallback((material: THREE.Material): THREE.Material => {
+    const dimmed = material.clone()
+
+    if ("opacity" in dimmed) {
+      dimmed.transparent = true
+      dimmed.opacity = 0.12
+      dimmed.depthWrite = false
+    }
+
+    return dimmed
+  }, [])
+
+  const applyUriHighlight = React.useCallback(
+    (inputUri: string | null) => {
+      clearUriHighlight()
+
+      if (!inputUri) {
+        return
+      }
+
+      const targetName = inputUri.split("#")[1].replace(/_/g," ")
+      console.log(targetName)
+      if (!targetName) {
+        return
+      }
+
+      const hasNamedAncestor = (object: THREE.Object3D, name: string) => {
+        let parent: THREE.Object3D | null = object.parent
+        while (parent) {
+          if (parent.userData?.name === name) {
+            return true
+          }
+          parent = parent.parent
+        }
+        return false
+      }
+
+      const matchedMeshUuids = new Set<string>()
+
+      Object.values(loadedObjectsRef.current).forEach((rootObject) => {
+        rootObject.traverse((object) => {
+          if (!(object instanceof THREE.Mesh)) {
+            return
+          }
+
+          const ownName = object.userData?.name
+          const isMatch = ownName === targetName || hasNamedAncestor(object, targetName)
+
+          if (!isMatch) {
+            return
+          }
+
+          matchedMeshUuids.add(object.uuid)
+        })
+      })
+
+      if (matchedMeshUuids.size === 0) {
+        return
+      }
+
+      Object.values(loadedObjectsRef.current).forEach((rootObject) => {
+        rootObject.traverse((object) => {
+          if (!(object instanceof THREE.Mesh)) {
+            return
+          }
+
+          if (matchedMeshUuids.has(object.uuid)) {
+            highlightedMeshesRef.current[object.uuid] = object.material
+            object.material = Array.isArray(object.material)
+              ? object.material.map((mat) => buildUriHighlightMaterial(mat))
+              : buildUriHighlightMaterial(object.material)
+            return
+          }
+
+          dimmedMeshesRef.current[object.uuid] = object.material
+          object.material = Array.isArray(object.material)
+            ? object.material.map((mat) => buildDimmedMaterial(mat))
+            : buildDimmedMaterial(object.material)
+        })
+      })
+    },
+    [buildDimmedMaterial, buildUriHighlightMaterial, clearUriHighlight],
+  )
 
   React.useEffect(() => {
     let disposed = false
@@ -266,6 +395,7 @@ export function GLTFViewer({ uri }: GLTFViewerProps) {
 
     return () => {
       disposed = true
+      clearUriHighlight()
       setLoadedFiles([])
       setVisibleFiles({})
       loadedObjectsRef.current = {}
@@ -282,7 +412,11 @@ export function GLTFViewer({ uri }: GLTFViewerProps) {
       viewerContainer.removeChild(renderer.domElement)
     }
   
-  }, [])
+  }, [clearUriHighlight])
+
+  React.useEffect(() => {
+    applyUriHighlight(uri)
+  }, [uri, loadedFiles, applyUriHighlight])
 
   return (
     <div style={{ width: "100%", height: "50vh", position: "relative" }}>
