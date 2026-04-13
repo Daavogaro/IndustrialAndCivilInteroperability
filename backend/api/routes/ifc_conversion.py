@@ -6,7 +6,7 @@ from functools import partial
 from fastapi import APIRouter, WebSocket
 from fastapi.concurrency import run_in_threadpool
 from ..models.models import JSON_FOLDER
-from ..services.ifc_conversion.blender import run_blender_script
+from ..services.ifc_conversion.blender import run_blender_script, run_blender_scripts
 
 def generate_temp_file(folder: str, node: dict):
         job_id = str(uuid.uuid4())
@@ -17,6 +17,7 @@ def generate_temp_file(folder: str, node: dict):
         return tmp_path
 
 IMPORT_GLTF_SCRIPT = r"backend\api\services\ifc_conversion\blender_script\import_gltf.py"
+CONVERT_IFC_SCRIPT = r"backend\api\services\ifc_conversion\blender_script\ifc_conversion.py"
 
 GLTF_PATH = r"tmp\gLTF\PSI_SLS2_Girder_Superbend.gltf"
 router = APIRouter()
@@ -43,10 +44,9 @@ async def websocket_ifc_convert(websocket: WebSocket):
 
         runner = run_in_threadpool(
             partial(
-                run_blender_script,
-                IMPORT_GLTF_SCRIPT,
-                [tmp_path, str(save_blend).lower()],
-                on_output=on_output,
+                run_blender_scripts,
+                [IMPORT_GLTF_SCRIPT],
+                [[tmp_path, str(save_blend).lower()]]
             )
         )
         runner_task = asyncio.create_task(runner)

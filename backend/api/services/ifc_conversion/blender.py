@@ -49,13 +49,17 @@ def run_blender_script(script: str, script_args: list[str] | None = None, on_out
         raise RuntimeError(f"Blender script failed: {script}\n{recent_output}")
 
 
-def run_blender_scripts(scripts: list[str], args: list[list[str]] = None):
+def run_blender_scripts(scripts: list[str], args: list[list[str]] | None = None):
     if args is None:
         args = [[] for _ in scripts]
 
-    for script, script_args in zip(scripts, args):
-        run_blender_script(script, script_args)
+    if len(scripts) != len(args):
+        raise ValueError("scripts and args must have same length")
 
+    for i, (script, script_args) in enumerate(zip(scripts, args)):
+        print(f"Running script {i+1}/{len(scripts)}: {script}")
+        run_blender_script(script, script_args)
+        
 @router.post("/blender_run_scripts")
 def run_scripts(request: BlenderRequest, background_tasks: BackgroundTasks):
     if len(request.scripts) != len(request.args or request.scripts):

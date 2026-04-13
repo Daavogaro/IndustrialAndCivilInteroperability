@@ -4,6 +4,8 @@ import bpy
 import sys
 import os
 
+
+
 def create_bbox(obj, fundamental_parent=None):
 
     original_mesh_name = obj.data.name
@@ -146,7 +148,7 @@ def clean_hierarchy(node, current_fundamental=None):
         for child in children:
             clean_hierarchy(child, current_fundamental)
 
-def find_node_by_id(node, target_id):
+def find_node_by_id(node: dict, target_id: str):
     if node["id"].split("#")[1] == target_id:
         return node
     for child in node.get("children", []):
@@ -286,6 +288,102 @@ def create_hierarchy(node: dict, parent=None):
         for child in node.get("children", []):
             create_hierarchy(child, empty_obj)
 
+def node_conversion_in_ifc(node: dict, blender_node: bpy.types.Object,parent: bpy.types.Object | None = None):
+    found_node = find_node_by_id(node, blender_node.name)
+    blender_node.select_set(True)
+    bpy.context.view_layer.objects.active = blender_node
+    if not blender_node.type == "MESH":
+        if found_node is None:
+            print(f"Node {blender_node.name} of type {blender_node.type} not found in JSON, skipping conversion")
+            return
+        else:
+            print("________________________________________________________________________")
+            print(f"Converting node {blender_node.name} of type {blender_node.type}")
+            print (blender_node)
+            original_name=blender_node.name
+            bpy.ops.bim.assign_class(ifc_class="IfcElementAssembly")
+            bpy.ops.object.select_all(action='DESELECT')
+            new_ifc_element=bpy.context.view_layer.objects.active
+            bpy.ops.bim.enable_editing_attributes(mass_operation=False) # Enable the editing attributes mode
+            new_ifc_element.BIMAttributeProperties.attributes[1].string_value = original_name # Edit the Name attribute
+            predefined_type = found_node.get("predefinedType", "NOTDEFINED")
+            new_ifc_element.BIMAttributeProperties.attributes[6].enum_value = predefined_type.split("#")[1] # Edit the PredefinedType attribute
+            if predefined_type.split("#")[1] == "USERDEFINED":
+                object_type = found_node.get("objectType", None)
+                if object_type is not None:
+                    new_ifc_element.BIMAttributeProperties.attributes[3].string_value = object_type # Edit the ObjectType attribute
+            bpy.ops.bim.edit_attributes() # Confirm the editing
+            if not parent == None:
+                print(f"    And its parent is: {parent.name}")
+                # Aggregate the new IfcElementAssmebly under its parent
+                bpy.ops.bim.enable_editing_aggregate()
+                new_ifc_element.BIMObjectAggregateProperties.relating_object = parent
+                bpy.ops.bim.aggregate_assign_object(relating_object=parent.BIMObjectProperties.ifc_definition_id)
+                # Recreate the tree in the Blender Menu giving the parent relation to the Blender Object. Is not necessary for the IFC sake, but is useful for the Blender visualization
+                new_ifc_element.parent = parent 
+            for child in blender_node.children:
+                node_conversion_in_ifc(node, child, blender_node)
+
+
+    else:
+        print("NODE IS A MESH")
+        if found_node is None:
+            if blender_node.name.endswith("_Part"):
+                print("________________________________________________________________________")
+                original_name=blender_node.name
+                bpy.ops.bim.assign_class(ifc_class="IfcElementAssembly")
+                bpy.ops.object.select_all(action='DESELECT')
+                new_ifc_element=bpy.context.view_layer.objects.active
+                bpy.ops.bim.enable_editing_attributes(mass_operation=False) # Enable the editing attributes mode
+                new_ifc_element.BIMAttributeProperties.attributes[1].string_value = original_name # Edit the Name attribute
+                new_ifc_element.BIMAttributeProperties.attributes[6].enum_value = "NOTDEFINED" # Edit the PredefinedType attribute
+                bpy.ops.bim.edit_attributes() # Confirm the editing
+                if not parent == None:
+                    print(f"    And its parent is: {parent.name}")
+                    # Aggregate the new IfcElementAssmebly under its parent
+                    bpy.ops.bim.enable_editing_aggregate()
+                    new_ifc_element.BIMObjectAggregateProperties.relating_object = parent
+                    bpy.ops.bim.aggregate_assign_object(relating_object=parent.BIMObjectProperties.ifc_definition_id)
+                    # Recreate the tree in the Blender Menu giving the parent relation to the Blender Object. Is not necessary for the IFC sake, but is useful for the Blender visualization
+                    new_ifc_element.parent = parent 
+                for child in blender_node.children:
+                    node_conversion_in_ifc(node, child, blender_node)
+            else:
+                print(f"Node {blender_node.name} of type {blender_node.type} not found in JSON, skipping conversion")
+                return
+        else:
+            print("________________________________________________________________________")
+            print(f"Converting node {blender_node.name} of type {blender_node.type}")
+            original_name=blender_node.name
+            print (blender_node)
+            ifc_class = found_node.get("ifcClass", "IfcBuildingElementProxy").split("#")[1]
+            print(ifc_class)
+            bpy.ops.bim.assign_class(ifc_class=ifc_class)
+            print("ACSACSAC")
+            bpy.ops.object.select_all(action='DESELECT')
+            new_ifc_element=bpy.context.view_layer.objects.active
+            bpy.ops.bim.enable_editing_attributes(mass_operation=False) # Enable the editing attributes mode
+            new_ifc_element.BIMAttributeProperties.attributes[1].string_value = original_name # Edit the Name attribute
+            predefined_type = found_node.get("predefinedType", "NOTDEFINED")
+            new_ifc_element.BIMAttributeProperties.attributes[6].enum_value = predefined_type.split("#")[1] # Edit the PredefinedType attribute
+            if predefined_type.split("#")[1] == "USERDEFINED":
+                object_type = found_node.get("objectType", None)
+                if object_type is not None:
+                    new_ifc_element.BIMAttributeProperties.attributes[3].string_value = object_type # Edit the ObjectType attribute
+            bpy.ops.bim.edit_attributes() # Confirm the editing
+            if not parent == None:
+                print(f"    And its parent is: {parent.name}")
+                # Aggregate the new IfcElementAssmebly under its parent
+                bpy.ops.bim.enable_editing_aggregate()
+                new_ifc_element.BIMObjectAggregateProperties.relating_object = parent
+                bpy.ops.bim.aggregate_assign_object(relating_object=parent.BIMObjectProperties.ifc_definition_id)
+                # Recreate the tree in the Blender Menu giving the parent relation to the Blender Object. Is not necessary for the IFC sake, but is useful for the Blender visualization
+                new_ifc_element.parent = parent 
+            for child in blender_node.children:
+                node_conversion_in_ifc(node, child, blender_node)
+
+
+
 
 # Get arguments after `--`
 argv = sys.argv
@@ -296,7 +394,7 @@ json_path = os.path.abspath(argv[0])
 save_blend = len(argv) > 2 and argv[1].strip().lower() in {"1", "true", "yes"}
 
 with open(json_path, encoding="utf-8") as f:
-    node = json.load(f)
+    node:dict = json.load(f)
 
 
 
@@ -309,6 +407,9 @@ bpy.ops.bim.new_project(preset='metric_m')
 # Import the GLTF file
 print("STATUS: Loading node data")
 create_hierarchy(node)
+blender_node = bpy.data.objects.get(node["id"].split("#")[1])
+if blender_node:
+    node_conversion_in_ifc(node, blender_node, None)
 
 print("STATUS: GLTF import completed")
 
