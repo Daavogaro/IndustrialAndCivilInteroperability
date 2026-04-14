@@ -3,6 +3,9 @@ from bpy import context
 import bpy
 import sys
 import os
+import ifcopenshell
+import bonsai.tool.ifc as ifcTool
+import bonsai.tool as tool
 
 
 
@@ -265,7 +268,7 @@ def create_hierarchy(node: dict, parent=None):
                     obj.matrix_world = world_matrix
                     bpy.ops.object.select_all(action='DESELECT')
                     selected_objects = select_hierarchy(obj)
-                    unselected_objects = [obj for obj in bpy.data.objects if obj not in selected_objects]
+                    unselected_objects = [obj for obj in bpy.data.objects if obj not in selected_objects and not obj.name.startswith("Ifc")]
                     for unselected in unselected_objects:
                         bpy.data.objects.remove(unselected, do_unlink=True)
                     if node.get("isFundamental", False):
@@ -288,99 +291,125 @@ def create_hierarchy(node: dict, parent=None):
         for child in node.get("children", []):
             create_hierarchy(child, empty_obj)
 
-def node_conversion_in_ifc(node: dict, blender_node: bpy.types.Object,parent: bpy.types.Object | None = None):
-    found_node = find_node_by_id(node, blender_node.name)
-    blender_node.select_set(True)
-    bpy.context.view_layer.objects.active = blender_node
-    if not blender_node.type == "MESH":
-        if found_node is None:
-            print(f"Node {blender_node.name} of type {blender_node.type} not found in JSON, skipping conversion")
-            return
-        else:
-            print("________________________________________________________________________")
-            print(f"Converting node {blender_node.name} of type {blender_node.type}")
-            print (blender_node)
-            original_name=blender_node.name
-            bpy.ops.bim.assign_class(ifc_class="IfcElementAssembly")
-            bpy.ops.object.select_all(action='DESELECT')
-            new_ifc_element=bpy.context.view_layer.objects.active
-            bpy.ops.bim.enable_editing_attributes(mass_operation=False) # Enable the editing attributes mode
-            new_ifc_element.BIMAttributeProperties.attributes[1].string_value = original_name # Edit the Name attribute
-            predefined_type = found_node.get("predefinedType", "NOTDEFINED")
-            new_ifc_element.BIMAttributeProperties.attributes[6].enum_value = predefined_type.split("#")[1] # Edit the PredefinedType attribute
-            if predefined_type.split("#")[1] == "USERDEFINED":
-                object_type = found_node.get("objectType", None)
-                if object_type is not None:
-                    new_ifc_element.BIMAttributeProperties.attributes[3].string_value = object_type # Edit the ObjectType attribute
-            bpy.ops.bim.edit_attributes() # Confirm the editing
-            if not parent == None:
-                print(f"    And its parent is: {parent.name}")
-                # Aggregate the new IfcElementAssmebly under its parent
-                bpy.ops.bim.enable_editing_aggregate()
-                new_ifc_element.BIMObjectAggregateProperties.relating_object = parent
-                bpy.ops.bim.aggregate_assign_object(relating_object=parent.BIMObjectProperties.ifc_definition_id)
-                # Recreate the tree in the Blender Menu giving the parent relation to the Blender Object. Is not necessary for the IFC sake, but is useful for the Blender visualization
-                new_ifc_element.parent = parent 
-            for child in blender_node.children:
-                node_conversion_in_ifc(node, child, blender_node)
+def create_empty_at_cursor_with_element_orientation( element: ifcopenshell.entity_instance) -> bpy.types.Object:
+    # Ensure BlenderBIM updates the placement first
+    element_obj = tool.Ifc.get_object(element)
+    name = "Port_" + element.Name
+    obj = bpy.data.objects.new(name, None)
+    # Now element_obj.matrix_world is correct
+    obj.matrix_world = element_obj.matrix_world.copy()
+    return obj
 
+def add_port(ifc: type[tool.Ifc], system: type[tool.System], element: ifcopenshell.entity_instance) -> bpy.types.Object:
+    system.load_ports(element, system.get_ports(element))
+    obj = create_empty_at_cursor_with_element_orientation(element)
+    port = system.run_root_assign_class(obj=obj, ifc_class="IfcDistributionPort", should_add_representation=False)
+    ifc.run("system.assign_port", element=element, port=port)
+    return obj
 
-    else:
-        print("NODE IS A MESH")
-        if found_node is None:
-            if blender_node.name.endswith("_Part"):
-                print("________________________________________________________________________")
-                original_name=blender_node.name
-                bpy.ops.bim.assign_class(ifc_class="IfcElementAssembly")
-                bpy.ops.object.select_all(action='DESELECT')
-                new_ifc_element=bpy.context.view_layer.objects.active
-                bpy.ops.bim.enable_editing_attributes(mass_operation=False) # Enable the editing attributes mode
-                new_ifc_element.BIMAttributeProperties.attributes[1].string_value = original_name # Edit the Name attribute
-                new_ifc_element.BIMAttributeProperties.attributes[6].enum_value = "NOTDEFINED" # Edit the PredefinedType attribute
-                bpy.ops.bim.edit_attributes() # Confirm the editing
-                if not parent == None:
-                    print(f"    And its parent is: {parent.name}")
-                    # Aggregate the new IfcElementAssmebly under its parent
-                    bpy.ops.bim.enable_editing_aggregate()
-                    new_ifc_element.BIMObjectAggregateProperties.relating_object = parent
-                    bpy.ops.bim.aggregate_assign_object(relating_object=parent.BIMObjectProperties.ifc_definition_id)
-                    # Recreate the tree in the Blender Menu giving the parent relation to the Blender Object. Is not necessary for the IFC sake, but is useful for the Blender visualization
-                    new_ifc_element.parent = parent 
-                for child in blender_node.children:
-                    node_conversion_in_ifc(node, child, blender_node)
-            else:
-                print(f"Node {blender_node.name} of type {blender_node.type} not found in JSON, skipping conversion")
-                return
-        else:
-            print("________________________________________________________________________")
-            print(f"Converting node {blender_node.name} of type {blender_node.type}")
-            original_name=blender_node.name
-            print (blender_node)
-            ifc_class = found_node.get("ifcClass", "IfcBuildingElementProxy").split("#")[1]
-            print(ifc_class)
+def node_conversion_in_ifc(node: dict, blender_node: bpy.types.Object, parent: bpy.types.Object | None = None):
+    def _enum_from_uri(value: str, default: str = "NOTDEFINED") -> str:
+        if not value:
+            return default
+        return value.split("#")[-1]
+
+    def _run_in_view3d(operation):
+        for window in context.window_manager.windows:
+            screen = window.screen
+            for area in screen.areas:
+                if area.type == "VIEW_3D":
+                    with context.temp_override(window=window, area=area):
+                        return operation()
+        raise RuntimeError("No VIEW_3D area found for BIM operators")
+
+    def _assign_and_configure(
+        target_obj: bpy.types.Object,
+        original_name: str,
+        ifc_class: str,
+        predefined_type: str,
+        object_type: str | None,
+        predefined_index: int,
+        parent_obj: bpy.types.Object | None,
+    ) -> bpy.types.Object:
+        def _operation():
+            target_obj.select_set(True)
+            bpy.context.view_layer.objects.active = target_obj
+
             bpy.ops.bim.assign_class(ifc_class=ifc_class)
-            print("ACSACSAC")
-            bpy.ops.object.select_all(action='DESELECT')
-            new_ifc_element=bpy.context.view_layer.objects.active
-            bpy.ops.bim.enable_editing_attributes(mass_operation=False) # Enable the editing attributes mode
-            new_ifc_element.BIMAttributeProperties.attributes[1].string_value = original_name # Edit the Name attribute
-            predefined_type = found_node.get("predefinedType", "NOTDEFINED")
-            new_ifc_element.BIMAttributeProperties.attributes[6].enum_value = predefined_type.split("#")[1] # Edit the PredefinedType attribute
-            if predefined_type.split("#")[1] == "USERDEFINED":
-                object_type = found_node.get("objectType", None)
-                if object_type is not None:
-                    new_ifc_element.BIMAttributeProperties.attributes[3].string_value = object_type # Edit the ObjectType attribute
-            bpy.ops.bim.edit_attributes() # Confirm the editing
-            if not parent == None:
-                print(f"    And its parent is: {parent.name}")
-                # Aggregate the new IfcElementAssmebly under its parent
+            bpy.ops.object.select_all(action="DESELECT")
+
+            new_ifc_element = bpy.context.view_layer.objects.active
+            bpy.ops.bim.enable_editing_attributes(mass_operation=False)
+            attributes = new_ifc_element.BIMAttributeProperties.attributes
+            attributes[1].string_value = original_name
+            if ifc_class not in {"IfcDistributionElement"}:
+                attributes[predefined_index].enum_value = predefined_type
+
+            if predefined_type == "USERDEFINED" and object_type:
+                attributes[3].string_value = object_type
+
+            bpy.ops.bim.edit_attributes()
+
+            if parent_obj is not None and ifc_class not in {"IfcDistributionElement"}:
+                print(f"    And its parent is: {parent_obj.name}")
                 bpy.ops.bim.enable_editing_aggregate()
-                new_ifc_element.BIMObjectAggregateProperties.relating_object = parent
-                bpy.ops.bim.aggregate_assign_object(relating_object=parent.BIMObjectProperties.ifc_definition_id)
-                # Recreate the tree in the Blender Menu giving the parent relation to the Blender Object. Is not necessary for the IFC sake, but is useful for the Blender visualization
-                new_ifc_element.parent = parent 
-            for child in blender_node.children:
-                node_conversion_in_ifc(node, child, blender_node)
+                new_ifc_element.BIMObjectAggregateProperties.relating_object = parent_obj
+                bpy.ops.bim.aggregate_assign_object(relating_object=parent_obj.BIMObjectProperties.ifc_definition_id)
+                new_ifc_element.parent = parent_obj
+            if ifc_class in {"IfcDistributionElement","IfcDistributionFlowElement", "IfcDistributionChamberElement","IfcEnergyConversionDevice","IfcFlowController","IfcFlowFitting","IfcFlowMovingDevice","IfcFlowSegment","IfcFlowStorageDevice","IfcFlowTerminal","IfcFlowTreatmentDevice",}:
+                ifc_obj=ifcTool.Ifc.get_entity(new_ifc_element)
+                port = add_port(tool.Ifc, tool.System, ifc_obj)
+                port.parent = new_ifc_element
+                port.matrix_parent_inverse = new_ifc_element.matrix_world.inverted()
+
+            return new_ifc_element
+
+        return _run_in_view3d(_operation)
+
+    found_node = find_node_by_id(node, blender_node.name)
+    original_name = blender_node.name
+
+    if blender_node.type != "MESH" and found_node is None:
+        print(f"Node {blender_node.name} of type {blender_node.type} not found in JSON, skipping conversion")
+        return
+
+    if blender_node.type == "MESH" and found_node is None and not blender_node.name.endswith("_Part"):
+        print(f"Node {blender_node.name} of type {blender_node.type} not found in JSON, skipping conversion")
+        return
+
+    print("________________________________________________________________________")
+    print(f"Converting node {blender_node.name} of type {blender_node.type}")
+    print(blender_node)
+
+    if found_node is None:
+        ifc_class = "IfcElementAssembly"
+        predefined_type = "NOTDEFINED"
+        object_type = None
+        predefined_index = 6
+    elif blender_node.type != "MESH":
+        ifc_class = "IfcElementAssembly"
+        predefined_type = _enum_from_uri(found_node.get("predefinedType", "NOTDEFINED"))
+        object_type = found_node.get("objectType")
+        predefined_index = 6
+    else:
+        ifc_class = _enum_from_uri(found_node.get("ifcClass", "IfcBuildingElementProxy"), "IfcBuildingElementProxy")
+        predefined_type = _enum_from_uri(found_node.get("predefinedType", "NOTDEFINED"))
+        object_type = found_node.get("objectType")
+        predefined_index = 5
+
+    new_parent = _assign_and_configure(
+        target_obj=blender_node,
+        original_name=original_name,
+        ifc_class=ifc_class,
+        predefined_type=predefined_type,
+        object_type=object_type,
+        predefined_index=predefined_index,
+        parent_obj=parent,
+    )
+    
+
+    for child in blender_node.children:
+        node_conversion_in_ifc(node, child, new_parent)
 
 
 
@@ -409,7 +438,8 @@ print("STATUS: Loading node data")
 create_hierarchy(node)
 blender_node = bpy.data.objects.get(node["id"].split("#")[1])
 if blender_node:
-    node_conversion_in_ifc(node, blender_node, None)
+    node_conversion_in_ifc(node, blender_node)
+
 
 print("STATUS: GLTF import completed")
 
