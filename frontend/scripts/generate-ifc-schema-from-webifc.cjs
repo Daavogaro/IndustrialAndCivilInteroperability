@@ -30,7 +30,7 @@ function readJson(filePath) {
   }
 }
 
-function extractIfcEntityClasses(dtsContent) {
+function getIfc4x3Block(dtsContent) {
   const namespaceToken = "export declare namespace IFC4X3";
   const namespaceStartIndex = dtsContent.indexOf(namespaceToken);
 
@@ -66,11 +66,16 @@ function extractIfcEntityClasses(dtsContent) {
     process.exit(1);
   }
 
-  const ifc4x3Block = dtsContent.slice(blockStart + 1, blockEnd);
+  return dtsContent.slice(blockStart + 1, blockEnd);
+}
+
+function extractIfcSchemaData(dtsContent) {
+  const ifc4x3Block = getIfc4x3Block(dtsContent);
 
   const classNames = new Set();
   const extendsMap = new Map();
   const abstractMap = new Map();
+  const classBodyMap = new Map();
   const classRegex = /(abstract\s+)?class\s+(Ifc[A-Za-z0-9_]+)\s+extends\s+(Ifc[A-Za-z0-9_]+)/g;
 
   let match;
@@ -83,6 +88,35 @@ function extractIfcEntityClasses(dtsContent) {
     abstractMap.set(className, isAbstract);
 
     classNames.add(className);
+  }
+
+  const classBlockRegex = /(?:abstract\s+)?class\s+(Ifc[A-Za-z0-9_]+)(?:\s+extends\s+Ifc[A-Za-z0-9_]+)?\s*\{([\s\S]*?)\n\s*\}/g;
+  while ((match = classBlockRegex.exec(ifc4x3Block)) !== null) {
+    classBodyMap.set(match[1], match[2]);
+  }
+
+  const enumValuesByName = new Map();
+  for (const [className, body] of classBodyMap.entries()) {
+    if (!className.endsWith("TypeEnum")) {
+      continue;
+    }
+
+    const values = [];
+    const seen = new Set();
+    const staticValueRegex = /static\s+([A-Z0-9_]+)\s*:/g;
+    let staticMatch;
+
+    while ((staticMatch = staticValueRegex.exec(body)) !== null) {
+      const value = staticMatch[1];
+      if (!seen.has(value)) {
+        seen.add(value);
+        values.push(value);
+      }
+    }
+
+    if (values.length > 0) {
+      enumValuesByName.set(className, values);
+    }
   }
 
   const isDescendantOf = (className, ancestorName) => {
@@ -100,7 +134,7 @@ function extractIfcEntityClasses(dtsContent) {
     return false;
   };
 
-  return Array.from(classNames)
+  const classes = Array.from(classNames)
     .filter((className) => {
       // Exclude abstract classes.
       if (abstractMap.get(className)) {
@@ -125,6 +159,43 @@ function extractIfcEntityClasses(dtsContent) {
       return true;
     })
     .sort((a, b) => a.localeCompare(b));
+
+  const predefinedTypesByClass = new Map();
+  const predefinedTypeRegex = /\bPredefinedType\s*:\s*(Ifc[A-Za-z0-9_]*TypeEnum)/;
+
+  for (const className of classes) {
+    let current = className;
+    const visited = new Set();
+    let predefinedTypes = null;
+
+    while (current && !visited.has(current)) {
+      visited.add(current);
+      const body = classBodyMap.get(current);
+
+      if (body) {
+        const predefinedMatch = body.match(predefinedTypeRegex);
+        if (predefinedMatch) {
+          const enumName = predefinedMatch[1];
+          const enumValues = enumValuesByName.get(enumName);
+          if (enumValues && enumValues.length > 0) {
+            predefinedTypes = enumValues;
+          }
+          break;
+        }
+      }
+
+      current = extendsMap.get(current);
+    }
+
+    if (predefinedTypes && predefinedTypes.length > 0) {
+      predefinedTypesByClass.set(className, predefinedTypes);
+    }
+  }
+
+  return {
+    classes,
+    predefinedTypesByClass,
+  };
 }
 
 function main() {
@@ -134,7 +205,8 @@ function main() {
   }
 
   const dtsContent = fs.readFileSync(schemaDtsPath, "utf8");
-  const extractedClasses = extractIfcEntityClasses(dtsContent);
+  const schemaData = extractIfcSchemaData(dtsContent);
+  const extractedClasses = schemaData.classes;
 
   if (extractedClasses.length === 0) {
     console.error("No IFC classes were extracted from ifc-schema.d.ts.");
@@ -148,10 +220,14 @@ function main() {
 
   const classes = extractedClasses.map((name) => {
     const existing = existingByName.get(name);
+    const generatedPredefinedTypes = schemaData.predefinedTypesByClass.get(name);
+    const mergedPredefinedTypes = generatedPredefinedTypes
+      ? Array.from(new Set([...(generatedPredefinedTypes || []), ...(existing?.predefinedTypes || [])]))
+      : (existing?.predefinedTypes || defaultClassConfig.predefinedTypes);
 
     return {
       name,
-      predefinedTypes: existing?.predefinedTypes || defaultClassConfig.predefinedTypes,
+      predefinedTypes: mergedPredefinedTypes,
       // Preserve only existing pset definitions. Do not auto-generate new psets.
       propertySets: existing?.propertySets || defaultClassConfig.propertySets,
     };
