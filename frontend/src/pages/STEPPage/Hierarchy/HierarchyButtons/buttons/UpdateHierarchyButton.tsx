@@ -60,7 +60,7 @@ export async function refreshStepHierarchy(
     PREFIX x3d:  <https://www.web3d.org/specifications/X3dOntology4.0#>
     PREFIX ifc: <https://w3id.org/ifc/IFC4X3_ADD2#>
     PREFIX express: <https://w3id.org/express#>
-    SELECT ?node ?ifcClass ?gidValue ?predefinedType ?userdefinedType
+    SELECT ?node ?ifcClass ?gidValue ?predefinedType ?objectType
     FROM <${graphName}>
     WHERE {
       ?node a ?ifcClass .
@@ -71,7 +71,7 @@ export async function refreshStepHierarchy(
       ?node ?p ?predefinedType .}
       OPTIONAL {
       ?node ifc:objectType_IfcObject ?label .
-      ?label rdf:value ?userdefinedType .}
+      ?label rdf:value ?objectType .}
 
       FILTER(STRSTARTS(STR(?ifcClass), "https://w3id.org/ifc/IFC4X3_ADD2#"))
       FILTER(STRSTARTS(STR(?p), "https://w3id.org/ifc/IFC4X3_ADD2#predefinedType_"))
@@ -114,7 +114,7 @@ export async function refreshStepHierarchy(
       node: i.node,
       ifcClass: i.ifcClass,
       predefinedType: i.predefinedType,
-      userdefinedType: i.userdefinedType,
+      objectType: i.objectType,
     }));
 
     // build tree

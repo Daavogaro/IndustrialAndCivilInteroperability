@@ -69,7 +69,7 @@ export function IFCNodeDetails({
   const [error, setError] = useState<string | null>(null);
   const [ifcClass, setIfcClass] = useState<string>("None");
   const [predefinedType, setPredefinedType] = useState<string>("NOTDEFINED");
-  const [userdefinedType, setUserdefinedType] = useState<string>("");
+  const [objectType, setobjectType] = useState<string>("");
   const [selectedPsets, setSelectedPsets] = useState<Record<string, boolean>>(
     {},
   );
@@ -167,7 +167,7 @@ export function IFCNodeDetails({
         metadata: treeNodeData?.metadata,
         ifc_class: ifcClass,
         predefined_type: predefinedType,
-        userdefined_type: userdefinedType,
+        userdefined_type: objectType,
         property_sets: selectedPropertySets,
       })
       console.log(body)
@@ -182,7 +182,7 @@ export function IFCNodeDetails({
     setMessage({ status: "success", text: data.text });
     setIfcClass("None");
     setPredefinedType("NOTDEFINED");
-    setUserdefinedType("");
+    setobjectType("");
     setSelectedPsets({});
     setPropertyValues({});
   };
@@ -201,7 +201,7 @@ export function IFCNodeDetails({
   const onIFCPropertiesFormReset = () => {
     setIfcClass("None");
     setPredefinedType("NOTDEFINED");
-    setUserdefinedType("");
+    setobjectType("");
     setSelectedPsets({});
     setPropertyValues({});
   };
@@ -308,13 +308,13 @@ export function IFCNodeDetails({
                 notes
               </span>
               <input
-                id="userdefinedTypeInput"
-                name="userdefinedTypeInput"
+                id="objectTypeInput"
+                name="objectTypeInput"
                 type="text"
                 placeholder="Only for USERDEFINED"
-                value={userdefinedType}
+                value={objectType}
                 disabled={predefinedType !== "USERDEFINED"}
-                onChange={(e) => setUserdefinedType(e.target.value)}
+                onChange={(e) => setobjectType(e.target.value)}
                 style={{ height: 19 }}
               />
             </div>

@@ -8,7 +8,7 @@ export type TreeNode = {
   isFundamental?: boolean;
   ifcClass?: string;
   predefinedType?: string;
-  userdefinedType?: string;
+  objectType?: string;
   fileUrl?: string;
   children: TreeNode[];
 };
@@ -39,7 +39,7 @@ export function buildTree(
     node: string;
     ifcClass: string;
     predefinedType: string;
-    userdefinedType: string;
+    objectType: string;
   }[],
 ): TreeNode[] {
   const map = new Map<string, TreeNode>();
@@ -98,12 +98,12 @@ export function buildTree(
     }
   }
   // Update nodes with IFC data
-  for (const { node, ifcClass, predefinedType, userdefinedType } of ifcData) {
+  for (const { node, ifcClass, predefinedType, objectType } of ifcData) {
     const treeNode = getNode(node);
     treeNode.ifcClass = ifcClass;
     treeNode.predefinedType = predefinedType;
-    if (userdefinedType) {
-      treeNode.userdefinedType = userdefinedType;
+    if (objectType) {
+      treeNode.objectType = objectType;
     }
   }
 

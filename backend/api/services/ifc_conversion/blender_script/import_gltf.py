@@ -327,7 +327,7 @@ def node_conversion_in_ifc(node: dict, blender_node: bpy.types.Object, parent: b
         original_name: str,
         ifc_class: str,
         predefined_type: str,
-        object_type: str | None,
+        objectType: str | None,
         predefined_index: int,
         parent_obj: bpy.types.Object | None,
     ) -> bpy.types.Object:
@@ -345,17 +345,20 @@ def node_conversion_in_ifc(node: dict, blender_node: bpy.types.Object, parent: b
             if ifc_class not in {"IfcDistributionElement"}:
                 attributes[predefined_index].enum_value = predefined_type
 
-            if predefined_type == "USERDEFINED" and object_type:
-                attributes[3].string_value = object_type
+            if predefined_type == "USERDEFINED" and objectType:
+                attributes[3].string_value = objectType
 
             bpy.ops.bim.edit_attributes()
 
-            if parent_obj is not None and ifc_class not in {"IfcDistributionElement"}:
-                print(f"    And its parent is: {parent_obj.name}")
-                bpy.ops.bim.enable_editing_aggregate()
-                new_ifc_element.BIMObjectAggregateProperties.relating_object = parent_obj
-                bpy.ops.bim.aggregate_assign_object(relating_object=parent_obj.BIMObjectProperties.ifc_definition_id)
+            if parent_obj is not None:
+                if ifc_class not in {"IfcDistributionElement","IfcDistributionFlowElement", "IfcDistributionChamberElement","IfcEnergyConversionDevice","IfcFlowController","IfcFlowFitting","IfcFlowMovingDevice","IfcFlowSegment","IfcFlowStorageDevice","IfcFlowTerminal","IfcFlowTreatmentDevice",}:
+                    print(f"    And its parent is: {parent_obj.name}")
+                    bpy.ops.bim.enable_editing_aggregate()
+                    new_ifc_element.BIMObjectAggregateProperties.relating_object = parent_obj
+                    bpy.ops.bim.aggregate_assign_object(relating_object=parent_obj.BIMObjectProperties.ifc_definition_id)
+                matrix_world = new_ifc_element.matrix_world.copy()
                 new_ifc_element.parent = parent_obj
+                new_ifc_element.matrix_world = matrix_world
             if ifc_class in {"IfcDistributionElement","IfcDistributionFlowElement", "IfcDistributionChamberElement","IfcEnergyConversionDevice","IfcFlowController","IfcFlowFitting","IfcFlowMovingDevice","IfcFlowSegment","IfcFlowStorageDevice","IfcFlowTerminal","IfcFlowTreatmentDevice",}:
                 ifc_obj=ifcTool.Ifc.get_entity(new_ifc_element)
                 port = add_port(tool.Ifc, tool.System, ifc_obj)
@@ -384,17 +387,17 @@ def node_conversion_in_ifc(node: dict, blender_node: bpy.types.Object, parent: b
     if found_node is None:
         ifc_class = "IfcElementAssembly"
         predefined_type = "NOTDEFINED"
-        object_type = None
+        objectType = None
         predefined_index = 6
     elif blender_node.type != "MESH":
         ifc_class = "IfcElementAssembly"
         predefined_type = _enum_from_uri(found_node.get("predefinedType", "NOTDEFINED"))
-        object_type = found_node.get("objectType")
+        objectType = found_node.get("objectType")
         predefined_index = 6
     else:
         ifc_class = _enum_from_uri(found_node.get("ifcClass", "IfcBuildingElementProxy"), "IfcBuildingElementProxy")
         predefined_type = _enum_from_uri(found_node.get("predefinedType", "NOTDEFINED"))
-        object_type = found_node.get("objectType")
+        objectType = found_node.get("objectType")
         predefined_index = 5
 
     new_parent = _assign_and_configure(
@@ -402,7 +405,7 @@ def node_conversion_in_ifc(node: dict, blender_node: bpy.types.Object, parent: b
         original_name=original_name,
         ifc_class=ifc_class,
         predefined_type=predefined_type,
-        object_type=object_type,
+        objectType=objectType,
         predefined_index=predefined_index,
         parent_obj=parent,
     )
