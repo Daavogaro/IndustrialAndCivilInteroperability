@@ -2,6 +2,7 @@ from pygltflib import GLTF2
 import numpy as np
 import base64
 import os
+import re
 
 from ...services.importing_STEP.RDF_conversion import NameAndNumber
 
@@ -85,22 +86,18 @@ def get_mesh_dimensions(gltf, mesh_index, buffer_cache):
 # NODE HIERARCHY BUILDER (with mesh dimension cache)
 # ------------------------------------------------------------
 
+INVALID_NAME_CHARS = r"[ /\\:\*\?<>\[\]=]"
+
+
+def sanitize_node_name(raw_name: str) -> str:
+    sanitized = re.sub(INVALID_NAME_CHARS, "_", raw_name)
+    sanitized = re.sub(r"_+", "_", sanitized)
+    return sanitized.strip("_") or "Node"
+
 def build_node_hierarchy(gltf, buffer_cache, node_index, mesh_cache, nameAndNumberList):
     node = gltf.nodes[node_index]
     raw_name = node.name or f"Node_{node_index}"
-    clean_name = (
-    raw_name.replace(" ", "_")
-    .replace("/", "_")
-    .replace("\\", "_")
-    .replace(":", "_")
-    .replace("*", "_")
-    .replace("?", "_")
-    .replace("<", "_")
-    .replace(">", "_")
-    .replace("[", "_")
-    .replace("]", "_")
-    .replace("=", "_")
-)
+    clean_name = sanitize_node_name(raw_name)
     
 
     parts = clean_name.split(".")

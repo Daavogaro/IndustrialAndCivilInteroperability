@@ -342,7 +342,7 @@ def node_conversion_in_ifc(node: dict, blender_node: bpy.types.Object, parent: b
             bpy.ops.bim.enable_editing_attributes(mass_operation=False)
             attributes = new_ifc_element.BIMAttributeProperties.attributes
             attributes[1].string_value = original_name
-            if ifc_class not in {"IfcDistributionElement"}:
+            if ifc_class not in {"IfcDistributionElement","IfcDistributionFlowElement", "IfcDistributionChamberElement","IfcEnergyConversionDevice","IfcFlowController","IfcFlowFitting","IfcFlowMovingDevice","IfcFlowSegment","IfcFlowStorageDevice","IfcFlowTerminal","IfcFlowTreatmentDevice",}:
                 attributes[predefined_index].enum_value = predefined_type
 
             if predefined_type == "USERDEFINED" and objectType:
@@ -376,7 +376,7 @@ def node_conversion_in_ifc(node: dict, blender_node: bpy.types.Object, parent: b
         print(f"Node {blender_node.name} of type {blender_node.type} not found in JSON, skipping conversion")
         return
 
-    if blender_node.type == "MESH" and found_node is None and not blender_node.name.endswith("_Part"):
+    if blender_node.type == "MESH" and found_node is None and not blender_node.name.endswith("_Part") and not blender_node.name.endswith("_Mesh"):
         print(f"Node {blender_node.name} of type {blender_node.type} not found in JSON, skipping conversion")
         return
 
@@ -398,7 +398,69 @@ def node_conversion_in_ifc(node: dict, blender_node: bpy.types.Object, parent: b
         ifc_class = _enum_from_uri(found_node.get("ifcClass", "IfcBuildingElementProxy"), "IfcBuildingElementProxy")
         predefined_type = _enum_from_uri(found_node.get("predefinedType", "NOTDEFINED"))
         objectType = found_node.get("objectType")
-        predefined_index = 5
+        if ifc_class in {"IfcElementAssembly"}:
+            predefined_index = 6
+        else:
+            predefined_index = 5
+
+    # If a mesh is modeled as an assembly and has children, create an empty assembly wrapper
+    # with the original name, convert the mesh as "<name>_Mesh", and move child conversion to the wrapper.
+    if blender_node.type == "MESH" and ifc_class == "IfcElementAssembly" and len(blender_node.children) > 0:
+        original_children = list(blender_node.children)
+        wrapper_name = original_name
+        mesh_name = f"{original_name}_Mesh"
+
+        wrapper_obj = bpy.data.objects.new(wrapper_name, None)
+        if blender_node.users_collection:
+            for collection in blender_node.users_collection:
+                collection.objects.link(wrapper_obj)
+        else:
+            bpy.context.scene.collection.objects.link(wrapper_obj)
+
+        wrapper_obj.matrix_world = blender_node.matrix_world.copy()
+
+        if parent is not None:
+            wrapper_world = wrapper_obj.matrix_world.copy()
+            wrapper_obj.parent = parent
+            wrapper_obj.matrix_world = wrapper_world
+
+        mesh_world = blender_node.matrix_world.copy()
+        blender_node.parent = wrapper_obj
+        blender_node.matrix_world = mesh_world
+
+        blender_node.name = mesh_name
+        if blender_node.data:
+            blender_node.data.name = mesh_name
+
+        for child in original_children:
+            child_world = child.matrix_world.copy()
+            child.parent = wrapper_obj
+            child.matrix_world = child_world
+
+        new_parent = _assign_and_configure(
+            target_obj=wrapper_obj,
+            original_name=wrapper_name,
+            ifc_class="IfcElementAssembly",
+            predefined_type=predefined_type,
+            objectType=objectType,
+            predefined_index=6,
+            parent_obj=parent,
+        )
+
+        mesh_predefined_index = 6 if ifc_class in {"IfcElementAssembly"} else 5
+        _assign_and_configure(
+            target_obj=blender_node,
+            original_name=mesh_name,
+            ifc_class=ifc_class,
+            predefined_type=predefined_type,
+            objectType=objectType,
+            predefined_index=mesh_predefined_index,
+            parent_obj=new_parent,
+        )
+
+        for child in original_children:
+            node_conversion_in_ifc(node, child, new_parent)
+        return
 
     new_parent = _assign_and_configure(
         target_obj=blender_node,
@@ -409,7 +471,6 @@ def node_conversion_in_ifc(node: dict, blender_node: bpy.types.Object, parent: b
         predefined_index=predefined_index,
         parent_obj=parent,
     )
-    
 
     for child in blender_node.children:
         node_conversion_in_ifc(node, child, new_parent)

@@ -10,6 +10,7 @@ from ..services.importing_STEP.mayo import convert_with_mayo
 import os
 import json
 import httpx
+import re
 from ..services.importing_STEP.RDF_conversion import GeometryNode
 from ..services.db_requests.name_and_number import name_and_number_query
 from ..services.db_requests.existing_nodes import existing_nodes
@@ -50,6 +51,16 @@ def safe_convert_with_mayo(input_file, output_file):
     except Exception as e:
         return str(e)
 
+
+def sanitize_filename(filename: str) -> str:
+    base_name = os.path.basename(filename or "")
+    stem, extension = os.path.splitext(base_name)
+    stem = re.sub(r"[^A-Za-z0-9._-]+", "_", stem)
+    stem = re.sub(r"_+", "_", stem).strip("._-")
+    if not stem:
+        stem = "uploaded_file"
+    return f"{stem}{extension.lower()}"
+
 # Un websocket è una connessione bidirezionale tra client e server che permette di inviare dati in tempo reale. In questo caso, lo usiamo per comunicare con il frontend React durante tutto il processo di conversione e parsing, in modo da poter aggiornare l'utente sullo stato dell'operazione.
 @router.websocket("/ws/convert")
 async def websocket_convert(websocket: WebSocket):
@@ -57,7 +68,7 @@ async def websocket_convert(websocket: WebSocket):
 
     try:
         data = await websocket.receive_json() # Aspettiamo di ricevere un messaggio JSON dal client. Ci aspettiamo che questo messaggio contenga il nome del file STEP che l'utente ha caricato e che vogliamo convertire.
-        filename = data.get("filename")
+        filename = sanitize_filename(data.get("filename", ""))
         graph_name = data.get("graph_name")
         parent_uri = data.get("parent_uri")
 

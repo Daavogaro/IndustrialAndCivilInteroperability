@@ -44,6 +44,7 @@ export function UploadSTEPModal({ uri, setMessage }: UploadSTEPModalProps) {
       }
 
       setMessage({ status: "success", text: "File uploaded successfully" });
+      const uploadedFilename = uploadData.filename;
 
       // Step 3: apri WebSocket per conversione + gerarchia
       const websocket = new WebSocket("ws://localhost:8000/api/ws/convert");
@@ -51,7 +52,7 @@ export function UploadSTEPModal({ uri, setMessage }: UploadSTEPModalProps) {
         setMessage({ status: "info", text: "WebSocket connected" });
         websocket.send(
           JSON.stringify({
-            filename: file.name,
+            filename: uploadedFilename,
             graph_name: graphName,
             parent_uri: uri,
           }),
