@@ -1,15 +1,26 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { TreeNode } from "../../STEPPage/Hierarchy/buildTree";
 import { StatusString } from "../../../components/Sidebar/MessagePanel";
 import { DownloadIFCButton } from "./DownloadIFCButton";
 import ifcPropertySchemaData from "./ifcPropertySchema.json";
+import resourcesSchemaData from "./resourcesIFCSchema.json";
 
 type PropertyInputType = "text" | "number" | "boolean" | "select";
 
 type PropertySpec = {
   name: string;
-  inputType: PropertyInputType;
+  dataType: string;
   options?: string[];
+};
+
+type ResourceSpec = {
+  name: string;
+  inputType: PropertyInputType;
+  dataType: string;
+};
+
+type IFCResourcesSchema = {
+  classes: ResourceSpec[];
 };
 
 type PSetSpec = {
@@ -28,7 +39,14 @@ type IFCPropertySchema = {
 };
 
 const IFC_PROPERTY_SCHEMA = ifcPropertySchemaData as IFCPropertySchema;
+const IFC_RESOURCES_SCHEMA = resourcesSchemaData as IFCResourcesSchema;
 const IFC_CLASSES = IFC_PROPERTY_SCHEMA.classes.map((item) => item.name);
+
+const IFC_RESOURCE_BY_NAME: Record<string, ResourceSpec> =
+  IFC_RESOURCES_SCHEMA.classes.reduce<Record<string, ResourceSpec>>((acc, item) => {
+    acc[item.name] = item;
+    return acc;
+  }, {});
 
 const IFC_CLASS_TO_PREDEFINED_TYPES: Record<string, string[]> =
   IFC_PROPERTY_SCHEMA.classes.reduce<Record<string, string[]>>((acc, item) => {
@@ -41,6 +59,26 @@ const IFC_CLASS_TO_PSETS: Record<string, PSetSpec[]> =
     acc[item.name] = item.propertySets;
     return acc;
   }, {});
+
+const resolvePropertyInputType = (property: PropertySpec): PropertyInputType => {
+  if (property.options && property.options.length > 0) {
+    return "select";
+  }
+
+  return IFC_RESOURCE_BY_NAME[property.dataType]?.inputType ?? "text";
+};
+
+const resolvePropertyPrimitiveDataType = (property: PropertySpec): string => {
+  return IFC_RESOURCE_BY_NAME[property.dataType]?.dataType ?? "UNKNOWN";
+};
+
+const normalizeIfcName = (value?: string | null): string => {
+  if (!value) {
+    return "";
+  }
+
+  return value.split("#").pop() ?? value;
+};
 
 type IFCNodeDetailsProps = {
   uri: string | null;
@@ -64,6 +102,7 @@ export function IFCNodeDetails({
   setNodeUri,
   setMessage,
 }: IFCNodeDetailsProps) {
+  const initializedForUri = useRef<string | null>(null);
   const [treeNodeData, setTreeNodeData] = useState<TreeNode | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -86,13 +125,15 @@ export function IFCNodeDetails({
   const availablePsets = ifcClass === "None" ? [] : IFC_CLASS_TO_PSETS[ifcClass] ?? [];
 
   const getDefaultPropertyValue = (property: PropertySpec) => {
-    if (property.inputType === "boolean") {
+    const inputType = resolvePropertyInputType(property);
+
+    if (inputType === "boolean") {
       return false;
     }
-    if (property.inputType === "number") {
+    if (inputType === "number") {
       return "";
     }
-    if (property.inputType === "select") {
+    if (inputType === "select") {
       return property.options?.[0] ?? "";
     }
     return "";
@@ -225,6 +266,27 @@ export function IFCNodeDetails({
 
     fetchData();
   }, [uri]);
+
+  useEffect(() => {
+    if (!treeNodeData) {
+      return;
+    }
+
+    if (initializedForUri.current === uri) {
+      return;
+    }
+
+    const nextIfcClass = normalizeIfcName(treeNodeData.ifcClass) || "None";
+    const nextPredefinedType =
+      normalizeIfcName(treeNodeData.predefinedType) || "NOTDEFINED";
+
+    setIfcClass(nextIfcClass);
+    setPredefinedType(nextPredefinedType);
+    setobjectType(treeNodeData.objectType ?? "");
+    setSelectedPsets({});
+    setPropertyValues({});
+    initializedForUri.current = uri;
+  }, [treeNodeData]);
 
   if (!uri) return <p>No node selected.</p>;
   if (loading) return <p>Loading...</p>;
@@ -359,7 +421,10 @@ export function IFCNodeDetails({
                       gap: 10,
                     }}>
                     {pset.properties.map((property) => {
+                      const inputType = resolvePropertyInputType(property);
+                      const primitiveDataType = resolvePropertyPrimitiveDataType(property);
                       const value = propertyValues[pset.name]?.[property.name];
+
                       return (
                         <div key={property.name} style={{border: "1px solid var(--grey-3)",padding: 10, borderRadius: 5, backgroundColor: "var(--background-100)"}}>
                           <label
@@ -367,7 +432,11 @@ export function IFCNodeDetails({
                             style={{ display: "block", marginBottom: 4 }}>
                             {property.name}
                           </label>
-                          {property.inputType === "boolean" ? (
+                          <div style={{ marginBottom: 8, color: "var(--grey-6)", fontSize: 12 }}>
+                            <div>Resource: {property.dataType}</div>
+                            <div>Datatype: {primitiveDataType}</div>
+                          </div>
+                          {inputType === "boolean" ? (
                             <input
                               id={`${pset.name}-${property.name}`}
                               type="checkbox"
@@ -380,7 +449,7 @@ export function IFCNodeDetails({
                                 )
                               }
                             />
-                          ) : property.inputType === "select" ? (
+                          ) : inputType === "select" ? (
                             <select
                               id={`${pset.name}-${property.name}`}
                               value={String(value ?? "")}
@@ -400,13 +469,13 @@ export function IFCNodeDetails({
                           ) : (
                             <input
                               id={`${pset.name}-${property.name}`}
-                              type={property.inputType}
+                              type={inputType}
                               value={String(value ?? "")}
                               onChange={(e) =>
                                 updatePropertyValue(
                                   pset.name,
                                   property.name,
-                                  property.inputType === "number"
+                                  inputType === "number"
                                     ? e.target.value
                                     : e.target.value,
                                 )

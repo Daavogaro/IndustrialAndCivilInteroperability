@@ -27,8 +27,8 @@ async def add_ifc_properties(request: IFCProps):
     userdefined_type = request.userdefined_type
     property_sets = request.property_sets or {}
 
-    def sanitize_name(name: str) -> str:
-        return "".join(ch if ch.isalnum() else "_" for ch in name)
+    
+
 
     metadata_select_query = f"""
     PREFIX x3d: <https://www.web3d.org/specifications/X3dOntology4.0#>
@@ -56,6 +56,63 @@ async def add_ifc_properties(request: IFCProps):
         object_type_label_uri = GRAPH_NAMESPACE["ObjectType_" + metadata.split("#")[-1]]
         g.add((object_type_label_uri, RDF.type, IFC_NAMESPACE["IfcLabel"]))
         g.add((object_type_label_uri, RDF.value, Literal(userdefined_type, datatype=XSD_NAMESPACE.string)))
+
+    rel_psets_uri=[]
+    for pset_name, properties in property_sets.items():
+        rel_defines_uri = GRAPH_NAMESPACE[f"IfcRelDefinesByProperties_{metadata.split('#')[-1]}_{pset_name}"]
+        g.add((rel_defines_uri, RDF.type, IFC_NAMESPACE["IfcRelDefinesByProperties"]))
+        rel_psets_uri.append(rel_defines_uri)
+        rel_defines_GUID = GRAPH_NAMESPACE[f"IfcGloballyUniqueId_IRDBP_{metadata.split('#')[-1]}_{pset_name}"]
+        g.add((rel_defines_GUID, RDF.type, IFC_NAMESPACE["IfcGloballyUniqueId"]))
+        g.add((rel_defines_GUID, RDF.value, Literal(ifcopenshell.guid.new(),datatype=XSD_NAMESPACE.string)))
+        g.add((rel_defines_uri, IFC_NAMESPACE["globalId_IfcRoot"], rel_defines_GUID))
+
+        pset_uri = GRAPH_NAMESPACE[f"IfcPropertySet_{metadata.split('#')[-1]}_{pset_name}"]
+        g.add((pset_uri, RDF.type, IFC_NAMESPACE["IfcPropertySet"]))
+        g.add((rel_defines_uri, IFC_NAMESPACE["relatingPropertyDefinition_IfcRelDefinesByProperties"], pset_uri))
+        g.add((pset_uri, IFC_NAMESPACE["definesOccurrence_IfcPropertySetDefinition"], rel_defines_uri))
+        pset_GUID = GRAPH_NAMESPACE[f"IfcGloballyUniqueId_PSet_{metadata.split('#')[-1]}_{pset_name}"]
+        g.add((pset_GUID, RDF.type, IFC_NAMESPACE["IfcGloballyUniqueId"]))
+        g.add((pset_GUID, RDF.value, Literal(ifcopenshell.guid.new(),datatype=XSD_NAMESPACE.string)))
+        g.add((pset_uri, IFC_NAMESPACE["globalId_IfcRoot"], pset_GUID))
+
+        pset_label_name = GRAPH_NAMESPACE[f"IfcLabel_{pset_name}"]
+        g.add((pset_label_name, RDF.type, IFC_NAMESPACE["IfcLabel"]))
+        g.add((pset_label_name, RDF.value, Literal(pset_name, datatype=XSD_NAMESPACE.string)))
+        g.add((pset_uri, IFC_NAMESPACE["name_IfcRoot"], pset_label_name))
+
+        for prop_name, prop_value, ifc_value, type in properties.items():
+            prop_uri = GRAPH_NAMESPACE[f"IfcPropertySingleValue_{metadata.split('#')[-1]}_{pset_name}_{prop_name}"]
+            g.add((prop_uri, RDF.type, IFC_NAMESPACE["IfcPropertySingleValue"]))
+            g.add((pset_uri, IFC_NAMESPACE["hasProperties_IfcPropertySet"], prop_uri))
+            g.add((prop_uri, IFC_NAMESPACE["partOfPset_IfcPropertySingleValue"], pset_uri))
+            
+            prop_name_identifier = GRAPH_NAMESPACE[f"IfcIdentifier_{prop_name}"]
+            g.add((prop_name_identifier, RDF.type, IFC_NAMESPACE["IfcIdentifier"]))
+            g.add((prop_name_identifier, RDF.value, Literal(prop_name, datatype=XSD_NAMESPACE.string)))
+            g.add((prop_uri, IFC_NAMESPACE["name_IfcProperty"], prop_name_identifier))
+            
+            prop_suffix = sanitize_name(prop_name)
+            prop_uri = GRAPH_NAMESPACE[
+                f"Property_{subject.split('#')[-1]}_{pset_suffix}_{prop_suffix}"
+            ]
+            g.add((prop_uri, RDF.type, IFC_NAMESPACE["IfcPropertySingleValue"]))
+            g.add((pset_uri, IFC_NAMESPACE["hasProperties_IfcPropertySet"], prop_uri))
+            if prop_value is None:
+                continue
+            value_uri = GRAPH_NAMESPACE[
+                f"PropertyValue_{subject.split('#')[-1]}_{pset_suffix}_{prop_suffix}"
+            ]
+            g.add((value_uri, RDF.type, IFC_NAMESPACE["IfcLabel"]))
+            g.add(
+                (
+                    value_uri,
+                    RDF.value,
+                    Literal(str(prop_value), datatype=XSD_NAMESPACE.string),
+                )
+            )
+            g.add((prop_uri, IFC_NAMESPACE["nominalValue_IfcPropertySingleValue"], value_uri))
+
     for bind in binding:
         guid = ifcopenshell.guid.new()
         subject = URIRef(bind["s"]["value"])
@@ -72,36 +129,11 @@ async def add_ifc_properties(request: IFCProps):
         g.add((subject, IFC_NAMESPACE["predefinedType_" + ifc_class], predefined_type_uri))
         if object_type_label_uri:
             g.add((subject, IFC_NAMESPACE["objectType_IfcObject"], object_type_label_uri))
+        for rel in rel_psets_uri:
+            g.add((rel, IFC_NAMESPACE["relatedObject_IfcRelDefinesByProperties"], subject))
+            g.add((subject, IFC_NAMESPACE["isDefinedBy_IfcObject"], rel))
 
-        for pset_name, properties in property_sets.items():
-            pset_suffix = sanitize_name(pset_name)
-            pset_uri = GRAPH_NAMESPACE[f"PSet_{subject.split('#')[-1]}_{pset_suffix}"]
-            g.add((pset_uri, RDF.type, IFC_NAMESPACE["IfcPropertySet"]))
-            g.add((subject, IFC_NAMESPACE["hasPropertySets_IfcObject"], pset_uri))
-
-            for prop_name, prop_value in properties.items():
-                prop_suffix = sanitize_name(prop_name)
-                prop_uri = GRAPH_NAMESPACE[
-                    f"Property_{subject.split('#')[-1]}_{pset_suffix}_{prop_suffix}"
-                ]
-                g.add((prop_uri, RDF.type, IFC_NAMESPACE["IfcPropertySingleValue"]))
-                g.add((pset_uri, IFC_NAMESPACE["hasProperties_IfcPropertySet"], prop_uri))
-
-                if prop_value is None:
-                    continue
-
-                value_uri = GRAPH_NAMESPACE[
-                    f"PropertyValue_{subject.split('#')[-1]}_{pset_suffix}_{prop_suffix}"
-                ]
-                g.add((value_uri, RDF.type, IFC_NAMESPACE["IfcLabel"]))
-                g.add(
-                    (
-                        value_uri,
-                        RDF.value,
-                        Literal(str(prop_value), datatype=XSD_NAMESPACE.string),
-                    )
-                )
-                g.add((prop_uri, IFC_NAMESPACE["nominalValue_IfcPropertySingleValue"], value_uri))
+        
     serialized_graph=g.serialize(format="nt")    
     await import_to_db(None, graph,serialized_graph)
             

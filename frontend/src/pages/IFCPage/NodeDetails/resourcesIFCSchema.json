@@ -1,0 +1,83 @@
+{"classes": [
+    {
+        "name": "IfcBoolean",
+        "inputType": "boolean",
+        "dataType": "BOOLEAN"
+    },
+    {
+        "name": "IfcCountMeasure",
+        "inputType": "number",
+        "dataType": "INTEGER"
+    },
+    {
+        "name": "IfcDate",
+        "inputType": "date",
+        "dataType": "DATE"
+    },
+    {
+        "name": "IfcIdentifier",
+        "inputType": "text",
+        "dataType": "STRING"
+    },
+    {
+        "name": "IfcLabel",
+        "inputType": "text",
+        "dataType": "STRING"
+    },
+    {
+        "name": "IfcPlaneAngleMeasure",
+        "inputType": "number",
+        "dataType": "REAL"
+    },
+    {
+        "name": "IfcPositiveLengthMeasure",
+        "inputType": "number",
+        "dataType": "REAL"
+    },
+    
+    {
+        "name": "IfcThermalTransmittanceMeasure",
+        "inputType": "number",
+        "dataType": "REAL"
+    },
+    {
+        "name": "IfcQuantityArea",
+        "inputType": "number",
+        "dataType": "REAL"
+    },
+    {
+        "name": "IfcQuantityLength",
+        "inputType": "number",
+        "dataType": "REAL"
+    },
+    {
+        "name": "IfcQuantityVolume",
+        "inputType": "number",
+        "dataType": "REAL"
+    },
+    {
+        "name": "IfcQuantityWeight",
+        "inputType": "number",
+        "dataType": "REAL"
+    },
+
+
+
+    {
+        "name": "PEnum_ElementStatus",
+        "inputType": "select",
+        "options": [
+                "DEMOLISH",
+                "EXISTING",
+                "NEW",
+                "TEMPORARY",
+                "OTHER",
+                "NOTKNOWN",
+                "UNSET"
+              ],
+        "dataType": "ENUM"
+    }
+    
+    
+
+]}

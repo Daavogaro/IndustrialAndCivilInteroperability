@@ -128,19 +128,12 @@
     },
     {
       "name": "IfcBoiler",
-      "predefinedTypes": [
-        "STEAM",
-        "WATER",
-        "USERDEFINED",
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["STEAM", "WATER", "USERDEFINED", "NOTDEFINED"],
       "propertySets": []
     },
     {
       "name": "IfcBorehole",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
@@ -171,17 +164,12 @@
     },
     {
       "name": "IfcBuiltElement",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
       "name": "IfcBurner",
-      "predefinedTypes": [
-        "USERDEFINED",
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["USERDEFINED", "NOTDEFINED"],
       "propertySets": []
     },
     {
@@ -248,12 +236,7 @@
     },
     {
       "name": "IfcCaissonFoundation",
-      "predefinedTypes": [
-        "CAISSON",
-        "WELL",
-        "USERDEFINED",
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["CAISSON", "WELL", "USERDEFINED", "NOTDEFINED"],
       "propertySets": []
     },
     {
@@ -269,17 +252,12 @@
     },
     {
       "name": "IfcChimney",
-      "predefinedTypes": [
-        "USERDEFINED",
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["USERDEFINED", "NOTDEFINED"],
       "propertySets": []
     },
     {
       "name": "IfcCivilElement",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
@@ -407,12 +385,7 @@
     },
     {
       "name": "IfcCooledBeam",
-      "predefinedTypes": [
-        "ACTIVE",
-        "PASSIVE",
-        "USERDEFINED",
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["ACTIVE", "PASSIVE", "USERDEFINED", "NOTDEFINED"],
       "propertySets": []
     },
     {
@@ -462,10 +435,7 @@
     },
     {
       "name": "IfcCurtainWall",
-      "predefinedTypes": [
-        "USERDEFINED",
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["USERDEFINED", "NOTDEFINED"],
       "propertySets": []
     },
     {
@@ -489,9 +459,7 @@
     },
     {
       "name": "IfcDeepFoundation",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
@@ -555,23 +523,17 @@
     },
     {
       "name": "IfcDistributionControlElement",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
       "name": "IfcDistributionElement",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
       "name": "IfcDistributionFlowElement",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
@@ -642,9 +604,7 @@
     },
     {
       "name": "IfcEarthworksElement",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
@@ -717,11 +677,7 @@
     },
     {
       "name": "IfcElectricFlowTreatmentDevice",
-      "predefinedTypes": [
-        "ELECTRONICFILTER",
-        "USERDEFINED",
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["ELECTRONICFILTER", "USERDEFINED", "NOTDEFINED"],
       "propertySets": []
     },
     {
@@ -761,9 +717,7 @@
     },
     {
       "name": "IfcElement",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
@@ -803,34 +757,28 @@
       "propertySets": [
         {
           "name": "Pset_ElementAssemblyCommon",
+          "typeDrivenOverride": ["SUPPORTINGASSEMBLY"],
           "properties": [
             {
               "name": "Reference",
-              "inputType": "text"
+              "dataType": "IfcIdentifier"
             },
             {
               "name": "Status",
-              "inputType": "select",
-              "options": [
-                "NEW",
-                "EXISTING",
-                "DEMOLISH",
-                "TEMPORARY",
-                "NOTKNOWN",
-                "UNSET"
-              ]
+              "dataType": "PEnum_ElementStatus"
+            }
+          ]
+        },
+        {
+          "name": "Pset_ElementAssemblyTypeHeadSpan",
+          "properties": [
+            {
+              "name": "NumberOfTracksCrossed",
+              "dataType": "IfcCountMeasure"
             },
             {
-              "name": "IsExternal",
-              "inputType": "boolean"
-            },
-            {
-              "name": "LoadBearing",
-              "inputType": "boolean"
-            },
-            {
-              "name": "FireRating",
-              "inputType": "text"
+              "name": "Span",
+              "dataType": "IfcPositiveLengthMeasure"
             }
           ]
         }
@@ -838,16 +786,12 @@
     },
     {
       "name": "IfcElementComponent",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
       "name": "IfcEnergyConversionDevice",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
@@ -919,23 +863,17 @@
     },
     {
       "name": "IfcFeatureElement",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
       "name": "IfcFeatureElementAddition",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
       "name": "IfcFeatureElementSubtraction",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
@@ -968,16 +906,12 @@
     },
     {
       "name": "IfcFlowController",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
       "name": "IfcFlowFitting",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
@@ -1012,37 +946,27 @@
     },
     {
       "name": "IfcFlowMovingDevice",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
       "name": "IfcFlowSegment",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
       "name": "IfcFlowStorageDevice",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
       "name": "IfcFlowTerminal",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
       "name": "IfcFlowTreatmentDevice",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
@@ -1060,9 +984,7 @@
     },
     {
       "name": "IfcFurnishingElement",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
@@ -1094,30 +1016,22 @@
     },
     {
       "name": "IfcGeomodel",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
       "name": "IfcGeoslice",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
       "name": "IfcGeotechnicalAssembly",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
       "name": "IfcGeotechnicalElement",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
@@ -1189,20 +1103,12 @@
     },
     {
       "name": "IfcJunctionBox",
-      "predefinedTypes": [
-        "DATA",
-        "POWER",
-        "USERDEFINED",
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["DATA", "POWER", "USERDEFINED", "NOTDEFINED"],
       "propertySets": []
     },
     {
       "name": "IfcKerb",
-      "predefinedTypes": [
-        "USERDEFINED",
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["USERDEFINED", "NOTDEFINED"],
       "propertySets": []
     },
     {
@@ -1353,22 +1259,12 @@
     },
     {
       "name": "IfcNavigationElement",
-      "predefinedTypes": [
-        "BEACON",
-        "BUOY",
-        "USERDEFINED",
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["BEACON", "BUOY", "USERDEFINED", "NOTDEFINED"],
       "propertySets": []
     },
     {
       "name": "IfcOpeningElement",
-      "predefinedTypes": [
-        "OPENING",
-        "RECESS",
-        "USERDEFINED",
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["OPENING", "RECESS", "USERDEFINED", "NOTDEFINED"],
       "propertySets": []
     },
     {
@@ -1386,12 +1282,7 @@
     },
     {
       "name": "IfcPavement",
-      "predefinedTypes": [
-        "FLEXIBLE",
-        "RIGID",
-        "USERDEFINED",
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["FLEXIBLE", "RIGID", "USERDEFINED", "NOTDEFINED"],
       "propertySets": []
     },
     {
@@ -1455,12 +1346,7 @@
     },
     {
       "name": "IfcProjectionElement",
-      "predefinedTypes": [
-        "BLISTER",
-        "DEVIATOR",
-        "USERDEFINED",
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["BLISTER", "DEVIATOR", "USERDEFINED", "NOTDEFINED"],
       "propertySets": []
     },
     {
@@ -1550,12 +1436,7 @@
     },
     {
       "name": "IfcRampFlight",
-      "predefinedTypes": [
-        "SPIRAL",
-        "STRAIGHT",
-        "USERDEFINED",
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["SPIRAL", "STRAIGHT", "USERDEFINED", "NOTDEFINED"],
       "propertySets": []
     },
     {
@@ -1591,17 +1472,12 @@
     },
     {
       "name": "IfcReinforcingElement",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
       "name": "IfcReinforcingMesh",
-      "predefinedTypes": [
-        "USERDEFINED",
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["USERDEFINED", "NOTDEFINED"],
       "propertySets": []
     },
     {
@@ -1737,48 +1613,109 @@
           "properties": [
             {
               "name": "Reference",
-              "inputType": "text"
+              "dataType": "IfcIdentifier"
             },
             {
-              "name": "IsExternal",
-              "inputType": "boolean"
+              "name": "Status",
+              "dataType": "PEnum_ElementStatus"
             },
             {
-              "name": "LoadBearing",
-              "inputType": "boolean"
-            },
-            {
-              "name": "PitchAngle",
-              "inputType": "number"
+              "name": "AcousticRating",
+              "dataType": "IfcLabel"
             },
             {
               "name": "FireRating",
-              "inputType": "text"
+              "dataType": "IfcLabel"
+            },
+            {
+              "name": "PitchAngle",
+              "dataType": "IfcPlaneAngleMeasure"
+            },
+            {
+              "name": "Combustible",
+              "dataType": "IfcBoolean"
+            },
+            {
+              "name": "SurfaceSpreadOfFlame",
+              "dataType": "IfcLabel"
+            },
+            {
+              "name": "Compartmentation",
+              "dataType": "IfcBoolean"
+            },
+            {
+              "name": "IsExternal",
+              "dataType": "IfcBoolean"
+            },
+            {
+              "name": "ThermalTransmittance",
+              "dataType": "IfcThermalTransmittanceMeasure"
+            },
+            {
+              "name": "LoadBearing",
+              "dataType": "IfcBoolean"
             }
           ]
         },
         {
-          "name": "Pset_SlabCommon2",
+          "name": "Pset_InstallationOccurrence",
           "properties": [
             {
-              "name": "Reference",
-              "inputType": "text"
+              "name": "InstallationDate",
+              "dataType": "IfcDate"
             },
             {
-              "name": "IsExternal",
-              "inputType": "boolean"
+              "name": "AcceptanceDate",
+              "dataType": "IfcDate"
             },
             {
-              "name": "LoadBearing",
-              "inputType": "boolean"
+              "name": "PutIntoOperationDate",
+              "dataType": "IfcDate"
+            }
+          ]
+        },
+        {
+          "name": "Qto_SlabBaseQuantities",
+          "properties": [
+            {
+              "name": "Width",
+              "dataType": "IfcQuantityLength"
             },
             {
-              "name": "PitchAngle",
-              "inputType": "number"
+              "name": "Length",
+              "dataType": "IfcQuantityLength"
             },
             {
-              "name": "FireRating",
-              "inputType": "text"
+              "name": "Depth",
+              "dataType": "IfcQuantityLength"
+            },
+            {
+              "name": "Perimeter",
+              "dataType": "IfcQuantityLength"
+            },
+            {
+              "name": "GrossArea",
+              "dataType": "IfcQuantityArea"
+            },
+            {
+              "name": "NetArea",
+              "dataType": "IfcQuantityArea"
+            },
+            {
+              "name": "GrossVolume",
+              "dataType": "IfcQuantityVolume"
+            },
+            {
+              "name": "NetVolume",
+              "dataType": "IfcQuantityVolume"
+            },
+            {
+              "name": "GrossWeight",
+              "dataType": "IfcQuantityWeight"
+            },
+            {
+              "name": "NetWeight",
+              "dataType": "IfcQuantityWeight"
             }
           ]
         }
@@ -1796,12 +1733,7 @@
     },
     {
       "name": "IfcSpaceHeater",
-      "predefinedTypes": [
-        "CONVECTOR",
-        "RADIATOR",
-        "USERDEFINED",
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["CONVECTOR", "RADIATOR", "USERDEFINED", "NOTDEFINED"],
       "propertySets": []
     },
     {
@@ -1985,9 +1917,7 @@
     },
     {
       "name": "IfcTransportationDevice",
-      "predefinedTypes": [
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["NOTDEFINED"],
       "propertySets": []
     },
     {
@@ -2006,11 +1936,7 @@
     },
     {
       "name": "IfcTubeBundle",
-      "predefinedTypes": [
-        "FINNED",
-        "USERDEFINED",
-        "NOTDEFINED"
-      ],
+      "predefinedTypes": ["FINNED", "USERDEFINED", "NOTDEFINED"],
       "propertySets": []
     },
     {
@@ -2161,27 +2087,27 @@
           "properties": [
             {
               "name": "Reference",
-              "inputType": "text"
+              "dataType": "IfcIdentifier"
             },
             {
               "name": "IsExternal",
-              "inputType": "boolean"
+              "dataType": "IfcBoolean"
             },
             {
               "name": "LoadBearing",
-              "inputType": "boolean"
+              "dataType": "IfcBoolean"
             },
             {
               "name": "ThermalTransmittance",
-              "inputType": "number"
+              "dataType": "IfcThermalTransmittanceMeasure"
             },
             {
               "name": "FireRating",
-              "inputType": "text"
+              "dataType": "IfcLabel"
             },
             {
               "name": "AcousticRating",
-              "inputType": "text"
+              "dataType": "IfcLabel"
             }
           ]
         }
