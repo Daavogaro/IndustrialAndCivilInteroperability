@@ -331,6 +331,8 @@ export function IFCNodeDetails({
         border: "1px solid var(--grey-2)",
         borderRadius: 5,
         marginTop: 10,
+        maxHeight: "90vh",
+        overflowY: "auto",
       }}>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         <h3 style={{ marginBottom: 10 }}>

@@ -520,8 +520,12 @@ with open(json_path, encoding="utf-8") as f:
 
 # Clear the existing scene (optional)
 # bpy.ops.wm.read_factory_settings(use_empty=True)
-bpy.ops.bim.create_project()
-bpy.ops.bim.new_project(preset='metric_m')
+# bpy.ops.bim.create_project()
+# bpy.ops.bim.new_project(preset='metric_m')
+
+bpy.ops.bim.load_project(filepath="C:\\Users\\Utente\\Desktop\\IndustrialAndCivilInteroperability\\tmp\\IFC\\Base_model.ifc", is_advanced=False, use_relative_path=False, should_start_fresh_session=True)
+bpy.ops.bim.load_project_elements()
+
 
 
 # Import the GLTF file
