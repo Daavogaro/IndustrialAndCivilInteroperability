@@ -81,6 +81,30 @@ export async function refreshStepHierarchy(
     }
     `;
 
+  const ifcPsetQuery = `
+  PREFIX ifc: <https://w3id.org/ifc/IFC4X3_ADD2#>
+    PREFIX express: <https://w3id.org/express#>
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
+    SELECT ?node ?psetName ?propName ?propValue ?datatype
+    FROM <http://localhost:8890/Elettra2/>
+    WHERE {
+      ?s a ifc:IfcRelDefinesByProperties .
+      ?s ifc:relatedObjects_IfcRelDefinesByProperties ?node .
+      ?s ifc:relatingPropertyDefinition_IfcRelDefinesByProperties ?pset .
+      ?pset ifc:name_IfcRoot ?label .
+      ?label express:hasString ?psetName .
+
+      ?pset ifc:hasProperties_IfcPropertySet ?prop .
+      ?prop ifc:name_IfcProperty ?identifier .
+      ?identifier express:hasString ?propName .
+
+      ?prop ifc:nominalValue_IfcPropertySingleValue ?value .
+      ?value ?p ?propValue .
+      ?p a owl:DatatypeProperty .
+      BIND(DATATYPE(?propValue) AS ?datatype)
+    }
+  `;
+
   try {
     // fetch roots
     const rootData = await fetchQuery(queryRootElement);
@@ -116,9 +140,17 @@ export async function refreshStepHierarchy(
       predefinedType: i.predefinedType,
       objectType: i.objectType,
     }));
+    const ifcPsetData = await fetchQuery(ifcPsetQuery);
+    const ifcPsets = ifcPsetData.map((p: any) => ({
+      node: p.node,
+      psetName: p.psetName,
+      propName: p.propName,
+      propValue: p.propValue,
+      datatype: p.datatype,
+    }));
 
     // build tree
-    const hierarchy = buildTree(edges, roots, ifcs);
+    const hierarchy = buildTree(edges, roots, ifcs, ifcPsets);
     setTree(hierarchy);
     setMessage({
       status: "success",

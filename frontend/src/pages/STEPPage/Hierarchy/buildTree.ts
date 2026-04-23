@@ -1,3 +1,5 @@
+import { or } from "three/src/nodes/TSL.js";
+
 export type TreeNode = {
   id: string;
   cadType: string;
@@ -7,6 +9,9 @@ export type TreeNode = {
   toBeSimplified?: boolean;
   isFundamental?: boolean;
   ifcClass?: string;
+  psets?: {
+    [psetName: string]: { [propertyName: string]: string | number | boolean };
+  };
   predefinedType?: string;
   objectType?: string;
   fileUrl?: string;
@@ -40,6 +45,13 @@ export function buildTree(
     ifcClass: string;
     predefinedType: string;
     objectType: string;
+  }[],
+  ifcPsetData: {
+    node: string;
+    psetName: string;
+    propName: string;
+    propValue: string | number | boolean;
+    datatype: string;
   }[],
 ): TreeNode[] {
   const map = new Map<string, TreeNode>();
@@ -104,6 +116,36 @@ export function buildTree(
     treeNode.predefinedType = predefinedType;
     if (objectType) {
       treeNode.objectType = objectType;
+    }
+  }
+
+  for (const { node, psetName, propName, propValue, datatype } of ifcPsetData) {
+    const treeNode = getNode(node);
+    if (!treeNode.psets) {
+      treeNode.psets = {};
+    }
+    if (!treeNode.psets[psetName]) {
+      treeNode.psets[psetName] = {};
+    }
+    if (datatype.split("#")[1] === "string") {
+      treeNode.psets[psetName][propName] = String(propValue);
+    } else if (
+      datatype.split("#")[1] === "integer" ||
+      datatype.split("#")[1] === "double" ||
+      datatype.split("#")[1] === "real"
+    ) {
+      treeNode.psets[psetName][propName] = Number(propValue);
+    } else if (datatype.split("#")[1] === "boolean") {
+      if (
+        propValue === "true" ||
+        propValue === true ||
+        propValue === "1" ||
+        propValue === 1
+      ) {
+        treeNode.psets[psetName][propName] = true;
+      } else {
+        treeNode.psets[psetName][propName] = false;
+      }
     }
   }
 

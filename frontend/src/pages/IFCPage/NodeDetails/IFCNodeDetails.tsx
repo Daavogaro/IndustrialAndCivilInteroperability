@@ -28,6 +28,12 @@ type PSetSpec = {
   properties: PropertySpec[];
 };
 
+type PropertyPayload = {
+  value: string | number | boolean;
+  ifc_value: string;
+  data_type: string;
+};
+
 type IFCClassSchema = {
   name: string;
   predefinedTypes: string[];
@@ -43,10 +49,13 @@ const IFC_RESOURCES_SCHEMA = resourcesSchemaData as IFCResourcesSchema;
 const IFC_CLASSES = IFC_PROPERTY_SCHEMA.classes.map((item) => item.name);
 
 const IFC_RESOURCE_BY_NAME: Record<string, ResourceSpec> =
-  IFC_RESOURCES_SCHEMA.classes.reduce<Record<string, ResourceSpec>>((acc, item) => {
-    acc[item.name] = item;
-    return acc;
-  }, {});
+  IFC_RESOURCES_SCHEMA.classes.reduce<Record<string, ResourceSpec>>(
+    (acc, item) => {
+      acc[item.name] = item;
+      return acc;
+    },
+    {},
+  );
 
 const IFC_CLASS_TO_PREDEFINED_TYPES: Record<string, string[]> =
   IFC_PROPERTY_SCHEMA.classes.reduce<Record<string, string[]>>((acc, item) => {
@@ -55,12 +64,17 @@ const IFC_CLASS_TO_PREDEFINED_TYPES: Record<string, string[]> =
   }, {});
 
 const IFC_CLASS_TO_PSETS: Record<string, PSetSpec[]> =
-  IFC_PROPERTY_SCHEMA.classes.reduce<Record<string, PSetSpec[]>>((acc, item) => {
-    acc[item.name] = item.propertySets;
-    return acc;
-  }, {});
+  IFC_PROPERTY_SCHEMA.classes.reduce<Record<string, PSetSpec[]>>(
+    (acc, item) => {
+      acc[item.name] = item.propertySets;
+      return acc;
+    },
+    {},
+  );
 
-const resolvePropertyInputType = (property: PropertySpec): PropertyInputType => {
+const resolvePropertyInputType = (
+  property: PropertySpec,
+): PropertyInputType => {
   if (property.options && property.options.length > 0) {
     return "select";
   }
@@ -120,9 +134,10 @@ export function IFCNodeDetails({
   const availablePredefinedTypes =
     ifcClass === "None"
       ? ["NOTDEFINED"]
-      : IFC_CLASS_TO_PREDEFINED_TYPES[ifcClass] ?? ["NOTDEFINED"];
+      : (IFC_CLASS_TO_PREDEFINED_TYPES[ifcClass] ?? ["NOTDEFINED"]);
 
-  const availablePsets = ifcClass === "None" ? [] : IFC_CLASS_TO_PSETS[ifcClass] ?? [];
+  const availablePsets =
+    ifcClass === "None" ? [] : (IFC_CLASS_TO_PSETS[ifcClass] ?? []);
 
   const getDefaultPropertyValue = (property: PropertySpec) => {
     const inputType = resolvePropertyInputType(property);
@@ -192,27 +207,42 @@ export function IFCNodeDetails({
 
     const selectedPropertySets: Record<
       string,
-      Record<string, string | number | boolean>
+      Record<string, PropertyPayload>
     > = {};
 
     Object.entries(selectedPsets)
       .filter(([, isSelected]) => isSelected)
       .forEach(([psetName]) => {
-        selectedPropertySets[psetName] = propertyValues[psetName] ?? {};
+        const psetSpec = availablePsets.find((item) => item.name === psetName);
+        if (!psetSpec) {
+          return;
+        }
+
+        const propertyPayload: Record<string, PropertyPayload> = {};
+
+        psetSpec.properties.forEach((property) => {
+          propertyPayload[property.name] = {
+            value: propertyValues[psetName]?.[property.name] ?? "",
+            ifc_value: property.dataType,
+            data_type: resolvePropertyPrimitiveDataType(property),
+          };
+        });
+
+        selectedPropertySets[psetName] = propertyPayload;
       });
 
     // TODO: aggiungere logiche per editing esistenti e non solo per aggiungere nuovi nodi
-    
-    const body = ({
-        graph: graphName,
-        metadata: treeNodeData?.metadata,
-        ifc_class: ifcClass,
-        predefined_type: predefinedType,
-        userdefined_type: objectType,
-        property_sets: selectedPropertySets,
-      })
-      console.log(body)
-    
+
+    const body = {
+      graph: graphName,
+      metadata: treeNodeData?.metadata,
+      ifc_class: ifcClass,
+      predefined_type: predefinedType,
+      userdefined_type: objectType,
+      property_sets: selectedPropertySets,
+    };
+    console.log(body);
+
     const res = await fetch("/api/add-ifc-properties", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -233,7 +263,7 @@ export function IFCNodeDetails({
     const nextTypes =
       selectedIfcClass === "None"
         ? ["NOTDEFINED"]
-        : IFC_CLASS_TO_PREDEFINED_TYPES[selectedIfcClass] ?? ["NOTDEFINED"];
+        : (IFC_CLASS_TO_PREDEFINED_TYPES[selectedIfcClass] ?? ["NOTDEFINED"]);
     setPredefinedType(nextTypes[0]);
     setSelectedPsets({});
     setPropertyValues({});
@@ -356,7 +386,9 @@ export function IFCNodeDetails({
                 value={predefinedType}
                 onChange={(e) => setPredefinedType(e.target.value)}>
                 {availablePredefinedTypes.map((predefinedTypeOption) => (
-                  <option key={predefinedTypeOption} value={predefinedTypeOption}>
+                  <option
+                    key={predefinedTypeOption}
+                    value={predefinedTypeOption}>
                     {predefinedTypeOption}
                   </option>
                 ))}
@@ -417,22 +449,36 @@ export function IFCNodeDetails({
                   <div
                     style={{
                       display: "grid",
-                      gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+                      gridTemplateColumns:
+                        "repeat(auto-fill, minmax(220px, 1fr))",
                       gap: 10,
                     }}>
                     {pset.properties.map((property) => {
                       const inputType = resolvePropertyInputType(property);
-                      const primitiveDataType = resolvePropertyPrimitiveDataType(property);
+                      const primitiveDataType =
+                        resolvePropertyPrimitiveDataType(property);
                       const value = propertyValues[pset.name]?.[property.name];
 
                       return (
-                        <div key={property.name} style={{border: "1px solid var(--grey-3)",padding: 10, borderRadius: 5, backgroundColor: "var(--background-100)"}}>
+                        <div
+                          key={property.name}
+                          style={{
+                            border: "1px solid var(--grey-3)",
+                            padding: 10,
+                            borderRadius: 5,
+                            backgroundColor: "var(--background-100)",
+                          }}>
                           <label
                             htmlFor={`${pset.name}-${property.name}`}
                             style={{ display: "block", marginBottom: 4 }}>
                             {property.name}
                           </label>
-                          <div style={{ marginBottom: 8, color: "var(--grey-6)", fontSize: 12 }}>
+                          <div
+                            style={{
+                              marginBottom: 8,
+                              color: "var(--grey-6)",
+                              fontSize: 12,
+                            }}>
                             <div>Resource: {property.dataType}</div>
                             <div>Datatype: {primitiveDataType}</div>
                           </div>
