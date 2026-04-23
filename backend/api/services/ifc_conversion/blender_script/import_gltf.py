@@ -330,6 +330,7 @@ def node_conversion_in_ifc(node: dict, blender_node: bpy.types.Object, parent: b
         objectType: str | None,
         predefined_index: int,
         parent_obj: bpy.types.Object | None,
+        source_node: dict | None,
     ) -> bpy.types.Object:
         def _operation():
             target_obj.select_set(True)
@@ -350,6 +351,29 @@ def node_conversion_in_ifc(node: dict, blender_node: bpy.types.Object, parent: b
 
             bpy.ops.bim.edit_attributes()
 
+            node_psets = source_node.get("psets") if source_node else None
+            if isinstance(node_psets, dict):
+                for pset_name in node_psets:
+                    pset_data = node_psets.get(pset_name)
+                    if not isinstance(pset_data, dict):
+                        continue
+                    ifc_obj=ifcTool.Ifc.get_entity(new_ifc_element)
+                    if pset_name.startswith("Pset_"):
+                        ifc_pset = ifcTool.Ifc.run("pset.add_pset", product=ifc_obj, name=pset_name)
+                        print(f"        Added Pset: {pset_name}")
+                        for prop_name, prop_value in pset_data.items():
+                            final_value = prop_value.get("value") if isinstance(prop_value, dict) else prop_value
+                            ifcTool.Ifc.run("pset.edit_pset", pset=ifc_pset, properties={prop_name: final_value})
+                            print(f"            Added Property: {prop_name} with value: {final_value}")
+
+                    if pset_name.startswith("Qto_"):
+                        ifc_qto = ifcTool.Ifc.run("pset.add_qto", product=ifc_obj, name=pset_name)
+                        print(f"        Added Qto: {pset_name}")
+                        for prop_name, prop_value in pset_data.items():
+                            final_value = prop_value.get("value") if isinstance(prop_value, dict) else prop_value
+                            ifcTool.Ifc.run("pset.edit_qto", qto=ifc_qto, properties={prop_name: final_value})
+                            print(f"            Added Quantity: {prop_name} with value: {final_value}")
+
             if parent_obj is not None:
                 if ifc_class not in {"IfcDistributionElement","IfcDistributionFlowElement", "IfcDistributionChamberElement","IfcEnergyConversionDevice","IfcFlowController","IfcFlowFitting","IfcFlowMovingDevice","IfcFlowSegment","IfcFlowStorageDevice","IfcFlowTerminal","IfcFlowTreatmentDevice",}:
                     print(f"    And its parent is: {parent_obj.name}")
@@ -364,7 +388,7 @@ def node_conversion_in_ifc(node: dict, blender_node: bpy.types.Object, parent: b
                 port = add_port(tool.Ifc, tool.System, ifc_obj)
                 port.parent = new_ifc_element
                 port.matrix_parent_inverse = new_ifc_element.matrix_world.inverted()
-
+            
             return new_ifc_element
 
         return _run_in_view3d(_operation)
@@ -445,6 +469,7 @@ def node_conversion_in_ifc(node: dict, blender_node: bpy.types.Object, parent: b
             objectType=objectType,
             predefined_index=6,
             parent_obj=parent,
+            source_node=found_node,
         )
 
         mesh_predefined_index = 6 if ifc_class in {"IfcElementAssembly"} else 5
@@ -456,6 +481,7 @@ def node_conversion_in_ifc(node: dict, blender_node: bpy.types.Object, parent: b
             objectType=objectType,
             predefined_index=mesh_predefined_index,
             parent_obj=new_parent,
+            source_node=None,
         )
 
         for child in original_children:
@@ -470,6 +496,7 @@ def node_conversion_in_ifc(node: dict, blender_node: bpy.types.Object, parent: b
         objectType=objectType,
         predefined_index=predefined_index,
         parent_obj=parent,
+        source_node=found_node,
     )
 
     for child in blender_node.children:
