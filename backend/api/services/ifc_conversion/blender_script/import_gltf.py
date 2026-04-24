@@ -4,9 +4,10 @@ import bpy
 import sys
 import os
 import ifcopenshell
+
 import bonsai.tool.ifc as ifcTool
 import bonsai.tool as tool
-
+from pathlib import Path
 
 
 def create_bbox(obj, fundamental_parent=None):
@@ -522,8 +523,9 @@ with open(json_path, encoding="utf-8") as f:
 # bpy.ops.wm.read_factory_settings(use_empty=True)
 # bpy.ops.bim.create_project()
 # bpy.ops.bim.new_project(preset='metric_m')
-
-bpy.ops.bim.load_project(filepath="C:\\Users\\Utente\\Desktop\\IndustrialAndCivilInteroperability\\tmp\\IFC\\Base_model.ifc", is_advanced=False, use_relative_path=False, should_start_fresh_session=True)
+IFC_FOLDER =Path(__file__).resolve().parents[5] / "tmp" / "IFC"
+file_path = str(IFC_FOLDER / "Base_Model.ifc")
+bpy.ops.bim.load_project(filepath=file_path, is_advanced=False, use_relative_path=False, should_start_fresh_session=True)
 bpy.ops.bim.load_project_elements()
 
 
@@ -537,6 +539,10 @@ if blender_node:
 
 
 print("STATUS: GLTF import completed")
+file_name = node["id"].split("#")[1] + ".ifc"
+save_file_path = str(IFC_FOLDER / file_name)
+bpy.ops.bim.save_project(filepath=save_file_path, should_save_as=True, use_relative_path=False)
+# sys.exit()
 
 if save_blend:
     output_blend = os.path.splitext(json_path)[0] + "_imported.blend"

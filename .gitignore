@@ -14,7 +14,18 @@ backend/api/routes/__pycache__
 backend/db/
 
 
-tmp
+tmp/GLB/*
+!tmp/GLB/.gitkeep
+tmp/gLTF/*
+!tmp/gLTF/.gitkeep
+tmp/JSON/*
+!tmp/JSON/.gitkeep
+tmp/RDF/*
+!tmp/RDF/.gitkeep
+tmp/STEP/*
+!tmp/STEP/.gitkeep
+tmp/IFC/*
+!tmp/IFC/Base_Model.ifc
 
 
 .vscode

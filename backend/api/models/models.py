@@ -19,6 +19,7 @@ GLTF_FOLDER = str(BASE_DIR / "tmp" / "gLTF")
 GLB_FOLDER = str(BASE_DIR / "tmp" / "GLB")
 JSON_FOLDER = str(BASE_DIR / "tmp" / "JSON")
 RDF_FOLDER = str(BASE_DIR / "tmp" / "RDF")
+IFC_FOLDER = str(BASE_DIR / "tmp" / "IFC")
 
 
 VIRTUOSO_HOST = os.getenv("DB_HOST", "localhost")    
