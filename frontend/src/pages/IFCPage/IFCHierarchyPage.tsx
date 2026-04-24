@@ -95,6 +95,7 @@ export function IFCHierarchyPage({
               <IFCNodeDetails
                 uri={nodeUri}
                 tree={tree}
+                setTree={setTree}
                 setNodeUri={setNodeUri}
                 setMessage={setMessage}
               />

@@ -97,9 +97,11 @@ const normalizeIfcName = (value?: string | null): string => {
 type IFCNodeDetailsProps = {
   uri: string | null;
   tree: TreeNode[];
+  setTree: (tree: TreeNode[]) => void;
   setNodeUri: (uri: string | null) => void;
   setMessage: (message: { status: StatusString; text: string }) => void;
 };
+
 const findNode = (nodes: TreeNode[], uri: string | null): TreeNode | null => {
   for (const node of nodes) {
     if (node.id === uri) return node;
@@ -110,9 +112,31 @@ const findNode = (nodes: TreeNode[], uri: string | null): TreeNode | null => {
   return null;
 };
 
+const updateNodeInTree = (
+  nodes: TreeNode[],
+  targetUri: string,
+  updater: (node: TreeNode) => TreeNode,
+): TreeNode[] => {
+  return nodes.map((node) => {
+    if (node.id === targetUri) {
+      return updater(node);
+    }
+
+    if (!node.children.length) {
+      return node;
+    }
+
+    return {
+      ...node,
+      children: updateNodeInTree(node.children, targetUri, updater),
+    };
+  });
+};
+
 export function IFCNodeDetails({
   uri,
   tree,
+  setTree,
   setNodeUri,
   setMessage,
 }: IFCNodeDetailsProps) {
@@ -249,13 +273,45 @@ export function IFCNodeDetails({
       body: JSON.stringify(body),
     });
 
+    if (!res.ok) {
+      setMessage({ status: "error", text: "Failed to update IFC properties" });
+      return;
+    }
+
     const data = await res.json();
+
+    const updatedPsets: NonNullable<TreeNode["psets"]> = {};
+    Object.entries(selectedPsets)
+      .filter(([, isSelected]) => isSelected)
+      .forEach(([psetName]) => {
+        updatedPsets[psetName] = {
+          ...(propertyValues[psetName] ?? {}),
+        };
+      });
+
+    if (uri) {
+      const updatedTree = updateNodeInTree(tree, uri, (node) => ({
+        ...node,
+        ifcClass,
+        predefinedType,
+        objectType,
+        psets: updatedPsets,
+      }));
+      setTree(updatedTree);
+      setTreeNodeData((prev) =>
+        prev
+          ? {
+              ...prev,
+              ifcClass,
+              predefinedType,
+              objectType,
+              psets: updatedPsets,
+            }
+          : prev,
+      );
+    }
+
     setMessage({ status: "success", text: data.text });
-    setIfcClass("None");
-    setPredefinedType("NOTDEFINED");
-    setobjectType("");
-    setSelectedPsets({});
-    setPropertyValues({});
   };
 
   const onIfcClassChange = (selectedIfcClass: string) => {
@@ -310,11 +366,40 @@ export function IFCNodeDetails({
     const nextPredefinedType =
       normalizeIfcName(treeNodeData.predefinedType) || "NOTDEFINED";
 
+    const nextPsetsSpec = IFC_CLASS_TO_PSETS[nextIfcClass] ?? [];
+    const existingPsets = treeNodeData.psets ?? {};
+    const nextSelectedPsets: Record<string, boolean> = {};
+    const nextPropertyValues: Record<
+      string,
+      Record<string, string | number | boolean>
+    > = {};
+
+    nextPsetsSpec.forEach((psetSpec) => {
+      const existingPsetValues = existingPsets[psetSpec.name];
+      if (!existingPsetValues) {
+        return;
+      }
+
+      nextSelectedPsets[psetSpec.name] = true;
+      const values: Record<string, string | number | boolean> = {};
+
+      psetSpec.properties.forEach((property) => {
+        if (existingPsetValues[property.name] !== undefined) {
+          values[property.name] = existingPsetValues[property.name];
+          return;
+        }
+
+        values[property.name] = getDefaultPropertyValue(property);
+      });
+
+      nextPropertyValues[psetSpec.name] = values;
+    });
+
     setIfcClass(nextIfcClass);
     setPredefinedType(nextPredefinedType);
     setobjectType(treeNodeData.objectType ?? "");
-    setSelectedPsets({});
-    setPropertyValues({});
+    setSelectedPsets(nextSelectedPsets);
+    setPropertyValues(nextPropertyValues);
     initializedForUri.current = uri;
   }, [treeNodeData]);
 
