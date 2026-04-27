@@ -86,7 +86,7 @@ export async function refreshStepHierarchy(
     PREFIX express: <https://w3id.org/express#>
     PREFIX owl: <http://www.w3.org/2002/07/owl#>
     SELECT ?node ?psetName ?propName ?propValue ?datatype
-    FROM <http://localhost:8890/Elettra2/>
+    FROM <${graphName}>
     WHERE {
       ?s a ifc:IfcRelDefinesByProperties .
       ?s ifc:relatedObjects_IfcRelDefinesByProperties ?node .
