@@ -644,7 +644,92 @@
         "USERDEFINED",
         "NOTDEFINED"
       ],
-      "propertySets": []
+      "propertySets": [
+        {
+          "name": "Pset_InstallationOccurrence",
+          "properties": [
+            {
+              "name": "InstallationDate",
+              "dataType": "IfcDate"
+            },
+            {
+              "name": "AcceptanceDate",
+              "dataType": "IfcDate"
+            },
+            {
+              "name": "PutIntoOperationDate",
+              "dataType": "IfcDate"
+            }
+          ]
+        },
+        {
+          "name": "Pset_ElectricalDeviceCommon",
+          "properties": [
+            {
+              "name": "RatedCurrent",
+              "dataType": "IfcElectricCurrentMeasure"
+            },
+            {
+              "name": "RatedVoltage",
+              "dataType": "IfcElectricVoltageMeasure"
+            },
+            {
+              "name": "NominalFrequencyRange",
+              "dataType": "IfcFrequencyMeasure"
+            },
+            {
+              "name": "PowerFactor",
+              "dataType": "PEnum_ConductorFunctionEnum"
+            },{
+              "name": "NumberOfPoles",
+              "dataType": "IfcCountMeasure"
+            },
+            {
+              "name": "InsulationStandardClass",
+              "dataType": "PEnum_InsulationStandardClass"
+            },{
+              "name": "IP_Code",
+              "dataType": "IfcLabel"
+            },
+            {
+              "name": "IK_Code",
+              "dataType": "IfcLabel"
+            },
+            {
+              "name": "EarthingStyle",
+              "dataType": "IfcLabel"
+            },{
+              "name": "HeatDissipation",
+              "dataType": "IfcPowerMeasure"
+            },
+            {
+              "name": "Power",
+              "dataType": "IfcPowerMeasure"
+            },
+            {
+              "name": "NominalPowerConsumption",
+              "dataType": "IfcPowerMeasure"
+            },
+            {
+              "name": "NumberOfPowerSupplyPorts",
+              "dataType": "IfcInteger"
+            }
+            
+          ]
+        },
+        {
+          "name": "Qto_ElectricApplianceBaseQuantities",
+          "properties": [
+            
+            {
+              "name": "GrossWeight",
+              "dataType": "IfcQuantityWeight"
+            }
+          ]
+        }
+
+
+      ]
     },
     {
       "name": "IfcElectricDistributionBoard",

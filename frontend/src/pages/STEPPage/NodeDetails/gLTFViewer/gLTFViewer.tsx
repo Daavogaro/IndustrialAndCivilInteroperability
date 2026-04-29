@@ -92,15 +92,41 @@ export function GLTFViewer({ uri, hoverUri = null }: GLTFViewerProps) {
         return
       }
 
-      const targetName = inputUri.split("#")[1].replace(/_/g," ")
+      const normalizeName = (value: unknown): string => {
+        if (typeof value !== "string") {
+          return ""
+        }
+
+        return value
+          .replace(/_/g, "")
+          .replace(/\./g, "")
+          .replace(/\s+/g, "")
+          .replace(/-/g, "")
+          .toLowerCase()
+      }
+
+      const uriFragment = inputUri.includes("#") ? inputUri.split("#")[1] : inputUri
+      const targetName = typeof uriFragment === "string" ? uriFragment.replace(/_/g, " ") : ""
       if (!targetName) {
+        return
+      }
+
+      const normalizedTargetName = normalizeName(targetName)
+      if (!normalizedTargetName) {
         return
       }
 
       const hasNamedAncestor = (object: THREE.Object3D, name: string) => {
         let parent: THREE.Object3D | null = object.parent
+        const normalizedName = normalizeName(name)
+
+        if (!normalizedName) {
+          return false
+        }
+
         while (parent) {
-          if (parent.userData?.name === name) {
+          const parentName = normalizeName(parent.userData?.name)
+          if (parentName && parentName === normalizedName) {
             return true
           }
           parent = parent.parent
@@ -117,7 +143,8 @@ export function GLTFViewer({ uri, hoverUri = null }: GLTFViewerProps) {
           }
 
           const ownName = object.userData?.name
-          const isMatch = ownName === targetName || hasNamedAncestor(object, targetName)
+          const isOwnNameMatch = normalizeName(ownName) === normalizedTargetName
+          const isMatch = isOwnNameMatch || hasNamedAncestor(object, targetName)
 
           if (!isMatch) {
             return

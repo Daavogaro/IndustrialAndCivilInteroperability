@@ -20,9 +20,34 @@
         "dataType": "STRING"
     },
     {
+        "name": "IfcInteger",
+        "inputType": "number",
+        "dataType": "INTEGER"
+    },
+    {
         "name": "IfcLabel",
         "inputType": "text",
         "dataType": "STRING"
+    },
+     {
+        "name": "IfcElectricCurrentMeasure",
+        "inputType": "number",
+        "dataType": "REAL"
+    },
+    {
+        "name": "IfcElectricVoltageMeasure",
+        "inputType": "number",
+        "dataType": "REAL"
+    },
+     {
+        "name": "IfcFrequencyMeasure",
+        "inputType": "number",
+        "dataType": "REAL"
+    },
+     {
+        "name": "IfcElectricCurrentMeasure",
+        "inputType": "number",
+        "dataType": "REAL"
     },
     {
         "name": "IfcPlaneAngleMeasure",
@@ -31,6 +56,11 @@
     },
     {
         "name": "IfcPositiveLengthMeasure",
+        "inputType": "number",
+        "dataType": "REAL"
+    },
+    {
+        "name": "IfcPowerMeasure",
         "inputType": "number",
         "dataType": "REAL"
     },
@@ -64,6 +94,22 @@
 
 
     {
+        "name": "PEnum_ConductorFunctionEnum",
+        "inputType": "select",
+        "options": [
+                "NEUTRAL",
+                "PHASE_L1",
+                "PHASE_L2",
+                "PHASE_L3",
+                "PROTECTIVEEARTH",
+                "PROTECTIVEEARTHNEUTRAL",
+                "OTHER",
+                "NOTKNOWN",
+                "UNSET"
+              ],
+        "dataType": "ENUM"
+    },
+    {
         "name": "PEnum_ElementStatus",
         "inputType": "select",
         "options": [
@@ -71,6 +117,21 @@
                 "EXISTING",
                 "NEW",
                 "TEMPORARY",
+                "OTHER",
+                "NOTKNOWN",
+                "UNSET"
+              ],
+        "dataType": "ENUM"
+    },
+    {
+        "name": "PEnum_InsulationStandardClass",
+        "inputType": "select",
+        "options": [
+                "CLASS0APPLIANCE",
+                "CLASS0IAPPLIANCE",
+                "CLASSIAPPLIANCE",
+                "CLASSIIAPPLIANCE",
+                "CLASSIIIAPPLIANCE",
                 "OTHER",
                 "NOTKNOWN",
                 "UNSET"

@@ -86,7 +86,7 @@ def get_mesh_dimensions(gltf, mesh_index, buffer_cache):
 # NODE HIERARCHY BUILDER (with mesh dimension cache)
 # ------------------------------------------------------------
 
-INVALID_NAME_CHARS = r"[ /\\:\*\?<>\[\]=]"
+INVALID_NAME_CHARS = r"[ /\\:\*\?<>\[\]=|]"
 
 
 def sanitize_node_name(raw_name: str) -> str:
