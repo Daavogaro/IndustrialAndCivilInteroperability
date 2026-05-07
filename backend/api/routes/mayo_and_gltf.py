@@ -72,8 +72,9 @@ async def websocket_convert(websocket: WebSocket):
         graph_name = data.get("graph_name")
         parent_uri = data.get("parent_uri")
 
-        input_file = os.path.join(GLTF_FOLDER, filename)
-        output_file_compressed = os.path.join(GLB_FOLDER, filename.replace(".gltf", ".glb"))
+        input_file = os.path.join(STEP_FOLDER, filename)
+        output_file = os.path.join(GLTF_FOLDER, filename.replace(".stp", ".gltf"))
+        output_file_compressed = os.path.join(GLB_FOLDER, filename.replace(".stp", ".glb"))
         # Ad ogni passaggio vengono mandati dei messaggi al client per aggiornarlo sullo stato dell'operazione
 
         # STEP to gLTF conversion
@@ -81,18 +82,17 @@ async def websocket_convert(websocket: WebSocket):
 
         async with httpx.AsyncClient() as client: # Dato che la chiamata al servizio Windows potrebbe richiedere del tempo, usiamo httpx.AsyncClient per fare una richiesta HTTP asincrona. In questo modo, il server FastAPI non si bloccherà in attesa della risposta e potrà continuare a gestire altre richieste o websocket.
             # Chiamata a Mayo
- # Se la conversione è andata a buon fine, inviamo un messaggio al client per indicare che la conversione è stata completata con successo.
-            await websocket.send_json({"status": "wip", "text": "Compressing gLTF"}) # Inviamo un messaggio al client per indicare che stiamo iniziando la fase di compressione del file gLTF. Anche questa operazione potrebbe richiedere del tempo, quindi è importante tenere aggiornato l'utente sullo stato dell'operazione.
-            await run_in_threadpool(compress_gltf, input_file, output_file_compressed)
-            await websocket.send_json({"status": "success", "text": "gLTF Compressed"}) # Se la compressione è andata a buon fine, inviamo un messaggio al client per indicare che il file gLTF è stato compresso con successo. A questo punto, abbiamo sia il file gLTF non compresso che quello compresso, e possiamo procedere con le fasi successive di parsing e importazione in DB.
+            print(f"Calling Mayo service for file: {input_file}")
+            await run_in_threadpool(convert_with_mayo, input_file, output_file)
+            await websocket.send_json({"status": "success", "text": "Conversion Done with Mayo"}) # Se la conversione è andata a buon fine, inviamo un messaggio al client per indicare che la conversione è stata completata con successo.
             # Parsing gerarchia
             await websocket.send_json({"status": "wip", "text": "Parsing hierarchy"})
             # Restituiamo la gerarchia in un array e salviamo anche un file JSON con la gerarchia stessa
             #  TODO: Non salvare il file JSON della gerarchia, ma inviarlo direttamente al DB 
-            hierarchy = await return_gltf_hierarchy(input_file)
+            hierarchy = await return_gltf_hierarchy(GLTF_FOLDER +"/"+ filename.replace(".stp", ".gltf"))
 
             os.makedirs(JSON_FOLDER, exist_ok=True)
-            hierarchy_file = os.path.join(JSON_FOLDER, filename.replace(".gltf", ".json"))
+            hierarchy_file = os.path.join(JSON_FOLDER, filename.replace(".stp", ".json"))
             await run_in_threadpool(write_json_file, hierarchy_file, hierarchy) # Scriviamo il file JSON della gerarchia in un thread separato per non bloccare il server. La funzione write_json_file è una funzione sincrona che scrive un dizionario su un file JSON. run_in_threadpool è una funzione di FastAPI che permette di eseguire funzioni sincrone in un thread separato, in modo da non bloccare il loop asincrono principale del server.
             await websocket.send_json({
                 "status": "success",
@@ -105,8 +105,8 @@ async def websocket_convert(websocket: WebSocket):
             hierarchy_nodes = await run_in_threadpool(validate_geometry_nodes, data)
             exist_nodes=await existing_nodes()
             # Viene lanciata una query SPARQL per ottenere la lista dei nomi e dei numeri già presenti nel database, in modo da poter assegnare un numero univoco a ogni nodo della gerarchia che stiamo importando.
-            input_file_url = input_file.replace("\\", "/") # Convertiamo il percorso del file in un formato URL sostituendo le backslash con slash. Questo è necessario perché nella query SPARQL confrontiamo il percorso del file con un URL, quindi devono essere nello stesso formato.
-            input_filename = filename
+            input_file_url = GLTF_FOLDER + "/" + filename.replace(".stp", ".gltf")
+            input_filename = filename.replace(".stp", ".gltf")
             
             rdf_data = await run_in_threadpool(
                 convert_hierarchy_in_rdf,
@@ -118,6 +118,9 @@ async def websocket_convert(websocket: WebSocket):
                 input_file_url
 
             )
+            await websocket.send_json({"status": "wip", "text": "Compressing gLTF"}) # Inviamo un messaggio al client per indicare che stiamo iniziando la fase di compressione del file gLTF. Anche questa operazione potrebbe richiedere del tempo, quindi è importante tenere aggiornato l'utente sullo stato dell'operazione.
+            await run_in_threadpool(compress_gltf, output_file, output_file_compressed)
+            await websocket.send_json({"status": "success", "text": "gLTF Compressed"}) # Se la compressione è andata a buon fine, inviamo un messaggio al client per indicare che il file gLTF è stato compresso con successo. A questo punto, abbiamo sia il file gLTF non compresso che quello compresso, e possiamo procedere con le fasi successive di parsing e importazione in DB.
     
             file_path = os.path.join(RDF_FOLDER, "bulk_import.nt")
     

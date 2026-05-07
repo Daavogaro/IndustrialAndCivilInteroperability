@@ -9,6 +9,7 @@ export function Sidebar({ message }: SidebarProps) {
   return (
     <div>
       <aside id="sidebar">
+        <img src="./elettra-logo.png" alt="" />
         <img src="./psi-logo.png" alt="" />
 
         <ul id="nav-buttons">
@@ -24,12 +25,12 @@ export function Sidebar({ message }: SidebarProps) {
               IFC Hierarchy
             </li>
           </Router.Link>
-          <Router.Link to="/IFCViewer">
+          {/* <Router.Link to="/IFCViewer">
             <li>
               <img src="./IFC-logo.png" alt="" style={{ height: 20 }} />
               IFC Viewer
             </li>
-          </Router.Link>
+          </Router.Link> */}
 
           <MessagePanel message={message} />
         </ul>

@@ -314,6 +314,16 @@ def node_conversion_in_ifc(node: dict, blender_node: bpy.types.Object, parent: b
             return default
         return value.split("#")[-1]
 
+    def _normalize_property_value(raw_value):
+        value = raw_value.get("value") if isinstance(raw_value, dict) else raw_value
+        if value is None:
+            return None
+        if isinstance(value, str):
+            value = value.strip()
+            if value == "":
+                return None
+        return value
+
     def _run_in_view3d(operation):
         for window in context.window_manager.windows:
             screen = window.screen
@@ -363,17 +373,27 @@ def node_conversion_in_ifc(node: dict, blender_node: bpy.types.Object, parent: b
                         ifc_pset = ifcTool.Ifc.run("pset.add_pset", product=ifc_obj, name=pset_name)
                         print(f"        Added Pset: {pset_name}")
                         for prop_name, prop_value in pset_data.items():
-                            final_value = prop_value.get("value") if isinstance(prop_value, dict) else prop_value
-                            ifcTool.Ifc.run("pset.edit_pset", pset=ifc_pset, properties={prop_name: final_value})
-                            print(f"            Added Property: {prop_name} with value: {final_value}")
+                            final_value = _normalize_property_value(prop_value)
+                            if final_value is None:
+                                continue
+                            try:
+                                ifcTool.Ifc.run("pset.edit_pset", pset=ifc_pset, properties={prop_name: final_value})
+                                print(f"            Added Property: {prop_name} with value: {final_value}")
+                            except (ValueError, TypeError) as exc:
+                                print(f"            Skipped Property: {prop_name} (value={final_value!r}) due to cast error: {exc}")
 
                     if pset_name.startswith("Qto_"):
                         ifc_qto = ifcTool.Ifc.run("pset.add_qto", product=ifc_obj, name=pset_name)
                         print(f"        Added Qto: {pset_name}")
                         for prop_name, prop_value in pset_data.items():
-                            final_value = prop_value.get("value") if isinstance(prop_value, dict) else prop_value
-                            ifcTool.Ifc.run("pset.edit_qto", qto=ifc_qto, properties={prop_name: final_value})
-                            print(f"            Added Quantity: {prop_name} with value: {final_value}")
+                            final_value = _normalize_property_value(prop_value)
+                            if final_value is None:
+                                continue
+                            try:
+                                ifcTool.Ifc.run("pset.edit_qto", qto=ifc_qto, properties={prop_name: final_value})
+                                print(f"            Added Quantity: {prop_name} with value: {final_value}")
+                            except (ValueError, TypeError) as exc:
+                                print(f"            Skipped Quantity: {prop_name} (value={final_value!r}) due to cast error: {exc}")
 
             if parent_obj is not None:
                 if ifc_class not in {"IfcDistributionElement","IfcDistributionFlowElement", "IfcDistributionChamberElement","IfcEnergyConversionDevice","IfcFlowController","IfcFlowFitting","IfcFlowMovingDevice","IfcFlowSegment","IfcFlowStorageDevice","IfcFlowTerminal","IfcFlowTreatmentDevice",}:
