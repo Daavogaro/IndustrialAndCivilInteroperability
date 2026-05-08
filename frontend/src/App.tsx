@@ -57,7 +57,7 @@ function App() {
             }
           />
           <Route path="/IFCViewer" element={<IFCViewerPage />} />
-          <Route path="/FileUpdate" element={<UpdateFilesPage />} />
+          <Route path="/FileUpdate" element={<UpdateFilesPage setMessage={setMessage} />} />
           <Route path="/ProductInventory" element={<InventoryProductPage />} />
         </Routes>
       </main>

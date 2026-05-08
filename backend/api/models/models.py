@@ -30,3 +30,6 @@ X3D_NAMESPACE = Namespace("https://www.web3d.org/specifications/X3dOntology4.0#"
 XSD_NAMESPACE = Namespace("http://www.w3.org/2001/XMLSchema#")
 IFC_NAMESPACE = Namespace("https://w3id.org/ifc/IFC4X3_ADD2#")
 EXPRESS_NAMESPACE = Namespace("https://w3id.org/express#")
+PREMIS_NAMESPACE = Namespace("http://www.loc.gov/premis/rdf/v3/")
+PROV_NAMESPACE = Namespace("http://www.w3.org/ns/prov#")
+FOAF_NAMESPACE = Namespace("http://xmlns.com/foaf/0.1/")

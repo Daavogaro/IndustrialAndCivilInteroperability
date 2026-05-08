@@ -1,7 +1,8 @@
 from rdflib import OWL, Graph, Namespace, Literal, RDF, URIRef,RDFS
 from pydantic import BaseModel
 from typing_extensions import TypedDict
-from ...models.models import VIRTUOSO_URL,GRAPH_NAMESPACE, X3D_NAMESPACE, XSD_NAMESPACE
+from pathlib import Path
+from ...models.models import PREMIS_NAMESPACE, VIRTUOSO_URL,GRAPH_NAMESPACE, X3D_NAMESPACE, XSD_NAMESPACE,PROV_NAMESPACE,FOAF_NAMESPACE
 
 class NameAndNumber(TypedDict):
     name: str
@@ -31,7 +32,10 @@ def convert_hierarchy_in_rdf(
     existing_nodes: list[ExistingProps],
     graphName: str,
     fileName: str,
-    fileURL: str
+    fileURL: str,
+    ownerFirstName: str,
+    ownerLastName: str,
+    time: str
 ) -> str:
 
     g = Graph()
@@ -49,10 +53,24 @@ def convert_hierarchy_in_rdf(
     g.add((X3D_NAMESPACE.hasParentCADPart, RDF.type, OWL.ObjectProperty))
     g.add((X3D_NAMESPACE.hasMetadata, RDF.type, OWL.ObjectProperty))
     g.add((X3D_NAMESPACE.hasParentX3D, RDF.type, OWL.ObjectProperty))
+    g.add((X3D_NAMESPACE.attrib, RDF.type, OWL.DatatypeProperty))
+    g.add((PREMIS_NAMESPACE.storedAt, RDF.type, OWL.ObjectProperty))
+    g.add((PROV_NAMESPACE.generatedAtTime, RDF.type, OWL.DatatypeProperty))
+    g.add((FOAF_NAMESPACE.firstName, RDF.type, OWL.DatatypeProperty))
+    g.add((FOAF_NAMESPACE.lastName, RDF.type, OWL.DatatypeProperty))
+    g.add((PROV_NAMESPACE.wasAttributedTo, RDF.type, OWL.ObjectProperty))
     
-    urlObjectNode_uri = GRAPH_NAMESPACE[fileName]
-    g.add((urlObjectNode_uri, RDF.type, X3D_NAMESPACE.X3DUrlObject))
-    g.add((urlObjectNode_uri, URIRef(str(X3D_NAMESPACE) + "url"), Literal(fileURL, datatype=XSD_NAMESPACE.string)))
+    file = GRAPH_NAMESPACE[fileName]
+    g.add((file, RDF.type, PREMIS_NAMESPACE.File))
+    g.add((file,PROV_NAMESPACE.generatedAtTime, Literal(time, datatype=XSD_NAMESPACE.dateTime)))
+    storage_location = URIRef(Path(fileURL).as_uri())
+    g.add((file, PREMIS_NAMESPACE.storedAt, storage_location))
+    owner = GRAPH_NAMESPACE[ownerFirstName+"_"+ownerLastName]
+    g.add((owner, RDF.type, PREMIS_NAMESPACE.Person))
+    g.add((owner, FOAF_NAMESPACE.firstName, Literal(ownerFirstName, datatype=XSD_NAMESPACE.string)))
+    g.add((owner, FOAF_NAMESPACE.lastName, Literal(ownerLastName, datatype=XSD_NAMESPACE.string)))
+    g.add((file,PROV_NAMESPACE.wasAttributedTo, owner))
+
 
     def add_node(node: GeometryNode, existing_nodes: list[ExistingProps], parent_uri=None):
         original_name = node.name
@@ -66,7 +84,7 @@ def convert_hierarchy_in_rdf(
         g.add((metadata_uri, RDF.type, X3D_NAMESPACE.MetadataString))
         g.add((node_uri, X3D_NAMESPACE.hasMetadata, metadata_uri))
         g.add((node_uri, X3D_NAMESPACE.name, Literal(number, datatype=XSD_NAMESPACE.integer)))
-        g.add((node_uri, X3D_NAMESPACE.hasParentX3D, urlObjectNode_uri))
+        g.add((node_uri, X3D_NAMESPACE.hasParentX3D, file))
 
         def get_by_names(items:list[ExistingProps], target: str):
             return next((item for item in items if item["name"] == target), None)

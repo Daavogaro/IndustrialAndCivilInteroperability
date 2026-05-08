@@ -71,6 +71,9 @@ async def websocket_convert(websocket: WebSocket):
         filename = sanitize_filename(data.get("filename", ""))
         graph_name = data.get("graph_name")
         parent_uri = data.get("parent_uri")
+        ownerFirstName = data.get("ownerFirstName", "Unknown")
+        ownerLastName = data.get("ownerLastName", "Unknown")
+        time = data.get("time", "Unknown")
 
         input_file = os.path.join(STEP_FOLDER, filename)
         output_file = os.path.join(GLTF_FOLDER, filename.replace(".stp", ".gltf"))
@@ -115,7 +118,10 @@ async def websocket_convert(websocket: WebSocket):
                 exist_nodes,
                 "https://elettra2.0#",
                 input_filename,
-                input_file_url
+                input_file_url,
+                ownerFirstName,
+                ownerLastName,
+                time
 
             )
             await websocket.send_json({"status": "wip", "text": "Compressing gLTF"}) # Inviamo un messaggio al client per indicare che stiamo iniziando la fase di compressione del file gLTF. Anche questa operazione potrebbe richiedere del tempo, quindi è importante tenere aggiornato l'utente sullo stato dell'operazione.

@@ -13,7 +13,8 @@ export async function refreshStepHierarchy(
   const graphName = "http://localhost:8890/Elettra2/";
   const queryRootElement = `
     PREFIX x3d:  <https://www.web3d.org/specifications/X3dOntology4.0#>
-    SELECT ?root ?cadType ?metadata ?visible ?display ?dimensions ?attrib ?fileUrl
+    PREFIX pre: <http://www.loc.gov/premis/rdf/v3/>
+    SELECT ?root ?cadType ?metadata ?visible ?display ?dimensions ?attrib ?fileUrl 
     FROM <${graphName}>
     WHERE {
       ?root a x3d:CADAssembly .
@@ -24,8 +25,9 @@ export async function refreshStepHierarchy(
       OPTIONAL { ?root x3d:attrib ?attrib . }
       OPTIONAL { ?root x3d:visible ?visible . }.
       OPTIONAL {
-      ?root x3d:hasParentX3D ?urlObject .
-      ?urlObject x3d:url ?fileUrl .
+      ?root x3d:hasParentX3D ?file .
+      ?file a pre:File.
+      ?file pre:storedAt ?fileUrl .
       }
       FILTER NOT EXISTS {
         ?root x3d:hasParentCADPart ?p .
@@ -37,6 +39,7 @@ export async function refreshStepHierarchy(
 
   const queryChildren = `
     PREFIX x3d:  <https://www.web3d.org/specifications/X3dOntology4.0#>
+    PREFIX pre: <http://www.loc.gov/premis/rdf/v3/>
     SELECT ?parent ?child ?cadType ?metadata ?visible ?display ?dimensions ?attrib ?fileUrl
     FROM <${graphName}>
     WHERE {
@@ -48,8 +51,9 @@ export async function refreshStepHierarchy(
       OPTIONAL { ?child x3d:bboxSize ?dimensions . }
       OPTIONAL { ?child x3d:attrib ?attrib . }
       OPTIONAL {
-      ?child x3d:hasParentX3D ?urlObject .
-      ?urlObject x3d:url ?fileUrl .
+      ?child x3d:hasParentX3D ?file .
+      ?file a pre:File .
+      ?file pre:storedAt ?fileUrl .
       }
       FILTER(STRSTARTS(STR(?cadType), "https://www.web3d.org/specifications/X3dOntology4.0#"))
     }
@@ -117,7 +121,7 @@ export async function refreshStepHierarchy(
       dimensions: r.dimensions,
       cadType: r.cadType,
       metadata: r.metadata,
-      fileUrl: r.fileUrl,
+      fileUrl: r.fileUrl.replace("file:///",""),
     }));
 
     // fetch edges
@@ -131,7 +135,7 @@ export async function refreshStepHierarchy(
       display: e.display,
       dimensions: e.dimensions,
       attrib: e.attrib,
-      fileUrl: e.fileUrl,
+      fileUrl: e.fileUrl.replace("file:///",""),
     }));
     const ifcData = await fetchQuery(ifcQuery);
     const ifcs = ifcData.map((i: any) => ({

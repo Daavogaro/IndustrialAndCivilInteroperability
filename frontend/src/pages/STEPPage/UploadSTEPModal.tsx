@@ -10,6 +10,10 @@ type UploadSTEPModalProps = {
 
 export function UploadSTEPModal({ uri, setMessage }: UploadSTEPModalProps) {
   const graphName = "http://localhost:8890/Elettra2/";
+  const ownerFirstName = "Davide";
+  const ownerLastName = "Avogaro";
+
+  const time = new Date().toISOString();
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -55,6 +59,9 @@ export function UploadSTEPModal({ uri, setMessage }: UploadSTEPModalProps) {
             filename: uploadedFilename,
             graph_name: graphName,
             parent_uri: uri,
+            ownerFirstName: ownerFirstName,
+            ownerLastName: ownerLastName,
+            time: time,
           }),
         );
       };
