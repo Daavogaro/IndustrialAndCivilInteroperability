@@ -6,6 +6,8 @@ import { StatusString } from "./components/Sidebar/MessagePanel";
 import { IFCHierarchyPage } from "./pages/IFCPage/IFCHierarchyPage";
 import { TreeNode } from "./pages/STEPPage/Hierarchy/buildTree";
 import { IFCViewerPage } from "./pages/IFCViewerPage/IFCViewerPage";
+import { UpdateFilesPage } from "./pages/UpdateFilesPage/UpdateFilesPage";
+import { InventoryProductPage } from "./pages/InventoryProductPage/InventoryProductPage";
 
 function App() {
   const [message, setMessage] = useState<{
@@ -54,10 +56,9 @@ function App() {
               />
             }
           />
-          <Route
-            path="/IFCViewer"
-            element={<IFCViewerPage />}
-          />
+          <Route path="/IFCViewer" element={<IFCViewerPage />} />
+          <Route path="/FileUpdate" element={<UpdateFilesPage />} />
+          <Route path="/ProductInventory" element={<InventoryProductPage />} />
         </Routes>
       </main>
     </div>

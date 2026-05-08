@@ -5,8 +5,8 @@ import sys
 import os
 import ifcopenshell
 
-import bonsai.tool.ifc as ifcTool
-import bonsai.tool as tool
+import bonsai.tool.ifc as ifcTool # pyright: ignore[reportMissingImports]
+import bonsai.tool as tool # pyright: ignore[reportMissingImports]
 from pathlib import Path
 
 

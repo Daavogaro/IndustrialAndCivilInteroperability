@@ -25,6 +25,20 @@ export function Sidebar({ message }: SidebarProps) {
               IFC Hierarchy
             </li>
           </Router.Link>
+          <Router.Link to="/ProductInventory">
+            <li>
+              <img src="./STEP-logo.png" alt="" style={{ height: 20 }} />
+              Product Inventory
+            </li>
+          </Router.Link>
+          <Router.Link to="/FileUpdate">
+            <li>
+              <span className="material-icons-round" style={{ fontSize: 20 }}>
+                restore_page
+              </span>
+              File Update
+            </li>
+          </Router.Link>
           {/* <Router.Link to="/IFCViewer">
             <li>
               <img src="./IFC-logo.png" alt="" style={{ height: 20 }} />
