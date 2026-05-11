@@ -2,13 +2,13 @@ import { useState } from "react";
 import { toogleModal } from "../../utils/htmlFunctions";
 import { StatusString } from "../../components/Sidebar/MessagePanel";
 
-type UploadSTEPModalProps = {
-  uri: string | null;
+type UpdateSTEPModalProps = {
+  fileName: string 
 
   setMessage: (message: { status: StatusString; text: string }) => void;
 };
 
-export function UploadSTEPModal({ uri, setMessage }: UploadSTEPModalProps) {
+export function UpdateSTEPModal({ fileName, setMessage }: UpdateSTEPModalProps) {
   const graphName = "http://localhost:8890/Elettra2/";
   const ownerFirstName = "Davide";
   const ownerLastName = "Avogaro";
@@ -24,7 +24,7 @@ export function UploadSTEPModal({ uri, setMessage }: UploadSTEPModalProps) {
   };
 
   // Step 2: upload via HTTP
-  const handleUpload = async (uri: string | null) => {
+  const handleUpload = async (fileName: string) => {
     if (!file) return;
 
     setUploading(true);
@@ -33,6 +33,7 @@ export function UploadSTEPModal({ uri, setMessage }: UploadSTEPModalProps) {
     try {
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("fileName", fileName.replace(".gltf", ".stp"));
 
       const res = await fetch("/api/upload-step", {
         method: "POST",
@@ -51,45 +52,44 @@ export function UploadSTEPModal({ uri, setMessage }: UploadSTEPModalProps) {
       const uploadedFilename = uploadData.filename;
 
       // Step 3: apri WebSocket per conversione + gerarchia
-      const websocket = new WebSocket("ws://localhost:8000/api/ws/convert");
+      const websocket = new WebSocket("ws://localhost:8000/api/ws/update");
       websocket.onopen = () => {
         setMessage({ status: "info", text: "WebSocket connected" });
-        websocket.send(
-          JSON.stringify({
-            filename: uploadedFilename,
-            graph_name: graphName,
-            parent_uri: uri,
-            ownerFirstName: ownerFirstName,
-            ownerLastName: ownerLastName,
-            time: time,
-          }),
-        );
+         websocket.send(
+           JSON.stringify({
+             filename: uploadedFilename,
+             graph_name: graphName,
+             ownerFirstName: ownerFirstName,
+             ownerLastName: ownerLastName,
+             time: time,
+           }),
+         );
       };
+// 
+     websocket.onmessage = (event) => {
+       const data = JSON.parse(event.data);
+       setMessage({ status: data.status, text: data.text });
+     };
 
-      websocket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        setMessage({ status: data.status, text: data.text });
-      };
+     websocket.onclose = () => {
+       setMessage({ status: "info", text: "WebSocket connection closed" });
+       setUploading(false);
+     };
 
-      websocket.onclose = () => {
-        setMessage({ status: "info", text: "WebSocket connection closed" });
-        setUploading(false);
-      };
-
-      websocket.onerror = (err) => {
-        setMessage({ status: "error", text: "WebSocket error: " + err });
-        setUploading(false);
-      };
+     websocket.onerror = (err) => {
+       setMessage({ status: "error", text: "WebSocket error: " + err });
+       setUploading(false);
+     };
     } catch (err) {
       setMessage({ status: "error", text: "Upload error: " + err });
       setUploading(false);
     }
-    toogleModal("upload-step-modal");
+    toogleModal("update-step-modal");
   };
 
   return (
     <dialog
-      id="upload-step-modal"
+      id="update-step-modal"
       style={{
         backgroundColor: "var(--background-100)",
         padding: 10,
@@ -97,17 +97,8 @@ export function UploadSTEPModal({ uri, setMessage }: UploadSTEPModalProps) {
       }}>
       <div>
         <h3 style={{ color: "white", paddingBottom: 10 }}>
-          Upload a STEP file to add its hierarchy to the graph:
+          Update a STEP file to update {fileName}
         </h3>
-        {uri ? (
-          <p style={{ color: "white", marginBottom: 10 }}>
-            Parent node: {uri.split("#")[1]}
-          </p>
-        ) : (
-          <p style={{ color: "white", marginBottom: 10 }}>
-            No parent node selected, creation of a new root node
-          </p>
-        )}
         <input
           type="file"
           accept=".stp"
@@ -125,7 +116,7 @@ export function UploadSTEPModal({ uri, setMessage }: UploadSTEPModalProps) {
             id="cancel-button"
             style={{ backgroundColor: "grey" }}
             onClick={() => {
-              toogleModal("upload-step-modal");
+              toogleModal("update-step-modal");
               setFile(null);
             }}>
             <span className="material-icons-round">cancel</span>
@@ -135,7 +126,7 @@ export function UploadSTEPModal({ uri, setMessage }: UploadSTEPModalProps) {
             style={{ backgroundColor: "rgb(18, 145, 18)" }}
             disabled={!file || uploading}
             onClick={() => {
-              handleUpload(uri);
+              handleUpload(fileName);
             }}>
             <span className="material-icons-round">check</span>
             Upload

@@ -1,0 +1,280 @@
+from pygltflib import GLTF2
+import numpy as np
+import base64
+import os
+import re
+
+from ....services.db_requests.substitution_file_query import substitution_file_query
+
+from ....services.importing_STEP.RDF_conversion import NameAndNumber
+
+from ....services.db_requests.name_and_number import name_and_number_query
+
+from ....routes.sparql_query import sparql_query
+
+from pydantic import BaseModel
+
+class SparqlRequest(BaseModel):
+    query: str
+
+# ------------------------------------------------------------
+# BUFFER PRELOAD (read each buffer only once)
+# ------------------------------------------------------------
+
+def preload_buffers(gltf, gltf_file_dir):
+    buffer_cache = []
+
+    for buffer in gltf.buffers:
+        if buffer.uri:
+            if buffer.uri.startswith("data:"):
+                comma = buffer.uri.find(',')
+                buffer_bytes = base64.b64decode(buffer.uri[comma + 1:])
+            else:
+                bin_path = os.path.join(gltf_file_dir, buffer.uri)
+                with open(bin_path, 'rb') as f:
+                    buffer_bytes = f.read()
+        else:
+            # GLB binary blob
+            buffer_bytes = gltf.binary_blob()
+
+        buffer_cache.append(buffer_bytes)
+
+    return buffer_cache
+
+
+# ------------------------------------------------------------
+# ACCESSOR LOADER (FLOAT VEC3 only, fallback path)
+# ------------------------------------------------------------
+
+def load_accessor_data(gltf, accessor_idx, buffer_cache):
+    accessor = gltf.accessors[accessor_idx]
+    buffer_view = gltf.bufferViews[accessor.bufferView]
+    buffer_bytes = buffer_cache[buffer_view.buffer]
+
+    start = (buffer_view.byteOffset or 0) + (accessor.byteOffset or 0)
+    length = accessor.count * 3 * 4  # FLOAT32 VEC3
+
+    data = buffer_bytes[start:start + length]
+
+    vertices = np.frombuffer(data, dtype=np.float32).reshape(accessor.count, 3)
+    return vertices
+
+
+# ------------------------------------------------------------
+# FAST MESH DIMENSIONS (uses accessor min/max when available)
+# ------------------------------------------------------------
+
+def get_mesh_dimensions(gltf, mesh_index, buffer_cache):
+    mesh = gltf.meshes[mesh_index]
+
+    min_vals = np.array([np.inf, np.inf, np.inf])
+    max_vals = np.array([-np.inf, -np.inf, -np.inf])
+
+    for prim in mesh.primitives:
+        pos_accessor_idx = prim.attributes.POSITION
+        if pos_accessor_idx is None:
+            continue
+
+        accessor = gltf.accessors[pos_accessor_idx]
+
+        # ✅ Fast path: use stored bounds (most glTF files have this)
+        if accessor.min is not None and accessor.max is not None:
+            min_vals = np.minimum(min_vals, np.array(accessor.min))
+            max_vals = np.maximum(max_vals, np.array(accessor.max))
+        else:
+            # Fallback: decode vertex buffer
+            vertices = load_accessor_data(gltf, pos_accessor_idx, buffer_cache)
+            min_vals = np.minimum(min_vals, vertices.min(axis=0))
+            max_vals = np.maximum(max_vals, vertices.max(axis=0))
+
+    dims = max_vals - min_vals
+    return dims.tolist()
+
+
+# ------------------------------------------------------------
+# NODE HIERARCHY BUILDER (with mesh dimension cache)
+# ------------------------------------------------------------
+
+INVALID_NAME_CHARS = r"[ /\\:\*\?<>\[\]=|]"
+
+
+def sanitize_node_name(raw_name: str) -> str:
+    sanitized = re.sub(INVALID_NAME_CHARS, "_", raw_name)
+    sanitized = re.sub(r"_+", "_", sanitized)
+    return sanitized.strip("_") or "Node"
+
+def build_node_hierarchy(gltf, buffer_cache, node_index, mesh_cache, existing_Nodes, nodes_to_substitute):
+    node = gltf.nodes[node_index]
+    raw_name = node.name or f"Node_{node_index}"
+    clean_name = sanitize_node_name(raw_name)
+    
+
+    parts = clean_name.split(".")
+    label= ".".join(parts[:-1]) if len(parts) > 1 else clean_name
+    number = 1
+
+    def get_by_name(items: list[NameAndNumber], target: str) -> NameAndNumber | None:
+        return next((item for item in items if item["name"] == target), None)
+
+    # First try substitution entries: if a substitution entry matches the label
+    # and has available numbers, consume the first number and use it.
+    def get_substitute_by_metadata(items: list, target: str):
+        return next((item for item in items if item.get("metadata") == target), None)
+
+    substitute = get_substitute_by_metadata(nodes_to_substitute, label) if nodes_to_substitute else None
+    if substitute and substitute.get("numbers"):
+        # consume the first available number so it's not reused
+        number = substitute["numbers"].pop(0)
+    else:
+        # fallback: use existing_Nodes as before
+        name_and_number = get_by_name(existing_Nodes, label)
+        if name_and_number is not None:
+            number = name_and_number["number"] + 1
+            name_and_number["number"] = number
+        else:
+            existing_Nodes.append({"name": label, "number": number})   
+    node.name = f"{label}.{str(number)}"
+    node_data = {
+        "name": f"{label}.{str(number)}",
+        "index": node_index,
+        "dimensions": None,
+        "children": []
+    }
+
+    if node.mesh is not None:
+        if node.mesh not in mesh_cache:
+            mesh_cache[node.mesh] = get_mesh_dimensions(
+                gltf, node.mesh, buffer_cache
+            )
+
+        dims = mesh_cache[node.mesh]
+        node_data["dimensions"] = {
+            "x": round(dims[0], 4),
+            "y": round(dims[1], 4),
+            "z": round(dims[2], 4),
+        }
+
+    if node.children:
+        for child_idx in node.children:
+            node_data["children"].append(
+                build_node_hierarchy(gltf, buffer_cache, child_idx, mesh_cache, existing_Nodes, nodes_to_substitute)
+            )
+
+    return node_data
+
+
+# ------------------------------------------------------------
+# DELETE REMAINING NODES (nodes with remaining substitution numbers)
+# ------------------------------------------------------------
+
+async def delete_remaining_nodes_sparql(graph: str, nodes_to_substitute: list):
+    """
+    Delete all nodes that have x3d:hasMetadata and x3d:name matching
+    the remaining numbers in nodes_to_substitute.
+    """
+    if not nodes_to_substitute:
+        print("No remaining nodes to delete.")
+        return
+    
+    # Build SPARQL DELETE query for nodes with remaining numbers
+    for item in nodes_to_substitute:
+        metadata = item.get("metadata")
+        numbers = item.get("numbers", [])
+        
+        if not numbers:
+            # No remaining numbers for this metadata, skip
+            continue
+        
+        # Build OR conditions for each remaining number as integers
+        number_or_conditions = " || ".join([f"(?number = {num})" for num in numbers])
+        
+        delete_query = f"""
+            PREFIX x3d: <https://www.web3d.org/specifications/X3dOntology4.0#>
+            
+            DELETE FROM <{graph}> {{
+              ?s ?p ?o .
+            }}
+            WHERE {{
+              ?s x3d:hasMetadata ?metadata .
+              ?metadata a x3d:MetadataString .
+              ?s x3d:name ?number .
+              ?s ?p ?o .
+              
+              FILTER(STRENDS(STR(?metadata), "{metadata}") && ({number_or_conditions}))
+            }}
+        """
+        
+        try:
+            print(f"Deleting nodes with metadata '{metadata}' and numbers {numbers}")
+            response = await sparql_query(request=SparqlRequest(query=delete_query))
+            print(f"  Delete response: {response}")
+        except Exception as e:
+            print(f"  Error deleting nodes for {metadata}: {e}")
+            import traceback
+            traceback.print_exc()
+
+
+# ------------------------------------------------------------
+# MAIN ENTRY POINT
+# ------------------------------------------------------------
+
+async def return_gltf_hierarchy(gltf_path,graph:str, original_file_url:str):
+    gltf_dir = os.path.dirname(gltf_path)
+    gltf = GLTF2().load(gltf_path)
+   
+    existing_Nodes = await name_and_number_query()
+    
+    nodes_to_substitute = await substitution_file_query(graph, original_file_url)
+    print("_______________________________________")
+
+
+    buffer_cache = preload_buffers(gltf, gltf_dir)
+    mesh_cache = {}
+
+    scenes_data = []
+
+    for scene_index, scene in enumerate(gltf.scenes):
+        scene_data = {
+            "scene_index": scene_index,
+            "nodes": []
+        }
+
+        for root_node_idx in scene.nodes:
+            scene_data["nodes"].append(
+                build_node_hierarchy(
+                    gltf,
+                    buffer_cache,
+                    root_node_idx,
+                    mesh_cache,
+                    existing_Nodes,
+                    nodes_to_substitute
+                )
+            )
+
+        scenes_data.append(scene_data)
+
+    gltf.save(gltf_path)
+
+    # Print remaining substitution numbers for audit/debugging
+    try:
+        if nodes_to_substitute:
+            print("Remaining NodeToSubstitute entries (metadata -> remaining numbers):")
+            for item in nodes_to_substitute:
+                metadata = item.get("metadata")
+                numbers = item.get("numbers", [])
+                print(f"  {metadata}: {numbers}")
+        else:
+            print("No NodeToSubstitute entries available.")
+    except Exception:
+        # Avoid breaking the function if printing fails
+        pass
+    
+    # Delete remaining nodes that were not used during hierarchy building
+    try:
+        await delete_remaining_nodes_sparql(graph, nodes_to_substitute)
+    except Exception as e:
+        print(f"Error during delete_remaining_nodes_sparql: {e}")
+        import traceback
+        traceback.print_exc()
+
+    return scenes_data

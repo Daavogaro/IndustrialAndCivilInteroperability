@@ -4,6 +4,7 @@ import { StatusString } from "../../components/Sidebar/MessagePanel";
 import { Topbar } from "../../components/Topbar";
 import { fetchQuery } from "../../utils/fetchQuery";
 import { UpdateFileButton } from "./UpdateFileButton";
+import { UpdateSTEPModal } from "./UpdateSTEPModal";
 
 type UpdateFilesPageProps = {
     setMessage: (message: { status: StatusString; text: string }) => void;
@@ -11,6 +12,7 @@ type UpdateFilesPageProps = {
 
 export function UpdateFilesPage({ setMessage }: UpdateFilesPageProps) {
     const [fileUrls, setFileUrls] = useState<{ fileUrl: string; time: string; ownerFirstName: string; ownerLastName: string }[]>([]);
+    const [fileName, setFileName] = useState<string>("");
 
     useEffect(() => {
         const fetchFiles = async () => {
@@ -38,7 +40,7 @@ export function UpdateFilesPage({ setMessage }: UpdateFilesPageProps) {
                 const fileData = await fetchQuery(queryFiles);
 
                 const urls = fileData.map((r: any) => ({
-                    fileUrl: r.fileUrl,
+                    fileUrl: r.fileUrl.replace("file:///",""),
                     time: r.time,
                     ownerFirstName: r.ownerFirstName,
                     ownerLastName: r.ownerLastName,
@@ -67,6 +69,7 @@ export function UpdateFilesPage({ setMessage }: UpdateFilesPageProps) {
 
     return (
         <div>
+            <UpdateSTEPModal fileName={fileName} setMessage={setMessage} />
             <Topbar title="Update Files" />
 
             <div style={{ padding: "1rem" }}>
@@ -83,12 +86,12 @@ export function UpdateFilesPage({ setMessage }: UpdateFilesPageProps) {
                     </thead>
                     <tbody>
                         {fileUrls.map((file, index) => (
-                            <tr key={index} style={{ borderBottom: "1px solid #eee" }}>
+                            <tr key={index} >
                                 <td style={{ padding: "0.75rem" }}>{file.fileUrl.split("/tmp/gLTF/")[1].replace(".gltf", "")}</td>
                                 <td style={{ padding: "0.75rem" }}>{file.time.replace("T", "   ").replace("Z", "")}</td>
                                 <td style={{ padding: "0.75rem" }}>{file.ownerFirstName} {file.ownerLastName}</td>
                                 <td style={{ padding: "0.75rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                    <UpdateFileButton fileUrl={file.fileUrl} />
+                                    <UpdateFileButton setFileName={setFileName} fileName={file.fileUrl} />
                                 </td>
                             </tr>
                         ))}

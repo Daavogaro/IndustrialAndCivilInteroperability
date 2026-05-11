@@ -1,7 +1,8 @@
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File, Form
 import os
 import shutil
 import re
+from typing import Optional
 
 from ..models.models import STEP_FOLDER
 # Per ogni chiamata dobbiamo creare un Router.
@@ -18,8 +19,17 @@ def sanitize_filename(filename: str) -> str:
     return f"{stem}{extension.lower()}"
 
 @router.post("/upload-step")
-async def upload_step(file: UploadFile = File(...)):
-    original_filename = file.filename or ""
+async def upload_step(file: UploadFile = File(...), fileName: Optional[str] = Form(None)):
+    # Prefer the provided form `fileName` when present, otherwise use the uploaded file's name
+    original_filename = fileName if fileName else file.filename
+
+    # If no extension provided in fileName, try to copy it from the uploaded file or default to .stp
+    name, ext = os.path.splitext(original_filename)
+    if not ext:
+        _, uploaded_ext = os.path.splitext(file.filename or "")
+        ext = uploaded_ext if uploaded_ext else ".stp"
+        original_filename = f"{name}{ext}"
+
     if not original_filename.lower().endswith(".stp"):
         return {"status": "error", "text": "Only STEP files allowed"}
 

@@ -19,11 +19,17 @@ class SparqlRequest(BaseModel):
     query: str
 
 async def substitution_file_query(graph:str, original_file_url:str):
+    print(original_file_url)
+
+    # Escape backslashes and quotes so the file path is a valid SPARQL string literal
+    safe_original_file_url = (original_file_url or "").replace("\\", "/")
+
     substitutionFileQuery = f"""
             PREFIX ifc: <https://w3id.org/ifc/IFC4X3_ADD2#>
             PREFIX express: <https://w3id.org/express#>
             PREFIX owl: <http://www.w3.org/2002/07/owl#>
             PREFIX x3d:  <https://www.web3d.org/specifications/X3dOntology4.0#>
+            PREFIX pre: <http://www.loc.gov/premis/rdf/v3/>
 
             SELECT 
               ?metadata 
@@ -43,7 +49,7 @@ async def substitution_file_query(graph:str, original_file_url:str):
               ?s a ?cad.
               ?s x3d:name ?number.
               ?s x3d:hasParentX3D ?a.
-              ?a x3d:url ?url.
+              ?a pre:storedAt ?url.
 
               OPTIONAL {{?s x3d:visible ?toBeDeleted}}.
               OPTIONAL {{?s x3d:bboxDisplay ?toBeSimplified}}.
@@ -57,7 +63,7 @@ async def substitution_file_query(graph:str, original_file_url:str):
                 FILTER(STRSTARTS(STR(?ifcClass),"https://w3id.org/ifc/IFC4X3_ADD2#"))
               }}
 
-              FILTER(STR(?url) = "{original_file_url}")
+              FILTER(STR(?url) = "file:///{safe_original_file_url}")
             }}
             GROUP BY 
               ?metadata 
@@ -69,7 +75,14 @@ async def substitution_file_query(graph:str, original_file_url:str):
               ?guid 
               ?ifcName
         """
-    nameAndNumberList = await sparql_query(request=SparqlRequest(query=substitutionFileQuery))
+    
+    try:
+      nameAndNumberList = await sparql_query(request=SparqlRequest(query=substitutionFileQuery))
+    except Exception as e:
+      print("sparql_query raised exception:", e)
+      import traceback
+      traceback.print_exc()
+      raise
     def convert_sparql_results(results_json: dict) -> list[NodeToSubstitute]:
         output: list[NodeToSubstitute] = []
     
