@@ -112,7 +112,6 @@ export async function refreshStepHierarchy(
   try {
     // fetch roots
     const rootData = await fetchQuery(queryRootElement);
-
     const roots = rootData.map((r: any) => ({
       uri: r.root,
       attrib: r.attrib,
@@ -121,7 +120,9 @@ export async function refreshStepHierarchy(
       dimensions: r.dimensions,
       cadType: r.cadType,
       metadata: r.metadata,
-      fileUrl: r.fileUrl.replace("file:///",""),
+      fileUrl: r.fileUrl
+    ? r.fileUrl.replace("file:///", "")
+    : r.fileUrl,
     }));
 
     // fetch edges

@@ -167,11 +167,38 @@ def build_node_hierarchy(gltf, buffer_cache, node_index, mesh_cache, existing_No
 # DELETE REMAINING NODES (nodes with remaining substitution numbers)
 # ------------------------------------------------------------
 
-async def delete_remaining_nodes_sparql(graph: str, nodes_to_substitute: list):
+async def delete_remaining_nodes_sparql(graph: str, nodes_to_substitute: list, original_file_url: str):
     """
     Delete all nodes that have x3d:hasMetadata and x3d:name matching
     the remaining numbers in nodes_to_substitute.
     """
+    print(original_file_url)
+    safe_original_file_url = (original_file_url or "").replace("\\", "/")
+    delete_query_file = f"""
+        PREFIX x3d: <https://www.web3d.org/specifications/X3dOntology4.0#>
+        PREFIX pre: <http://www.loc.gov/premis/rdf/v3/>
+        PREFIX prov: <http://www.w3.org/ns/prov#>
+        
+        DELETE FROM <{graph}> {{
+      ?s prov:generatedAtTime ?time .
+      ?s prov:wasAttributedTo ?owner .
+    }}
+    WHERE {{
+      ?s a pre:File .
+      ?s pre:storedAt ?url .
+      ?s prov:generatedAtTime ?time .
+      ?s prov:wasAttributedTo ?owner .
+
+      FILTER(STR(?url) = "file:///{safe_original_file_url}")
+        }}
+    """ 
+    try:
+        response = await sparql_query(request=SparqlRequest(query=delete_query_file))
+        print(f"  Delete file response: {response}")
+    except Exception as e:
+            print(f"  Error deleting nodes for file {safe_original_file_url}: {e}")
+            import traceback
+            traceback.print_exc()
     if not nodes_to_substitute:
         print("No remaining nodes to delete.")
         return
@@ -180,6 +207,8 @@ async def delete_remaining_nodes_sparql(graph: str, nodes_to_substitute: list):
     for item in nodes_to_substitute:
         metadata = item.get("metadata")
         numbers = item.get("numbers", [])
+
+        
         
         if not numbers:
             # No remaining numbers for this metadata, skip
@@ -192,15 +221,18 @@ async def delete_remaining_nodes_sparql(graph: str, nodes_to_substitute: list):
             PREFIX x3d: <https://www.web3d.org/specifications/X3dOntology4.0#>
             
             DELETE FROM <{graph}> {{
-              ?s ?p ?o .
+              ?s a ?cad .
+              ?s x3d:hasMetadata ?metadata .
+              ?s x3d:name ?number .
             }}
             WHERE {{
+              ?s a ?cad .
               ?s x3d:hasMetadata ?metadata .
-              ?metadata a x3d:MetadataString .
               ?s x3d:name ?number .
-              ?s ?p ?o .
+              ?metadata a x3d:MetadataString .
               
               FILTER(STRENDS(STR(?metadata), "{metadata}") && ({number_or_conditions}))
+              FILTER(STRSTARTS(STR(?cad), "https://www.web3d.org/specifications/X3dOntology4.0#"))
             }}
         """
         
@@ -271,7 +303,8 @@ async def return_gltf_hierarchy(gltf_path,graph:str, original_file_url:str):
     
     # Delete remaining nodes that were not used during hierarchy building
     try:
-        await delete_remaining_nodes_sparql(graph, nodes_to_substitute)
+        print("Attempting to delete remaining nodes with SPARQL...")
+        await delete_remaining_nodes_sparql(graph, nodes_to_substitute, original_file_url)
     except Exception as e:
         print(f"Error during delete_remaining_nodes_sparql: {e}")
         import traceback
