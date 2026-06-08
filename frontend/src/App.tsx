@@ -8,6 +8,7 @@ import { TreeNode } from "./pages/STEPPage/Hierarchy/buildTree";
 import { IFCViewerPage } from "./pages/IFCViewerPage/IFCViewerPage";
 import { UpdateFilesPage } from "./pages/UpdateFilesPage/UpdateFilesPage";
 import { InventoryProductPage } from "./pages/InventoryProductPage/InventoryProductPage";
+import { ProductDetailPage } from "./pages/ProductDetailPage/ProductDetailPage";
 
 function App() {
   const [message, setMessage] = useState<{
@@ -59,6 +60,7 @@ function App() {
           <Route path="/IFCViewer" element={<IFCViewerPage />} />
           <Route path="/FileUpdate" element={<UpdateFilesPage setMessage={setMessage} tree={tree}/>} />
           <Route path="/ProductInventory" element={<InventoryProductPage />} />
+          <Route path="/product/:label" element={<ProductDetailPage />} />
         </Routes>
       </main>
     </div>
