@@ -54,7 +54,8 @@ export function FundamentalNodeView({
     (child) => !!child.toBeDeleted,
   );
   const simplifiableChildren = filteredChildrenNodes.filter(
-    (child) => child.cadType.split("#")[1] !== "CADAssembly",
+    (child) =>
+      child.cadType.split("#")[1] !== "CADAssembly" && !child.toBeDeleted,
   );
   const allSimplified =
     simplifiableChildren.length > 0 &&
@@ -136,7 +137,7 @@ export function FundamentalNodeView({
                 <input
                   type="checkbox"
                   checked={!!child.toBeSimplified}
-                  disabled={cadTypeLabel === "CADAssembly"}
+                  disabled={cadTypeLabel === "CADAssembly" || !!child.toBeDeleted}
                   onChange={(e) =>
                     onToggleSimplify(child.metadata, e.target.checked)
                   }
