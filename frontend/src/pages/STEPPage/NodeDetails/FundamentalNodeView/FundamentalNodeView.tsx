@@ -49,14 +49,59 @@ export function FundamentalNodeView({
       if (!nodeA.toBeDeleted && nodeB.toBeDeleted) return -1;
       return 0;
     });
+
+  const allDeleted = filteredChildrenNodes.every(
+    (child) => !!child.toBeDeleted,
+  );
+  const simplifiableChildren = filteredChildrenNodes.filter(
+    (child) => child.cadType.split("#")[1] !== "CADAssembly",
+  );
+  const allSimplified =
+    simplifiableChildren.length > 0 &&
+    simplifiableChildren.every((child) => !!child.toBeSimplified);
+
+  const handleToggleAllDelete = () => {
+    const newValue = !allDeleted;
+    filteredChildrenNodes.forEach((child) =>
+      onToggleDelete(child.metadata, newValue),
+    );
+  };
+
+  const handleToggleAllSimplify = () => {
+    const newValue = !allSimplified;
+    simplifiableChildren.forEach((child) =>
+      onToggleSimplify(child.metadata, newValue),
+    );
+  };
+
   return (
     <table>
       <thead>
         <tr>
           <th>CAD Type</th>
           <th>Child Name</th>
-          <th>To be deleted</th>
-          <th>To be simplified</th>
+          <th>
+            <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+              To be deleted{" "}
+              <span
+                className="generalButton material-icons-round"
+                onClick={handleToggleAllDelete}>
+                {allDeleted ? "clear_all" : "done_all"}
+              </span>
+            </div>
+          </th>
+          <th>
+            <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+              To be simplified{" "}
+              <span
+                className={`generalButton material-icons-round ${
+                  simplifiableChildren.length === 0 ? "disabled" : ""
+                }`}
+                onClick={handleToggleAllSimplify}>
+                {allSimplified ? "clear_all" : "done_all"}
+              </span>
+            </div>
+          </th>
         </tr>
       </thead>
       <tbody>
