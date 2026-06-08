@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { StatusString } from "../../components/Sidebar/MessagePanel";
 import { Topbar } from "../../components/Topbar";
 import { TreeNode } from "../STEPPage/Hierarchy/buildTree";
@@ -14,19 +15,45 @@ type IFCHierarchyPageProps = {
   setMessage: (message: { status: StatusString; text: string }) => void;
 };
 
+const getNodeName = (uri: string) => uri.split("#")[1] ?? uri;
+const getBaseName = (name: string) => name.replace(/\.\d+$/, "");
+
+const collectUrisByBaseName = (nodes: TreeNode[], baseName: string): string[] => {
+  const result: string[] = [];
+  const visit = (ns: TreeNode[]) => {
+    for (const node of ns) {
+      if (getBaseName(getNodeName(node.id)) === baseName) {
+        result.push(node.id);
+      }
+      visit(node.children);
+    }
+  };
+  visit(nodes);
+  return result;
+};
+
 export function IFCHierarchyPage({
-  setMessage: setMessage,
+  setMessage,
   setTree,
   tree,
-  setNodeUri,
-  nodeUri,
 }: IFCHierarchyPageProps) {
   const graphName = "http://localhost:8890/Elettra2/";
+  const [selectedUris, setSelectedUris] = useState<string[]>([]);
 
-  const handleSelectNode = async (uri: string) => {
-    setNodeUri(uri);
-  };
   const fundamentalTree = buildFundamentalTree(tree);
+
+  const handleToggleSelect = (uri: string) => {
+    const baseName = getBaseName(getNodeName(uri));
+    const relatedUris = collectUrisByBaseName(fundamentalTree, baseName);
+
+    setSelectedUris((prev) => {
+      if (prev.includes(uri)) {
+        return prev.filter((u) => !relatedUris.includes(u));
+      }
+      const toAdd = relatedUris.filter((u) => !prev.includes(u));
+      return [...prev, ...toAdd];
+    });
+  };
 
   return (
     <div
@@ -75,7 +102,8 @@ export function IFCHierarchyPage({
             {fundamentalTree.length > 0 ? (
               <IfcTreeList
                 tree={fundamentalTree}
-                handleSelectNode={handleSelectNode}
+                selectedUris={selectedUris}
+                onToggleSelect={handleToggleSelect}
               />
             ) : (
               <p>No hierarchy built yet.</p>
@@ -91,13 +119,13 @@ export function IFCHierarchyPage({
               overflowY: "auto",
             }}
             className="panel-scroll">
-            {nodeUri ? (
+            {selectedUris.length > 0 ? (
               <IFCNodeDetails
-                uri={nodeUri}
+                uris={selectedUris}
                 tree={tree}
                 setTree={setTree}
-                setNodeUri={setNodeUri}
                 setMessage={setMessage}
+                onClearSelection={() => setSelectedUris([])}
               />
             ) : (
               <p>Select a node to see details.</p>

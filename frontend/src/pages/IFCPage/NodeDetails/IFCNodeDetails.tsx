@@ -95,14 +95,14 @@ const normalizeIfcName = (value?: string | null): string => {
 };
 
 type IFCNodeDetailsProps = {
-  uri: string | null;
+  uris: string[];
   tree: TreeNode[];
   setTree: (tree: TreeNode[]) => void;
-  setNodeUri: (uri: string | null) => void;
   setMessage: (message: { status: StatusString; text: string }) => void;
+  onClearSelection: () => void;
 };
 
-const findNode = (nodes: TreeNode[], uri: string | null): TreeNode | null => {
+const findNode = (nodes: TreeNode[], uri: string): TreeNode | null => {
   for (const node of nodes) {
     if (node.id === uri) return node;
 
@@ -134,14 +134,14 @@ const updateNodeInTree = (
 };
 
 export function IFCNodeDetails({
-  uri,
+  uris,
   tree,
   setTree,
-  setNodeUri,
   setMessage,
+  onClearSelection,
 }: IFCNodeDetailsProps) {
-  const initializedForUri = useRef<string | null>(null);
-  const [treeNodeData, setTreeNodeData] = useState<TreeNode | null>(null);
+  const initializedForKey = useRef<string | null>(null);
+  const [primaryNodeData, setPrimaryNodeData] = useState<TreeNode | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ifcClass, setIfcClass] = useState<string>("None");
@@ -154,6 +154,9 @@ export function IFCNodeDetails({
     Record<string, Record<string, string | number | boolean>>
   >({});
   const graphName = "http://localhost:8890/Elettra2/";
+
+  const primaryUri = uris[0] ?? null;
+  const selectionKey = uris.join(",");
 
   const availablePredefinedTypes =
     ifcClass === "None"
@@ -255,63 +258,67 @@ export function IFCNodeDetails({
         selectedPropertySets[psetName] = propertyPayload;
       });
 
-    // TODO: aggiungere logiche per editing esistenti e non solo per aggiungere nuovi nodi
-
-    const body = {
-      graph: graphName,
-      metadata: treeNodeData?.metadata,
-      ifc_class: ifcClass,
-      predefined_type: predefinedType,
-      userdefined_type: objectType,
-      property_sets: selectedPropertySets,
-    };
-    console.log(body);
-
-    const res = await fetch("/api/add-ifc-properties", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-
-    if (!res.ok) {
-      setMessage({ status: "error", text: "Failed to update IFC properties" });
-      return;
-    }
-
-    const data = await res.json();
-
     const updatedPsets: NonNullable<TreeNode["psets"]> = {};
     Object.entries(selectedPsets)
       .filter(([, isSelected]) => isSelected)
       .forEach(([psetName]) => {
-        updatedPsets[psetName] = {
-          ...(propertyValues[psetName] ?? {}),
-        };
+        updatedPsets[psetName] = { ...(propertyValues[psetName] ?? {}) };
       });
 
-    if (uri) {
-      const updatedTree = updateNodeInTree(tree, uri, (node) => ({
+    const results = await Promise.all(
+      uris.map(async (uri) => {
+        const nodeData = findNode(tree, uri);
+        const body = {
+          graph: graphName,
+          metadata: nodeData?.metadata,
+          ifc_class: ifcClass,
+          predefined_type: predefinedType,
+          userdefined_type: objectType,
+          property_sets: selectedPropertySets,
+        };
+
+        const res = await fetch("/api/add-ifc-properties", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+
+        return { uri, ok: res.ok };
+      }),
+    );
+
+    const failed = results.filter((r) => !r.ok);
+    if (failed.length > 0) {
+      setMessage({
+        status: "error",
+        text: `Failed to update ${failed.length} node(s)`,
+      });
+      return;
+    }
+
+    let updatedTree = tree;
+    for (const uri of uris) {
+      updatedTree = updateNodeInTree(updatedTree, uri, (node) => ({
         ...node,
         ifcClass,
         predefinedType,
         objectType,
         psets: updatedPsets,
       }));
-      setTree(updatedTree);
-      setTreeNodeData((prev) =>
-        prev
-          ? {
-              ...prev,
-              ifcClass,
-              predefinedType,
-              objectType,
-              psets: updatedPsets,
-            }
-          : prev,
-      );
     }
+    setTree(updatedTree);
 
-    setMessage({ status: "success", text: data.text });
+    setPrimaryNodeData((prev) =>
+      prev
+        ? { ...prev, ifcClass, predefinedType, objectType, psets: updatedPsets }
+        : prev,
+    );
+
+    setMessage({
+      status: "success",
+      text: `IFC properties applied to ${uris.length} node(s)`,
+    });
+    onClearSelection();
   };
 
   const onIfcClassChange = (selectedIfcClass: string) => {
@@ -334,16 +341,16 @@ export function IFCNodeDetails({
   };
 
   useEffect(() => {
-    if (!uri) return;
+    if (!primaryUri) return;
 
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const nodeData = findNode(tree, uri);
-        setTreeNodeData(nodeData);
-      } catch (err) {
+        const nodeData = findNode(tree, primaryUri);
+        setPrimaryNodeData(nodeData);
+      } catch {
         setError("Failed to fetch node data");
       } finally {
         setLoading(false);
@@ -351,23 +358,23 @@ export function IFCNodeDetails({
     };
 
     fetchData();
-  }, [uri]);
+  }, [primaryUri]);
 
   useEffect(() => {
-    if (!treeNodeData) {
+    if (!primaryNodeData) {
       return;
     }
 
-    if (initializedForUri.current === uri) {
+    if (initializedForKey.current === selectionKey) {
       return;
     }
 
-    const nextIfcClass = normalizeIfcName(treeNodeData.ifcClass) || "None";
+    const nextIfcClass = normalizeIfcName(primaryNodeData.ifcClass) || "None";
     const nextPredefinedType =
-      normalizeIfcName(treeNodeData.predefinedType) || "NOTDEFINED";
+      normalizeIfcName(primaryNodeData.predefinedType) || "NOTDEFINED";
 
     const nextPsetsSpec = IFC_CLASS_TO_PSETS[nextIfcClass] ?? [];
-    const existingPsets = treeNodeData.psets ?? {};
+    const existingPsets = primaryNodeData.psets ?? {};
     const nextSelectedPsets: Record<string, boolean> = {};
     const nextPropertyValues: Record<
       string,
@@ -397,16 +404,23 @@ export function IFCNodeDetails({
 
     setIfcClass(nextIfcClass);
     setPredefinedType(nextPredefinedType);
-    setobjectType(treeNodeData.objectType ?? "");
+    setobjectType(primaryNodeData.objectType ?? "");
     setSelectedPsets(nextSelectedPsets);
     setPropertyValues(nextPropertyValues);
-    initializedForUri.current = uri;
-  }, [treeNodeData]);
+    initializedForKey.current = selectionKey;
+  }, [primaryNodeData]);
 
-  if (!uri) return <p>No node selected.</p>;
+  if (uris.length === 0) return <p>No node selected.</p>;
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
-  if (!treeNodeData) return null;
+  if (!primaryNodeData) return null;
+
+  const title = uris
+    .map((uri) => {
+      const node = findNode(tree, uri);
+      return (node?.metadata ?? uri).split("#")[1] ?? uri;
+    })
+    .join(", ");
 
   return (
     <div
@@ -420,10 +434,10 @@ export function IFCNodeDetails({
         overflowY: "auto",
       }}>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <h3 style={{ marginBottom: 10 }}>
-          {treeNodeData.metadata.split("#")[1]}
-        </h3>
-        <DownloadIFCButton node={treeNodeData} setMessage={setMessage} />
+        <h3 style={{ marginBottom: 10 }}>{title}</h3>
+        {uris.length === 1 && (
+          <DownloadIFCButton node={primaryNodeData} setMessage={setMessage} />
+        )}
       </div>
       <form
         id="ifc-properties-form"
@@ -646,7 +660,7 @@ export function IFCNodeDetails({
             type="submit"
             onClick={() => {}}>
             <span className="material-icons-round">check</span>
-            Apply
+            Apply{uris.length > 1 ? ` (${uris.length} nodes)` : ""}
           </button>
         </div>
       </form>
