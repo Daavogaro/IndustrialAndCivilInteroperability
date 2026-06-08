@@ -99,41 +99,37 @@ export function NodeDetails({
   };
 
   const onChangeToBeDeleted = async (metadata: string, value: boolean) => {
-    const res = await fetch("/api/update-deletion", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        metadata,
-        toBeDeleted: value,
-      }),
-    });
+    setTree((prev) => updateNodeFlagByMetadata(prev, metadata, { toBeDeleted: value }));
 
-    const responseData = await res.json();
-    setMessage({ status: responseData.status, text: responseData.text });
-
-    setTree(updateNodeFlagByMetadata(tree, metadata, { toBeDeleted: value }));
+    try {
+      const res = await fetch("/api/update-deletion", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ metadata, toBeDeleted: value }),
+      });
+      const responseData = await res.json();
+      setMessage({ status: responseData.status, text: responseData.text });
+    } catch {
+      setTree((prev) => updateNodeFlagByMetadata(prev, metadata, { toBeDeleted: !value }));
+      setMessage({ status: "error", text: "Failed to update deletion status" });
+    }
   };
 
   const onChangeToBeSimplified = async (metadata: string, value: boolean) => {
-    const res = await fetch("/api/update-simplification", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        metadata,
-        toBeSimplified: value,
-      }),
-    });
+    setTree((prev) => updateNodeFlagByMetadata(prev, metadata, { toBeSimplified: value }));
 
-    const responseData = await res.json();
-    setMessage({ status: responseData.status, text: responseData.text });
-
-    setTree(
-      updateNodeFlagByMetadata(tree, metadata, { toBeSimplified: value }),
-    );
+    try {
+      const res = await fetch("/api/update-simplification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ metadata, toBeSimplified: value }),
+      });
+      const responseData = await res.json();
+      setMessage({ status: responseData.status, text: responseData.text });
+    } catch {
+      setTree((prev) => updateNodeFlagByMetadata(prev, metadata, { toBeSimplified: !value }));
+      setMessage({ status: "error", text: "Failed to update simplification status" });
+    }
   };
 
   useEffect(() => {
