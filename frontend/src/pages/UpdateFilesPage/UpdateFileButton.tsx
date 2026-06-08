@@ -1,6 +1,7 @@
 import { toogleModal } from "../../utils/htmlFunctions";
+import { TreeNode } from "../STEPPage/Hierarchy/buildTree";
 
-export function UpdateFileButton({setFileName,fileName}: {setFileName: (fileName: string) => void, fileName: string}) {
+export function UpdateFileButton({setFileName,fileName,tree}: {setFileName: (fileName: string) => void, fileName: string, tree: TreeNode[]}) {
   return (
     <span
       className="generalButton material-icons-round"

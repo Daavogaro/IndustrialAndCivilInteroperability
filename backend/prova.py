@@ -7,9 +7,12 @@ async def main():
 
     async with websockets.connect(uri) as websocket:
         payload = {
-            "filename": "PRD-00895849_Green_Var_Tattoos_Davide_stp_-.1_In_Work.gltf",
+            "filename": "Beam_line_-.1_In_Work_1.gltf",
             "graph_name": "http://localhost:8890/Elettra2/",
-            "parent_uri": None
+            "parent_uri": None,
+            "ownerFirstName": "Davide",
+            "ownerLastName": "Avogaro",
+            "time": "2024-06-19T12:00:00Z"
         }
 
         await websocket.send(json.dumps(payload))

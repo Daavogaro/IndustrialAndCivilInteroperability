@@ -445,6 +445,8 @@ def node_conversion_in_ifc(node: dict, blender_node: bpy.types.Object, parent: b
         objectType = found_node.get("objectType")
         if ifc_class in {"IfcElementAssembly"}:
             predefined_index = 6
+        elif ifc_class in {"IfcDoor"}:
+            predefined_index = 7
         else:
             predefined_index = 5
 

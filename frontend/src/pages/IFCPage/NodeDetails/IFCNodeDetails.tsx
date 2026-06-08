@@ -471,6 +471,7 @@ export function IFCNodeDetails({
                 id="predefinedType"
                 style={{ height: 23 }}
                 value={predefinedType}
+                defaultValue={"NOTDEFINED"}
                 onChange={(e) => setPredefinedType(e.target.value)}>
                 {availablePredefinedTypes.map((predefinedTypeOption) => (
                   <option

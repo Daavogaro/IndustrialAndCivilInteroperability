@@ -5,12 +5,14 @@ import { Topbar } from "../../components/Topbar";
 import { fetchQuery } from "../../utils/fetchQuery";
 import { UpdateFileButton } from "./UpdateFileButton";
 import { UpdateSTEPModal } from "./UpdateSTEPModal";
+import { TreeNode } from "../STEPPage/Hierarchy/buildTree";
 
 type UpdateFilesPageProps = {
     setMessage: (message: { status: StatusString; text: string }) => void;
+    tree: TreeNode[];
 };
 
-export function UpdateFilesPage({ setMessage }: UpdateFilesPageProps) {
+export function UpdateFilesPage({ setMessage, tree }: UpdateFilesPageProps) {
     const [fileUrls, setFileUrls] = useState<{ fileUrl: string; time: string; ownerFirstName: string; ownerLastName: string }[]>([]);
     const [fileName, setFileName] = useState<string>("");
 
@@ -69,7 +71,7 @@ export function UpdateFilesPage({ setMessage }: UpdateFilesPageProps) {
 
     return (
         <div>
-            <UpdateSTEPModal fileName={fileName} setMessage={setMessage} />
+            <UpdateSTEPModal fileName={fileName} setMessage={setMessage} tree={tree}/>
             <Topbar title="Update Files" />
 
             <div style={{ padding: "1rem" }}>
@@ -91,7 +93,7 @@ export function UpdateFilesPage({ setMessage }: UpdateFilesPageProps) {
                                 <td style={{ padding: "0.75rem" }}>{file.time.replace("T", "   ").replace("Z", "")}</td>
                                 <td style={{ padding: "0.75rem" }}>{file.ownerFirstName} {file.ownerLastName}</td>
                                 <td style={{ padding: "0.75rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                    <UpdateFileButton setFileName={setFileName} fileName={file.fileUrl} />
+                                    <UpdateFileButton setFileName={setFileName} fileName={file.fileUrl} tree={tree} />
                                 </td>
                             </tr>
                         ))}

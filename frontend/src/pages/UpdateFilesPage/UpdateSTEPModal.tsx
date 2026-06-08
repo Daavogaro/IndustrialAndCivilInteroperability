@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { toogleModal } from "../../utils/htmlFunctions";
 import { StatusString } from "../../components/Sidebar/MessagePanel";
+import { TreeNode } from "../STEPPage/Hierarchy/buildTree";
 
 type UpdateSTEPModalProps = {
   fileName: string 
+  tree: TreeNode[];
 
   setMessage: (message: { status: StatusString; text: string }) => void;
 };
 
-export function UpdateSTEPModal({ fileName, setMessage }: UpdateSTEPModalProps) {
+export function UpdateSTEPModal({ fileName, tree, setMessage }: UpdateSTEPModalProps) {
   const graphName = "http://localhost:8890/Elettra2/";
   const ownerFirstName = "Davide";
   const ownerLastName = "Avogaro";
@@ -59,6 +61,7 @@ export function UpdateSTEPModal({ fileName, setMessage }: UpdateSTEPModalProps) 
            JSON.stringify({
              filename: uploadedFilename,
              graph_name: graphName,
+             tree: tree,
              ownerFirstName: ownerFirstName,
              ownerLastName: ownerLastName,
              time: time,
