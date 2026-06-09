@@ -476,7 +476,7 @@ export function GLTFViewer({ uri, hoverUri = null }: GLTFViewerProps) {
   }, [uri, hoverUri, loadedFiles, applyUriHighlight])
 
   return (
-    <div style={{ width: "100%", height: "50vh", position: "relative" }}>
+    <div style={{ width: "100%", height: "100%", position: "relative" }}>
       <div
         id="viewer-container"
         style={{height:"100%"}}
