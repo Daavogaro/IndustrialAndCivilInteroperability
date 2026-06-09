@@ -420,7 +420,8 @@ export function IFCNodeDetails({
       const node = findNode(tree, uri);
       return (node?.metadata ?? uri).split("#")[1] ?? uri;
     })
-    .join(", ");
+    
+  const uniqueTitles = [...new Set(title)].join(", ");
 
   return (
     <div
@@ -430,11 +431,11 @@ export function IFCNodeDetails({
         border: "1px solid var(--grey-2)",
         borderRadius: 5,
         marginTop: 10,
-        maxHeight: "90vh",
+        maxHeight: "87vh",
         overflowY: "auto",
       }}>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <h3 style={{ marginBottom: 10 }}>{title}</h3>
+        <h3 style={{ marginBottom: 10 }}>{uniqueTitles}</h3>
         {uris.length === 1 && (
           <DownloadIFCButton node={primaryNodeData} setMessage={setMessage} />
         )}
@@ -458,7 +459,7 @@ export function IFCNodeDetails({
           <div className="ifc-card">
             <h5 style={{ paddingBottom: 10 }}>IFC Class</h5>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <img src="./IFC-logo.png" style={{ height: 30, width: 30 }} />
+              <img src="../IFC-logo.png" style={{ height: 30, width: 30 }} />
               <select
                 name="ifcClass"
                 id="ifcClass"

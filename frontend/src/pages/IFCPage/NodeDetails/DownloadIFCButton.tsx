@@ -54,7 +54,7 @@ export function DownloadIFCButton({
         cursor: "pointer",
       }}
       onClick={() => handleConversion(node)}>
-      <img src="./blender-logo.png" style={{ height: 30 }} />
+      <img src="../blender-logo.png" style={{ height: 30 }} />
     </div>
   );
 }

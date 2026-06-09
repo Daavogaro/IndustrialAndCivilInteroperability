@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Topbar } from "../../components/Topbar";
 import { useProductInventory, InventoryItem } from "./useProductInventory";
 import { ProductCard } from "./ProductCard";
+import { StatusString } from "../../components/Sidebar/MessagePanel";
 
 type SortKey = "name" | "lastEdit" | "status" | "author";
 
@@ -29,6 +30,8 @@ function sortItems(items: InventoryItem[], key: SortKey): InventoryItem[] {
       return copy.sort((a, b) => a.lastEditor.localeCompare(b.lastEditor));
   }
 }
+
+
 
 export function InventoryProductPage() {
   const { items, loading, error, refresh } = useProductInventory();

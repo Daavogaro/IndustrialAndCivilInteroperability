@@ -5,13 +5,16 @@ import {
   StatusString,
   MessagePanel,
 } from "../../components/Sidebar/MessagePanel";
-import { NodeDetails } from "./NodeDetails";
+import { NodeDetails } from "./NodeDetails/NodeDetails";
 import { IFCNodeDetails } from "../IFCPage/NodeDetails/IFCNodeDetails";
 import { CollapsiblePanel } from "./CollapsiblePanel";
 import { ProductGLTFViewer } from "./ProductGLTFViewer";
 import { useProductHierarchy } from "./useProductHierarchy";
 
-export function ProductDetailPage() {
+type ProductPageProps = {
+  setMessage: (message: { status: StatusString; text: string }) => void;
+};
+export function ProductDetailPage({ setMessage }: ProductPageProps) {
   const { label = "" } = useParams<{ label: string }>();
   const navigate = useNavigate();
 
@@ -20,10 +23,7 @@ export function ProductDetailPage() {
 
   const [selectedNodeUri, setSelectedNodeUri] = useState<string | null>(null);
   const [hoveredUri, setHoveredUri] = useState<string | null>(null);
-  const [localMessage, setLocalMessage] = useState<{
-    status: StatusString;
-    text: string;
-  } | null>(null);
+
   const [viewerCollapsed, setViewerCollapsed] = useState(false);
   const [ifcCollapsed, setIfcCollapsed] = useState(false);
 
@@ -34,12 +34,6 @@ export function ProductDetailPage() {
     }
   }, [rootUri]);
 
-  // Auto-clear local message after 8 s
-  useEffect(() => {
-    if (!localMessage) return;
-    const timer = setTimeout(() => setLocalMessage(null), 8000);
-    return () => clearTimeout(timer);
-  }, [localMessage]);
 
   // Trigger viewer resize when its panel is expanded/collapsed
   useEffect(() => {
@@ -47,7 +41,7 @@ export function ProductDetailPage() {
   }, [viewerCollapsed]);
 
   const handleLocalMessage = (msg: { status: StatusString; text: string }) => {
-    setLocalMessage(msg);
+    setMessage(msg);
   };
 
   // --- Loading / error states ---
@@ -204,19 +198,6 @@ export function ProductDetailPage() {
               />
             </div>
           </CollapsiblePanel>
-
-          {/* Local message bar */}
-          {localMessage && (
-            <div
-              style={{
-                flex: "0 0 auto",
-                padding: "4px 12px",
-                backgroundColor: "var(--background-200)",
-                borderTop: "1px solid var(--grey-2)",
-              }}>
-              <MessagePanel message={localMessage} />
-            </div>
-          )}
         </div>
       </div>
     </div>
