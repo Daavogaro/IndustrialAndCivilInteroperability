@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { StatusString } from "../../../components/Sidebar/MessagePanel";
 import { FundamentalNodeButton } from "../../STEPPage/gLTFViewer/FundamentalNodeButton";
 import { AssemblyView } from "./AssemblyView/AssemblyView";
@@ -9,7 +9,7 @@ import { refreshStepHierarchy } from "../../STEPPage/Hierarchy/HierarchyButtons/
 type NodeDetailsProps = {
   uri: string | null;
   tree: TreeNode[];
-  setTree: (tree: TreeNode[]) => void;
+  setTree: Dispatch<SetStateAction<TreeNode[]>>;
   setNodeUri: (uri: string | null) => void;
   setMessage: (message: { status: StatusString; text: string }) => void;
   setHoveredUri: (uri: string | null) => void;
