@@ -359,11 +359,12 @@ export function GLTFViewer({ uri, hoverUri = null }: GLTFViewerProps) {
 
     window.addEventListener("keydown", handleKeyDown)
   
+    let animFrameId: number;
     function renderScene() {
+      animFrameId = requestAnimationFrame(renderScene)
       renderer.render(scene, camera)
-      requestAnimationFrame(renderScene)
     }
-  
+
     renderScene()
   
     const axes = new THREE.AxesHelper()
@@ -422,7 +423,35 @@ export function GLTFViewer({ uri, hoverUri = null }: GLTFViewerProps) {
 
     return () => {
       disposed = true
-      clearUriHighlight()
+      cancelAnimationFrame(animFrameId)
+
+      // Dispose all GPU-side objects (geometries, materials, textures)
+      scene.traverse((obj) => {
+        if (obj instanceof THREE.Mesh) {
+          obj.geometry?.dispose()
+          const mats = Array.isArray(obj.material) ? obj.material : [obj.material]
+          mats.forEach((m: THREE.Material) => {
+            Object.values(m).forEach((val) => {
+              if (val instanceof THREE.Texture) val.dispose()
+            })
+            m.dispose()
+          })
+        }
+      })
+
+      // Dispose cloned highlight/dim materials still held in refs
+      const disposeMatMap = (map: Record<string, THREE.Material | THREE.Material[]>) => {
+        Object.values(map).forEach((m) => {
+          const arr = Array.isArray(m) ? m : [m]
+          arr.forEach((mat) => mat.dispose())
+        })
+      }
+      disposeMatMap(highlightedMeshesRef.current)
+      disposeMatMap(dimmedMeshesRef.current)
+      highlightedMeshesRef.current = {}
+      dimmedMeshesRef.current = {}
+
+      scene.clear()
       setLoadedFiles([])
       setVisibleFiles({})
       loadedObjectsRef.current = {}

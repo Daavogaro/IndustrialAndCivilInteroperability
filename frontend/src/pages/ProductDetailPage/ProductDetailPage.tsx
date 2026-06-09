@@ -1,14 +1,225 @@
-import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Topbar } from "../../components/Topbar";
+import { StatusString, MessagePanel } from "../../components/Sidebar/MessagePanel";
+import { NodeDetails } from "../STEPPage/NodeDetails/NodeDetails";
+import { IFCNodeDetails } from "../IFCPage/NodeDetails/IFCNodeDetails";
+import { CollapsiblePanel } from "./CollapsiblePanel";
+import { ProductGLTFViewer } from "./ProductGLTFViewer";
+import { useProductHierarchy } from "./useProductHierarchy";
 
 export function ProductDetailPage() {
-  const { label } = useParams<{ label: string }>();
+  const { label = "" } = useParams<{ label: string }>();
+  const navigate = useNavigate();
 
+  const { rootUri, tree, setTree, loading, error, refresh } =
+    useProductHierarchy(label);
+
+  const [selectedNodeUri, setSelectedNodeUri] = useState<string | null>(null);
+  const [hoveredUri, setHoveredUri] = useState<string | null>(null);
+  const [localMessage, setLocalMessage] = useState<{
+    status: StatusString;
+    text: string;
+  } | null>(null);
+  const [viewerCollapsed, setViewerCollapsed] = useState(false);
+  const [ifcCollapsed, setIfcCollapsed] = useState(false);
+
+  // Initialise selection to the root once the hierarchy is loaded
+  useEffect(() => {
+    if (rootUri && !selectedNodeUri) {
+      setSelectedNodeUri(rootUri);
+    }
+  }, [rootUri]);
+
+  // Auto-clear local message after 8 s
+  useEffect(() => {
+    if (!localMessage) return;
+    const timer = setTimeout(() => setLocalMessage(null), 8000);
+    return () => clearTimeout(timer);
+  }, [localMessage]);
+
+  // Trigger viewer resize when its panel is expanded/collapsed
+  useEffect(() => {
+    window.dispatchEvent(new Event("resize"));
+  }, [viewerCollapsed]);
+
+  const handleLocalMessage = (msg: { status: StatusString; text: string }) => {
+    setLocalMessage(msg);
+  };
+
+  // --- Loading / error states ---
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: "grid",
+          gridTemplateRows: "auto 1fr",
+          height: "100vh",
+          overflow: "hidden",
+        }}
+      >
+        <Topbar title={label} />
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <p>Loading product hierarchy…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div
+        style={{
+          display: "grid",
+          gridTemplateRows: "auto 1fr",
+          height: "100vh",
+          overflow: "hidden",
+        }}
+      >
+        <Topbar title={label} />
+        <div style={{ padding: 16 }}>
+          <p style={{ color: "#c0392b", marginBottom: 12 }}>Error: {error}</p>
+          <span
+            className="generalButton"
+            onClick={refresh}
+            style={{ display: "inline-block", marginRight: 8 }}
+          >
+            Retry
+          </span>
+          <span
+            className="generalButton"
+            onClick={() => navigate(-1)}
+            style={{ display: "inline-block" }}
+          >
+            ← Back to Inventory
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // --- Loaded state ---
   return (
-    <div>
-      <Topbar title={label ?? "Product"} />
-      <div style={{ padding: 16 }}>
-        <p>Product detail coming soon.</p>
+    <div
+      style={{
+        display: "grid",
+        gridTemplateRows: "auto auto 1fr",
+        height: "100vh",
+        overflow: "hidden",
+      }}
+    >
+      {/* Row 1: Topbar */}
+      <Topbar title={label} />
+
+      {/* Row 2: Back navigation */}
+      <div style={{ padding: "6px 10px", display: "flex", alignItems: "center", gap: 8 }}>
+        <span
+          className="generalButton"
+          onClick={() => navigate(-1)}
+          style={{ display: "inline-block" }}
+        >
+          ← Back to Inventory
+        </span>
+        {selectedNodeUri && selectedNodeUri !== rootUri && rootUri && (
+          <span
+            className="generalButton"
+            onClick={() => setSelectedNodeUri(rootUri)}
+            style={{ display: "inline-block" }}
+          >
+            ↩ Product root
+          </span>
+        )}
+      </div>
+
+      {/* Row 3: Two-column body */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          minHeight: 0,
+          overflow: "hidden",
+        }}
+      >
+        {/* Left column: NodeDetails (40%) */}
+        <div
+          style={{
+            width: "40%",
+            flexShrink: 0,
+            display: "flex",
+            flexDirection: "column",
+            minHeight: 0,
+            overflow: "hidden",
+            borderRight: "1px solid var(--grey-2)",
+            padding: 10,
+          }}
+        >
+          {selectedNodeUri ? (
+            <NodeDetails
+              uri={selectedNodeUri}
+              tree={tree}
+              setTree={setTree}
+              setNodeUri={setSelectedNodeUri}
+              setMessage={handleLocalMessage}
+              setHoveredUri={setHoveredUri}
+            />
+          ) : (
+            <p>Loading…</p>
+          )}
+        </div>
+
+        {/* Right column: two collapsible panels (flex: 1) */}
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            minHeight: 0,
+            overflow: "hidden",
+          }}
+        >
+          {/* Top panel: 3D viewer */}
+          <CollapsiblePanel
+            title="Product Viewer"
+            collapsed={viewerCollapsed}
+            onToggle={() => setViewerCollapsed((v) => !v)}
+          >
+            <ProductGLTFViewer
+              productLabel={label}
+              hoveredUri={hoveredUri}
+            />
+          </CollapsiblePanel>
+
+          {/* Bottom panel: IFC properties */}
+          <CollapsiblePanel
+            title="IFC Properties"
+            collapsed={ifcCollapsed}
+            onToggle={() => setIfcCollapsed((v) => !v)}
+          >
+            <div style={{ height: "100%", overflowY: "auto" }}>
+              <IFCNodeDetails
+                uris={selectedNodeUri ? [selectedNodeUri] : []}
+                tree={tree}
+                setTree={setTree}
+                setMessage={handleLocalMessage}
+                onClearSelection={() => setSelectedNodeUri(rootUri)}
+              />
+            </div>
+          </CollapsiblePanel>
+
+          {/* Local message bar */}
+          {localMessage && (
+            <div
+              style={{
+                flex: "0 0 auto",
+                padding: "4px 12px",
+                backgroundColor: "var(--background-200)",
+                borderTop: "1px solid var(--grey-2)",
+              }}
+            >
+              <MessagePanel message={localMessage} />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
