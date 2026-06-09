@@ -9,7 +9,7 @@ import { GLTFViewer } from "./NodeDetails/gLTFViewer/gLTFViewer";
 import { useEffect, useState } from "react";
 import { refreshStepHierarchy } from "./Hierarchy/HierarchyButtons/buttons/UpdateHierarchyButton";
 import { FundamentalNodeButton } from "./NodeDetails/FundamentalNodeButton";
-import { findNode } from "./NodeDetails/NodeDetails";
+import { findNode } from "../ProductDetailPage/NodeDetails";
 
 type STEPPageProps = {
   setTree: (tree: TreeNode[]) => void;

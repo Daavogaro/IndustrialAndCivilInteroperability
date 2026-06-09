@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { StatusString } from "../../../components/Sidebar/MessagePanel";
-import { FundamentalNodeButton } from "./FundamentalNodeButton";
-import { AssemblyView } from "./AssemblyView/AssemblyView";
-import { FundamentalNodeView } from "./FundamentalNodeView/FundamentalNodeView";
-import { TreeNode } from "../Hierarchy/buildTree";
-import { refreshStepHierarchy } from "../Hierarchy/HierarchyButtons/buttons/UpdateHierarchyButton";
+import { StatusString } from "../../components/Sidebar/MessagePanel";
+import { FundamentalNodeButton } from "../STEPPage/NodeDetails/FundamentalNodeButton";
+import { AssemblyView } from "../STEPPage/NodeDetails/AssemblyView/AssemblyView";
+import { FundamentalNodeView } from "../STEPPage/NodeDetails/FundamentalNodeView/FundamentalNodeView";
+import { TreeNode } from "../STEPPage/Hierarchy/buildTree";
+import { refreshStepHierarchy } from "../STEPPage/Hierarchy/HierarchyButtons/buttons/UpdateHierarchyButton";
 
 type NodeDetailsProps = {
   uri: string | null;
@@ -233,16 +233,19 @@ export function NodeDetails({
           display: "flex",
           flexDirection: "column",
         }}>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <h3 style={{ marginBottom: 10 }}>
-            {treeNodeData.metadata.split("#")[1]}
-          </h3>
-          <FundamentalNodeButton
-            metadata={treeNodeData.metadata}
-            setMessage={setMessage}
-            onUpdated={() => refreshStepHierarchy(setTree, setMessage)}
-          />
-        </div>
+        {treeNodeData.isFundamental ? null : (
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <h3 style={{ marginBottom: 10 }}>
+              {treeNodeData.metadata.split("#")[1]}
+            </h3>
+            <FundamentalNodeButton
+              metadata={treeNodeData.metadata}
+              setMessage={setMessage}
+              onUpdated={() => refreshStepHierarchy(setTree, setMessage)}
+            />
+          </div>
+        )}
+
         {treeNodeData.cadType ===
           "https://www.web3d.org/specifications/X3dOntology4.0#CADPart" && (
           <div>

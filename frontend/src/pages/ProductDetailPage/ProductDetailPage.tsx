@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Topbar } from "../../components/Topbar";
-import { StatusString, MessagePanel } from "../../components/Sidebar/MessagePanel";
-import { NodeDetails } from "../STEPPage/NodeDetails/NodeDetails";
+import {
+  StatusString,
+  MessagePanel,
+} from "../../components/Sidebar/MessagePanel";
+import { NodeDetails } from "./NodeDetails";
 import { IFCNodeDetails } from "../IFCPage/NodeDetails/IFCNodeDetails";
 import { CollapsiblePanel } from "./CollapsiblePanel";
 import { ProductGLTFViewer } from "./ProductGLTFViewer";
@@ -56,10 +59,14 @@ export function ProductDetailPage() {
           gridTemplateRows: "auto 1fr",
           height: "100vh",
           overflow: "hidden",
-        }}
-      >
+        }}>
         <Topbar title={label} />
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}>
           <p>Loading product hierarchy…</p>
         </div>
       </div>
@@ -74,23 +81,20 @@ export function ProductDetailPage() {
           gridTemplateRows: "auto 1fr",
           height: "100vh",
           overflow: "hidden",
-        }}
-      >
+        }}>
         <Topbar title={label} />
         <div style={{ padding: 16 }}>
           <p style={{ color: "#c0392b", marginBottom: 12 }}>Error: {error}</p>
           <span
             className="generalButton"
             onClick={refresh}
-            style={{ display: "inline-block", marginRight: 8 }}
-          >
+            style={{ display: "inline-block", marginRight: 8 }}>
             Retry
           </span>
           <span
             className="generalButton"
             onClick={() => navigate(-1)}
-            style={{ display: "inline-block" }}
-          >
+            style={{ display: "inline-block" }}>
             ← Back to Inventory
           </span>
         </div>
@@ -106,26 +110,29 @@ export function ProductDetailPage() {
         gridTemplateRows: "auto auto 1fr",
         height: "100vh",
         overflow: "hidden",
-      }}
-    >
+      }}>
       {/* Row 1: Topbar */}
       <Topbar title={label} />
 
       {/* Row 2: Back navigation */}
-      <div style={{ padding: "6px 10px", display: "flex", alignItems: "center", gap: 8 }}>
+      <div
+        style={{
+          padding: "6px 10px",
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+        }}>
         <span
           className="generalButton"
           onClick={() => navigate(-1)}
-          style={{ display: "inline-block" }}
-        >
+          style={{ display: "inline-block" }}>
           ← Back to Inventory
         </span>
         {selectedNodeUri && selectedNodeUri !== rootUri && rootUri && (
           <span
             className="generalButton"
             onClick={() => setSelectedNodeUri(rootUri)}
-            style={{ display: "inline-block" }}
-          >
+            style={{ display: "inline-block" }}>
             ↩ Product root
           </span>
         )}
@@ -138,8 +145,7 @@ export function ProductDetailPage() {
           flexDirection: "row",
           minHeight: 0,
           overflow: "hidden",
-        }}
-      >
+        }}>
         {/* Left column: NodeDetails (40%) */}
         <div
           style={{
@@ -151,8 +157,7 @@ export function ProductDetailPage() {
             overflow: "hidden",
             borderRight: "1px solid var(--grey-2)",
             padding: 10,
-          }}
-        >
+          }}>
           {selectedNodeUri ? (
             <NodeDetails
               uri={selectedNodeUri}
@@ -175,26 +180,20 @@ export function ProductDetailPage() {
             flexDirection: "column",
             minHeight: 0,
             overflow: "hidden",
-          }}
-        >
+          }}>
           {/* Top panel: 3D viewer */}
           <CollapsiblePanel
             title="Product Viewer"
             collapsed={viewerCollapsed}
-            onToggle={() => setViewerCollapsed((v) => !v)}
-          >
-            <ProductGLTFViewer
-              productLabel={label}
-              hoveredUri={hoveredUri}
-            />
+            onToggle={() => setViewerCollapsed((v) => !v)}>
+            <ProductGLTFViewer productLabel={label} hoveredUri={hoveredUri} />
           </CollapsiblePanel>
 
           {/* Bottom panel: IFC properties */}
           <CollapsiblePanel
             title="IFC Properties"
             collapsed={ifcCollapsed}
-            onToggle={() => setIfcCollapsed((v) => !v)}
-          >
+            onToggle={() => setIfcCollapsed((v) => !v)}>
             <div style={{ height: "100%", overflowY: "auto" }}>
               <IFCNodeDetails
                 uris={selectedNodeUri ? [selectedNodeUri] : []}
@@ -214,8 +213,7 @@ export function ProductDetailPage() {
                 padding: "4px 12px",
                 backgroundColor: "var(--background-200)",
                 borderTop: "1px solid var(--grey-2)",
-              }}
-            >
+              }}>
               <MessagePanel message={localMessage} />
             </div>
           )}
