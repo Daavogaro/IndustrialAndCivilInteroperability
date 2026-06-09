@@ -44,7 +44,7 @@ export function FundamentalNodeButton({
         cursor: "pointer",
       }}
       onClick={() => fetchFundamentalNode(graphName, metadata)}>
-      <img src="./IFC-logo.png" style={{ height: 30 }} />
+      <img src="../IFC-logo.png" style={{ height: 30 }} />
     </div>
   );
 }

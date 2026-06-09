@@ -5,11 +5,11 @@ import { AddChildModal } from "./AddChildModal";
 import { HierarchyButtons } from "./Hierarchy/HierarchyButtons/HierarchyButtons";
 import { UploadSTEPModal } from "./UploadSTEPModal";
 import { StatusString } from "../../components/Sidebar/MessagePanel";
-import { GLTFViewer } from "./NodeDetails/gLTFViewer/gLTFViewer";
+import { GLTFViewer } from "./gLTFViewer/gLTFViewer";
 import { useEffect, useState } from "react";
 import { refreshStepHierarchy } from "./Hierarchy/HierarchyButtons/buttons/UpdateHierarchyButton";
-import { FundamentalNodeButton } from "./NodeDetails/FundamentalNodeButton";
-import { findNode } from "../ProductDetailPage/NodeDetails";
+import { FundamentalNodeButton } from "./gLTFViewer/FundamentalNodeButton";
+import { findNode } from "../ProductDetailPage/NodeDetails/NodeDetails";
 
 type STEPPageProps = {
   setTree: (tree: TreeNode[]) => void;
@@ -28,7 +28,6 @@ export function STEPPage({
 }: STEPPageProps) {
   const graphName = "http://localhost:8890/Elettra2/";
   const [hoveredUri, setHoveredUri] = useState<string | null>(null);
-  const [treeNodeData, setTreeNodeData] = useState<TreeNode | null>(null);
   const nodeData = findNode(tree, nodeUri);
 
   useEffect(() => {

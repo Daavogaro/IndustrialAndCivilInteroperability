@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { StatusString } from "../../components/Sidebar/MessagePanel";
-import { FundamentalNodeButton } from "../STEPPage/NodeDetails/FundamentalNodeButton";
-import { AssemblyView } from "../STEPPage/NodeDetails/AssemblyView/AssemblyView";
-import { FundamentalNodeView } from "../STEPPage/NodeDetails/FundamentalNodeView/FundamentalNodeView";
-import { TreeNode } from "../STEPPage/Hierarchy/buildTree";
-import { refreshStepHierarchy } from "../STEPPage/Hierarchy/HierarchyButtons/buttons/UpdateHierarchyButton";
+import { StatusString } from "../../../components/Sidebar/MessagePanel";
+import { FundamentalNodeButton } from "../../STEPPage/gLTFViewer/FundamentalNodeButton";
+import { AssemblyView } from "./AssemblyView/AssemblyView";
+import { FundamentalNodeView } from "./FundamentalNodeView/FundamentalNodeView";
+import { TreeNode } from "../../STEPPage/Hierarchy/buildTree";
+import { refreshStepHierarchy } from "../../STEPPage/Hierarchy/HierarchyButtons/buttons/UpdateHierarchyButton";
 
 type NodeDetailsProps = {
   uri: string | null;

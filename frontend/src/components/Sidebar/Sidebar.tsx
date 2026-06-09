@@ -27,7 +27,9 @@ export function Sidebar({ message }: SidebarProps) {
           </Router.Link>
           <Router.Link to="/ProductInventory">
             <li>
-              <img src="./STEP-logo.png" alt="" style={{ height: 20 }} />
+              <span className="material-icons-round" style={{ fontSize: 20 }}>
+                shopping_cart
+              </span>
               Product Inventory
             </li>
           </Router.Link>
@@ -39,13 +41,6 @@ export function Sidebar({ message }: SidebarProps) {
               File Update
             </li>
           </Router.Link>
-          {/* <Router.Link to="/IFCViewer">
-            <li>
-              <img src="./IFC-logo.png" alt="" style={{ height: 20 }} />
-              IFC Viewer
-            </li>
-          </Router.Link> */}
-
           <MessagePanel message={message} />
         </ul>
       </aside>
