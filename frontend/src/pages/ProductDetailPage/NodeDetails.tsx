@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { StatusString } from "../../../components/Sidebar/MessagePanel";
-import { FundamentalNodeButton } from "./FundamentalNodeButton";
-import { AssemblyView } from "./AssemblyView/AssemblyView";
-import { FundamentalNodeView } from "./FundamentalNodeView/FundamentalNodeView";
-import { TreeNode } from "../Hierarchy/buildTree";
-import { refreshStepHierarchy } from "../Hierarchy/HierarchyButtons/buttons/UpdateHierarchyButton";
+import { StatusString } from "../../components/Sidebar/MessagePanel";
+import { FundamentalNodeButton } from "../STEPPage/NodeDetails/FundamentalNodeButton";
+import { AssemblyView } from "../STEPPage/NodeDetails/AssemblyView/AssemblyView";
+import { FundamentalNodeView } from "../STEPPage/NodeDetails/FundamentalNodeView/FundamentalNodeView";
+import { TreeNode } from "../STEPPage/Hierarchy/buildTree";
+import { refreshStepHierarchy } from "../STEPPage/Hierarchy/HierarchyButtons/buttons/UpdateHierarchyButton";
 
 type NodeDetailsProps = {
   uri: string | null;
@@ -14,7 +14,10 @@ type NodeDetailsProps = {
   setMessage: (message: { status: StatusString; text: string }) => void;
   setHoveredUri: (uri: string | null) => void;
 };
-const findNode = (nodes: TreeNode[], uri: string | null): TreeNode | null => {
+export const findNode = (
+  nodes: TreeNode[],
+  uri: string | null,
+): TreeNode | null => {
   for (const node of nodes) {
     if (node.id === uri) return node;
 
@@ -99,7 +102,9 @@ export function NodeDetails({
   };
 
   const onChangeToBeDeleted = async (metadata: string, value: boolean) => {
-    setTree((prev) => updateNodeFlagByMetadata(prev, metadata, { toBeDeleted: value }));
+    setTree((prev) =>
+      updateNodeFlagByMetadata(prev, metadata, { toBeDeleted: value }),
+    );
 
     try {
       const res = await fetch("/api/update-deletion", {
@@ -110,13 +115,17 @@ export function NodeDetails({
       const responseData = await res.json();
       setMessage({ status: responseData.status, text: responseData.text });
     } catch {
-      setTree((prev) => updateNodeFlagByMetadata(prev, metadata, { toBeDeleted: !value }));
+      setTree((prev) =>
+        updateNodeFlagByMetadata(prev, metadata, { toBeDeleted: !value }),
+      );
       setMessage({ status: "error", text: "Failed to update deletion status" });
     }
   };
 
   const onChangeToBeSimplified = async (metadata: string, value: boolean) => {
-    setTree((prev) => updateNodeFlagByMetadata(prev, metadata, { toBeSimplified: value }));
+    setTree((prev) =>
+      updateNodeFlagByMetadata(prev, metadata, { toBeSimplified: value }),
+    );
 
     try {
       const res = await fetch("/api/update-simplification", {
@@ -127,8 +136,13 @@ export function NodeDetails({
       const responseData = await res.json();
       setMessage({ status: responseData.status, text: responseData.text });
     } catch {
-      setTree((prev) => updateNodeFlagByMetadata(prev, metadata, { toBeSimplified: !value }));
-      setMessage({ status: "error", text: "Failed to update simplification status" });
+      setTree((prev) =>
+        updateNodeFlagByMetadata(prev, metadata, { toBeSimplified: !value }),
+      );
+      setMessage({
+        status: "error",
+        text: "Failed to update simplification status",
+      });
     }
   };
 
@@ -218,18 +232,20 @@ export function NodeDetails({
           minHeight: 0,
           display: "flex",
           flexDirection: "column",
-        }}
-      >
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <h3 style={{ marginBottom: 10 }}>
-            {treeNodeData.metadata.split("#")[1]}
-          </h3>
-          <FundamentalNodeButton
-            metadata={treeNodeData.metadata}
-            setMessage={setMessage}
-            onUpdated={() => refreshStepHierarchy(setTree, setMessage)}
-          />
-        </div>
+        }}>
+        {treeNodeData.isFundamental ? null : (
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <h3 style={{ marginBottom: 10 }}>
+              {treeNodeData.metadata.split("#")[1]}
+            </h3>
+            <FundamentalNodeButton
+              metadata={treeNodeData.metadata}
+              setMessage={setMessage}
+              onUpdated={() => refreshStepHierarchy(setTree, setMessage)}
+            />
+          </div>
+        )}
+
         {treeNodeData.cadType ===
           "https://www.web3d.org/specifications/X3dOntology4.0#CADPart" && (
           <div>
@@ -250,7 +266,14 @@ export function NodeDetails({
         )}
         {treeNodeData.cadType ===
           "https://www.web3d.org/specifications/X3dOntology4.0#CADAssembly" && (
-          <div style={{ marginTop: 10, display: "flex", flexDirection: "column", minHeight: 0, flex: 1 }}>
+          <div
+            style={{
+              marginTop: 10,
+              display: "flex",
+              flexDirection: "column",
+              minHeight: 0,
+              flex: 1,
+            }}>
             <div style={{ display: "flex" }}>
               <h5
                 id="fundamental-view"
@@ -258,21 +281,22 @@ export function NodeDetails({
                 style={{
                   borderTopLeftRadius: 10,
                 }}
-                onClick={onFundamentalViewClick}
-              >
+                onClick={onFundamentalViewClick}>
                 Fundamental Node
               </h5>
               <h5
                 id="assembly-view"
                 className="toogle-view "
                 style={{ borderTopRightRadius: 10, borderLeft: "none" }}
-                onClick={onAssemblyViewClick}
-              >
+                onClick={onAssemblyViewClick}>
                 Assembly
               </h5>
             </div>
 
-            <div id="fundamental-view-content" className="panel-scroll" style={{ minHeight: 0, flex: 1 }}>
+            <div
+              id="fundamental-view-content"
+              className="panel-scroll"
+              style={{ minHeight: 0, flex: 1 }}>
               <FundamentalNodeView
                 childrenNodes={getDescendantsWithDimensions(tree, uri)}
                 onSelectNode={setNodeUri}
@@ -284,8 +308,7 @@ export function NodeDetails({
             <div
               id="assembly-view-content"
               className="panel-scroll"
-              style={{ display: "none", minHeight: 0, flex: 1 }}
-            >
+              style={{ display: "none", minHeight: 0, flex: 1 }}>
               <AssemblyView
                 childrenNodes={assemblyChildren}
                 onSelectNode={setNodeUri}

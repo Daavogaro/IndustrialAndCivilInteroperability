@@ -5,10 +5,11 @@ import { AddChildModal } from "./AddChildModal";
 import { HierarchyButtons } from "./Hierarchy/HierarchyButtons/HierarchyButtons";
 import { UploadSTEPModal } from "./UploadSTEPModal";
 import { StatusString } from "../../components/Sidebar/MessagePanel";
-import { NodeDetails } from "./NodeDetails/NodeDetails";
 import { GLTFViewer } from "./NodeDetails/gLTFViewer/gLTFViewer";
 import { useEffect, useState } from "react";
 import { refreshStepHierarchy } from "./Hierarchy/HierarchyButtons/buttons/UpdateHierarchyButton";
+import { FundamentalNodeButton } from "./NodeDetails/FundamentalNodeButton";
+import { findNode } from "../ProductDetailPage/NodeDetails";
 
 type STEPPageProps = {
   setTree: (tree: TreeNode[]) => void;
@@ -27,6 +28,8 @@ export function STEPPage({
 }: STEPPageProps) {
   const graphName = "http://localhost:8890/Elettra2/";
   const [hoveredUri, setHoveredUri] = useState<string | null>(null);
+  const [treeNodeData, setTreeNodeData] = useState<TreeNode | null>(null);
+  const nodeData = findNode(tree, nodeUri);
 
   useEffect(() => {
     if (!nodeUri) {
@@ -68,7 +71,12 @@ export function STEPPage({
           margin: "0px 10px 10px 10px",
           gap: "10px",
         }}>
-        <div style={{ display: "grid", gridTemplateRows: "auto 1fr", minHeight: 0 }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateRows: "auto 1fr",
+            minHeight: 0,
+          }}>
           <div
             style={{
               display: "flex",
@@ -96,31 +104,39 @@ export function STEPPage({
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateRows: "auto 1fr 1fr", minHeight: 0 }}>
-          <h2>Node Details</h2>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateRows: "auto 1fr",
+            minHeight: 0,
+          }}>
           <div
             style={{
               minHeight: 0,
               overflow: "hidden",
             }}>
             {nodeUri ? (
-              <NodeDetails
-                uri={nodeUri}
-                tree={tree}
-                setTree={setTree}
-                setNodeUri={setNodeUri}
-                setMessage={setMessage}
-                setHoveredUri={setHoveredUri}
-              />
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <h2>{nodeData?.metadata.split("#")[1]}</h2>
+                <FundamentalNodeButton
+                  metadata={nodeData?.metadata || ""}
+                  setMessage={setMessage}
+                  onUpdated={() => refreshStepHierarchy(setTree, setMessage)}
+                />
+              </div>
             ) : (
               <p>Select a node to see details.</p>
             )}
           </div>
-          <div style={{marginTop:10,minHeight: 0,
+          <div
+            style={{
+              marginTop: 10,
+              minHeight: 0,
               border: "1px solid var(--grey-2)",
               borderRadius: 5,
               backgroundColor: "var(--background-100)",
-              padding: "8px",}}>
+              padding: "8px",
+            }}>
             <GLTFViewer uri={nodeUri} hoverUri={hoveredUri} />
           </div>
         </div>
