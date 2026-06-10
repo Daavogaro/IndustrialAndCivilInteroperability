@@ -13,6 +13,7 @@ function App() {
   const [message, setMessage] = useState<{
     status: StatusString;
     text: string;
+    progress?: number;
   } | null>(null);
   const [nodeUri, setNodeUri] = useState<string | null>(null);
 
@@ -20,12 +21,13 @@ function App() {
 
   useEffect(() => {
     if (!message) return;
+    if (message.status === "wip") return; // keep alive until next message replaces it
 
     const timer = setTimeout(() => {
       setMessage(null);
-    }, 10000);
+    }, 5000);
 
-    return () => clearTimeout(timer); // cleanup
+    return () => clearTimeout(timer);
   }, [message]);
   return (
     <div id="app">

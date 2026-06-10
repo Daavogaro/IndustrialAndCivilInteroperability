@@ -5,7 +5,7 @@ import { StatusString } from "../../components/Sidebar/MessagePanel";
 type UploadSTEPModalProps = {
   uri: string | null;
 
-  setMessage: (message: { status: StatusString; text: string }) => void;
+  setMessage: (message: { status: StatusString; text: string; progress?: number }) => void;
 };
 
 export function UploadSTEPModal({ uri, setMessage }: UploadSTEPModalProps) {
@@ -68,7 +68,7 @@ export function UploadSTEPModal({ uri, setMessage }: UploadSTEPModalProps) {
 
       websocket.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        setMessage({ status: data.status, text: data.text });
+        setMessage({ status: data.status, text: data.text, progress: data.progress });
       };
 
       websocket.onclose = () => {

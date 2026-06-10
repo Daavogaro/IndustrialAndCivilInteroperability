@@ -1,4 +1,3 @@
-﻿import argparse
 from dataclasses import dataclass
 from pathlib import Path
 import re
@@ -18,7 +17,7 @@ from OCC.Core.TopLoc import TopLoc_Location
 from OCC.Core.TopoDS import topods
 from OCC.Core.XCAFDoc import XCAFDoc_ColorTool, XCAFDoc_DocumentTool
 from pygltflib import (
-    GLTF2, Accessor, Asset, Buffer, BufferView, FLOAT, Material, Mesh, Node, 
+    GLTF2, Accessor, Asset, Buffer, BufferView, FLOAT, Material, Mesh, Node,
     PbrMetallicRoughness, Primitive, Scene, UNSIGNED_INT,
 )
 
@@ -374,10 +373,44 @@ def build_nauo_manifold_map(step_path: str):
 
     return nauo_to_manifold_items
 
-def build_assembly_tree(shape_tool, color_tool, step_path: str, deflection: float, unit_scale: float):
+def _count_work_units(shape_tool, label, nauo_to_manifold_items: dict) -> int:
+    if shape_tool.IsReference(label):
+        raw_id = label_name(label, "")
+        mapped = nauo_to_manifold_items.get(raw_id)
+        if mapped:
+            return max(1, len(mapped))
+        referred = TDF_Label()
+        shape_tool.GetReferredShape(label, referred)
+        return _count_work_units(shape_tool, referred, nauo_to_manifold_items)
+    if shape_tool.IsAssembly(label):
+        components = TDF_LabelSequence()
+        shape_tool.GetComponents(label, components)
+        return sum(_count_work_units(shape_tool, components.Value(i), nauo_to_manifold_items) for i in range(1, components.Length() + 1))
+    if shape_tool.IsSimpleShape(label) or shape_tool.IsShape(label):
+        return 1
+    return 0
+
+
+def build_assembly_tree(shape_tool, color_tool, step_path: str, deflection: float, unit_scale: float, progress_callback=None):
     label_seq = TDF_LabelSequence()
     shape_tool.GetFreeShapes(label_seq)
     nauo_to_manifold_items = build_nauo_manifold_map(step_path)
+
+    total_units = sum(
+        _count_work_units(shape_tool, label_seq.Value(i), nauo_to_manifold_items)
+        for i in range(1, label_seq.Length() + 1)
+    )
+    processed = [0]
+    last_pct = [-1]
+
+    def _report() -> None:
+        if progress_callback is None or total_units == 0:
+            return
+        processed[0] += 1
+        pct = min(99, int(processed[0] * 100 / total_units))
+        if pct > last_pct[0]:
+            last_pct[0] = pct
+            progress_callback(pct)
 
     auto_name_counter = {"value": 0}
 
@@ -403,6 +436,7 @@ def build_assembly_tree(shape_tool, color_tool, step_path: str, deflection: floa
         color = resolve_color(shape, label, color_tool) if label is not None else None
         color = color or fallback_color
         vertices, indices = triangulate_shape(shape, deflection, unit_scale)
+        _report()
         if vertices is None:
             return None
         mesh = PartMesh(
@@ -527,10 +561,16 @@ def build_assembly_tree(shape_tool, color_tool, step_path: str, deflection: floa
         if root_node: roots.append(root_node)
     return roots
 
-def export_gltf(step_path: str, output_path: str, deflection: float, unit_scale: float):
+# Rotate -90° around X to convert Z-up (STEP/CAD) → Y-up (glTF/Three.js).
+# Column-major order: col0=[1,0,0,0], col1=[0,0,-1,0], col2=[0,1,0,0], col3=[0,0,0,1]
+_ZUP_TO_YUP = [1, 0, 0, 0,  0, 0, -1, 0,  0, 1, 0, 0,  0, 0, 0, 1]
+
+def export_gltf(step_path: str, output_path: str, deflection: float = 0.01, unit_scale: float = 0.001, progress_callback=None) -> str:
     xcaf = load_xcaf(step_path)
-    assembly_roots = build_assembly_tree(xcaf.shape_tool, xcaf.color_tool, step_path, deflection, unit_scale)
+    assembly_roots = build_assembly_tree(xcaf.shape_tool, xcaf.color_tool, step_path, deflection, unit_scale, progress_callback)
     if not assembly_roots: raise RuntimeError("No triangulated geometry was extracted.")
+    for root in assembly_roots:
+        root.transform = compose_matrices(_ZUP_TO_YUP, root.transform)
     gltf = GLTF2(asset=Asset(version="2.0"), scene=0, scenes=[Scene(nodes=[])], nodes=[], meshes=[], materials=[], accessors=[], bufferViews=[], buffers=[Buffer(byteLength=0)])
     binary_blob, material_by_color = bytearray(), {}
     def append_mesh(part):
@@ -573,13 +613,3 @@ def export_gltf(step_path: str, output_path: str, deflection: float, unit_scale:
         f.write(binary_blob)
     gltf.save_json(str(output_file))
     return str(output_file)
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    # parser.add_argument("--input", default="PSI_SLS2_Girder_Superbend.stp")
-    parser.add_argument("--input", default="Linac_to_Booster_Transfer.stp")
-    parser.add_argument("--output", default="Linac_to_Booster_Transfer.gltf")
-    args = parser.parse_args()
-    print("Starting conversion...")
-    written_path = export_gltf(args.input, args.output, 0.01, 0.001)
-    print(f"Conversion completed: {written_path}")

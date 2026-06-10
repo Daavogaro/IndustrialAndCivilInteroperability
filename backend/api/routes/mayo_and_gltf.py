@@ -1,25 +1,24 @@
+import asyncio
+import queue as stdlib_queue
+
 from fastapi import APIRouter, WebSocket
 from fastapi.concurrency import run_in_threadpool
 
-from ..models.models import GLB_FOLDER, JSON_FOLDER, MAYO_SERVICE_URL,GLTF_FOLDER,STEP_FOLDER,RDF_FOLDER
+from ..models.models import GLB_FOLDER, JSON_FOLDER, GLTF_FOLDER, STEP_FOLDER, RDF_FOLDER
 from ..services.importing_STEP.compess_gltf import compress_gltf
 from ..services.importing_STEP.gltf import return_gltf_hierarchy
 from ..services.db_requests.import_in_DB import import_to_db
 from ..services.importing_STEP.RDF_conversion import NameAndNumber, convert_hierarchy_in_rdf
-from ..services.importing_STEP.mayo import convert_with_mayo
+from ..services.importing_STEP.occ_converter import export_gltf
 import os
 import json
-import httpx
 import re
 from ..services.importing_STEP.RDF_conversion import GeometryNode
 from ..services.db_requests.name_and_number import name_and_number_query
 from ..services.db_requests.existing_nodes import existing_nodes
 
-# I servizi Windows hanno bisogno di path reali all'interno del PC, non del container.
-
 router = APIRouter()
 
-# Funzioni utili
 def write_json_file(path: str, data: dict):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as f:
@@ -44,13 +43,6 @@ def split_batches(text: str, batch_size: int):
 def validate_geometry_nodes(data):
     GeometryNode.model_rebuild()
     return [GeometryNode.model_validate(obj) for obj in data[0]["nodes"]]
-def safe_convert_with_mayo(input_file, output_file):
-    try:
-        convert_with_mayo(input_file, output_file)
-        return "ok"
-    except Exception as e:
-        return str(e)
-
 
 def sanitize_filename(filename: str) -> str:
     base_name = os.path.basename(filename or "")
@@ -61,13 +53,12 @@ def sanitize_filename(filename: str) -> str:
         stem = "uploaded_file"
     return f"{stem}{extension.lower()}"
 
-# Un websocket è una connessione bidirezionale tra client e server che permette di inviare dati in tempo reale. In questo caso, lo usiamo per comunicare con il frontend React durante tutto il processo di conversione e parsing, in modo da poter aggiornare l'utente sullo stato dell'operazione.
 @router.websocket("/ws/convert")
 async def websocket_convert(websocket: WebSocket):
-    await websocket.accept() # Accettiamo la connessione websocket. Ora possiamo inviare e ricevere messaggi da questo client.
+    await websocket.accept()
 
     try:
-        data = await websocket.receive_json() # Aspettiamo di ricevere un messaggio JSON dal client. Ci aspettiamo che questo messaggio contenga il nome del file STEP che l'utente ha caricato e che vogliamo convertire.
+        data = await websocket.receive_json()
         filename = sanitize_filename(data.get("filename", ""))
         graph_name = data.get("graph_name")
         parent_uri = data.get("parent_uri")
@@ -75,87 +66,78 @@ async def websocket_convert(websocket: WebSocket):
         ownerLastName = data.get("ownerLastName", "Unknown")
         time = data.get("time", "Unknown")
 
+        stem, _ = os.path.splitext(filename)
+
         input_file = os.path.join(STEP_FOLDER, filename)
-        output_file = os.path.join(GLTF_FOLDER, filename.replace(".stp", ".gltf"))
-        output_file_compressed = os.path.join(GLB_FOLDER, filename.replace(".stp", ".glb"))
-        # Ad ogni passaggio vengono mandati dei messaggi al client per aggiornarlo sullo stato dell'operazione
+        output_file = os.path.join(GLTF_FOLDER, stem + ".gltf")
+        output_file_compressed = os.path.join(GLB_FOLDER, stem + ".glb")
 
-        # STEP to gLTF conversion
-        await websocket.send_json({"status": "wip", "text": "Starting conversion"}) # Inviamo un messaggio al client per indicare che la conversione è iniziata. Il client può usare questo messaggio per mostrare un indicatore di caricamento o aggiornare lo stato dell'interfaccia utente.
+        progress_q: stdlib_queue.Queue = stdlib_queue.Queue()
 
-        async with httpx.AsyncClient() as client: # Dato che la chiamata al servizio Windows potrebbe richiedere del tempo, usiamo httpx.AsyncClient per fare una richiesta HTTP asincrona. In questo modo, il server FastAPI non si bloccherà in attesa della risposta e potrà continuare a gestire altre richieste o websocket.
-            # Chiamata a Mayo
-            print(f"Calling Mayo service for file: {input_file}")
-            await run_in_threadpool(convert_with_mayo, input_file, output_file)
-            await websocket.send_json({"status": "success", "text": "Conversion Done with Mayo"}) # Se la conversione è andata a buon fine, inviamo un messaggio al client per indicare che la conversione è stata completata con successo.
-            # Parsing gerarchia
-            await websocket.send_json({"status": "wip", "text": "Parsing hierarchy"})
-            # Restituiamo la gerarchia in un array e salviamo anche un file JSON con la gerarchia stessa
-            #  TODO: Non salvare il file JSON della gerarchia, ma inviarlo direttamente al DB 
-            hierarchy = await return_gltf_hierarchy(GLTF_FOLDER +"/"+ filename.replace(".stp", ".gltf"))
+        def on_progress(pct: int) -> None:
+            progress_q.put_nowait(pct)
 
-            os.makedirs(JSON_FOLDER, exist_ok=True)
-            hierarchy_file = os.path.join(JSON_FOLDER, filename.replace(".stp", ".json"))
-            await run_in_threadpool(write_json_file, hierarchy_file, hierarchy) # Scriviamo il file JSON della gerarchia in un thread separato per non bloccare il server. La funzione write_json_file è una funzione sincrona che scrive un dizionario su un file JSON. run_in_threadpool è una funzione di FastAPI che permette di eseguire funzioni sincrone in un thread separato, in modo da non bloccare il loop asincrono principale del server.
-            await websocket.send_json({
-                "status": "success",
-                "text": "Hierarchy parsed and saved as JSON"
-            })
+        async def drain_progress() -> None:
+            while True:
+                try:
+                    pct = progress_q.get_nowait()
+                    if pct < 0:
+                        break
+                    await websocket.send_json({"status": "wip", "text": "Converting STEP to GLTF...", "progress": pct})
+                except stdlib_queue.Empty:
+                    await asyncio.sleep(0.05)
 
-            # Conversione gerarchia in RDF 
-            await websocket.send_json({"status": "wip", "text": "Converting hierarchy to RDF"})
-            data = await run_in_threadpool(read_json_file, hierarchy_file) # Leggiamo il file JSON della gerarchia in un thread separato. La funzione read_json_file è una funzione sincrona che legge un file JSON e restituisce un dizionario. Anche questa operazione potrebbe richiedere del tempo, quindi la eseguiamo in un thread separato. 
-            hierarchy_nodes = await run_in_threadpool(validate_geometry_nodes, data)
-            exist_nodes=await existing_nodes()
-            # Viene lanciata una query SPARQL per ottenere la lista dei nomi e dei numeri già presenti nel database, in modo da poter assegnare un numero univoco a ogni nodo della gerarchia che stiamo importando.
-            input_file_url = GLTF_FOLDER + "/" + filename.replace(".stp", ".gltf")
-            input_filename = filename.replace(".stp", ".gltf")
-            
-            rdf_data = await run_in_threadpool(
-                convert_hierarchy_in_rdf,
-                hierarchy_nodes,
-                parent_uri,
-                exist_nodes,
-                "https://elettra2.0#",
-                input_filename,
-                input_file_url,
-                ownerFirstName,
-                ownerLastName,
-                time
+        await websocket.send_json({"status": "wip", "text": "Converting STEP to GLTF...", "progress": 0})
+        drain_task = asyncio.create_task(drain_progress())
+        gltf_path = await run_in_threadpool(export_gltf, input_file, output_file, progress_callback=on_progress)
+        progress_q.put_nowait(-1)
+        await drain_task
+        await websocket.send_json({"status": "success", "text": "Conversion Done"})
 
-            )
-            await websocket.send_json({"status": "wip", "text": "Compressing gLTF"}) # Inviamo un messaggio al client per indicare che stiamo iniziando la fase di compressione del file gLTF. Anche questa operazione potrebbe richiedere del tempo, quindi è importante tenere aggiornato l'utente sullo stato dell'operazione.
-            await run_in_threadpool(compress_gltf, output_file, output_file_compressed)
-            await websocket.send_json({"status": "success", "text": "gLTF Compressed"}) # Se la compressione è andata a buon fine, inviamo un messaggio al client per indicare che il file gLTF è stato compresso con successo. A questo punto, abbiamo sia il file gLTF non compresso che quello compresso, e possiamo procedere con le fasi successive di parsing e importazione in DB.
-    
-            file_path = os.path.join(RDF_FOLDER, "bulk_import.nt")
-    
-            await run_in_threadpool(write_text_file, file_path, rdf_data)
-    
-            await websocket.send_json({
-                "status": "success",
-                "text": "RDF file created"
-            })
-    
-            # -------------------------
-            # Batch import
-            # -------------------------
-            BATCH_SIZE = 1000
-    
-            batches, total_lines = await run_in_threadpool(
-                split_batches, rdf_data, BATCH_SIZE
-            )
-    
-            for batch in batches:
-                await import_to_db(websocket, graph_name, batch)
-    
-            await websocket.send_json({
-                "status": "success",
-                "text": f"Imported {total_lines} triples in DB"
-            })
+        await websocket.send_json({"status": "wip", "text": "Parsing hierarchy"})
+        hierarchy = await return_gltf_hierarchy(gltf_path)
+
+        os.makedirs(JSON_FOLDER, exist_ok=True)
+        hierarchy_file = os.path.join(JSON_FOLDER, stem + ".json")
+        await run_in_threadpool(write_json_file, hierarchy_file, hierarchy)
+        await websocket.send_json({"status": "success", "text": "Hierarchy parsed and saved as JSON"})
+
+        await websocket.send_json({"status": "wip", "text": "Converting hierarchy to RDF"})
+        data = await run_in_threadpool(read_json_file, hierarchy_file)
+        hierarchy_nodes = await run_in_threadpool(validate_geometry_nodes, data)
+        exist_nodes = await existing_nodes()
+
+        input_file_url = gltf_path.replace("\\", "/")
+        input_filename = stem + ".gltf"
+
+        rdf_data = await run_in_threadpool(
+            convert_hierarchy_in_rdf,
+            hierarchy_nodes,
+            parent_uri,
+            exist_nodes,
+            "https://elettra2.0#",
+            input_filename,
+            input_file_url,
+            ownerFirstName,
+            ownerLastName,
+            time
+        )
+
+        await websocket.send_json({"status": "wip", "text": "Compressing gLTF"})
+        await run_in_threadpool(compress_gltf, gltf_path, output_file_compressed)
+        await websocket.send_json({"status": "success", "text": "gLTF Compressed"})
+
+        file_path = os.path.join(RDF_FOLDER, "bulk_import.nt")
+        await run_in_threadpool(write_text_file, file_path, rdf_data)
+        await websocket.send_json({"status": "success", "text": "RDF file created"})
+
+        BATCH_SIZE = 1000
+        batches, total_lines = await run_in_threadpool(split_batches, rdf_data, BATCH_SIZE)
+
+        for batch in batches:
+            await import_to_db(websocket, graph_name, batch)
+
+        await websocket.send_json({"status": "success", "text": f"Imported {total_lines} triples in DB"})
 
     except Exception as e:
-        await websocket.send_json({
-            "status": "error",
-            "text": str(e)
-        })
+        await websocket.send_json({"status": "error", "text": str(e)})
