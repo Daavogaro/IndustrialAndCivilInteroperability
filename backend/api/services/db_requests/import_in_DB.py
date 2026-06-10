@@ -1,7 +1,7 @@
 import requests
 from fastapi import APIRouter, WebSocket
 from ...models.models import VIRTUOSO_URL
-async def import_to_db(websocket: WebSocket|None,graph:str,triples:str):
+async def import_to_db(websocket: WebSocket|None, graph:str, triples:str):
 
   sparql_update = """
   INSERT DATA {

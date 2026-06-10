@@ -1,3 +1,6 @@
+import asyncio
+import queue as stdlib_queue
+
 from fastapi import APIRouter, WebSocket
 from fastapi.concurrency import run_in_threadpool
 
@@ -69,9 +72,26 @@ async def websocket_convert(websocket: WebSocket):
         output_file = os.path.join(GLTF_FOLDER, stem + ".gltf")
         output_file_compressed = os.path.join(GLB_FOLDER, stem + ".glb")
 
-        await websocket.send_json({"status": "wip", "text": "Starting conversion"})
+        progress_q: stdlib_queue.Queue = stdlib_queue.Queue()
 
-        gltf_path = await run_in_threadpool(export_gltf, input_file, output_file)
+        def on_progress(pct: int) -> None:
+            progress_q.put_nowait(pct)
+
+        async def drain_progress() -> None:
+            while True:
+                try:
+                    pct = progress_q.get_nowait()
+                    if pct < 0:
+                        break
+                    await websocket.send_json({"status": "wip", "text": "Converting STEP to GLTF...", "progress": pct})
+                except stdlib_queue.Empty:
+                    await asyncio.sleep(0.05)
+
+        await websocket.send_json({"status": "wip", "text": "Converting STEP to GLTF...", "progress": 0})
+        drain_task = asyncio.create_task(drain_progress())
+        gltf_path = await run_in_threadpool(export_gltf, input_file, output_file, progress_callback=on_progress)
+        progress_q.put_nowait(-1)
+        await drain_task
         await websocket.send_json({"status": "success", "text": "Conversion Done"})
 
         await websocket.send_json({"status": "wip", "text": "Parsing hierarchy"})
