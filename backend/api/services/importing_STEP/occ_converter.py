@@ -526,10 +526,16 @@ def build_assembly_tree(shape_tool, color_tool, step_path: str, deflection: floa
         if root_node: roots.append(root_node)
     return roots
 
+# Rotate -90° around X to convert Z-up (STEP/CAD) → Y-up (glTF/Three.js).
+# Column-major order: col0=[1,0,0,0], col1=[0,0,-1,0], col2=[0,1,0,0], col3=[0,0,0,1]
+_ZUP_TO_YUP = [1, 0, 0, 0,  0, 0, -1, 0,  0, 1, 0, 0,  0, 0, 0, 1]
+
 def export_gltf(step_path: str, output_path: str, deflection: float = 0.01, unit_scale: float = 0.001) -> str:
     xcaf = load_xcaf(step_path)
     assembly_roots = build_assembly_tree(xcaf.shape_tool, xcaf.color_tool, step_path, deflection, unit_scale)
     if not assembly_roots: raise RuntimeError("No triangulated geometry was extracted.")
+    for root in assembly_roots:
+        root.transform = compose_matrices(_ZUP_TO_YUP, root.transform)
     gltf = GLTF2(asset=Asset(version="2.0"), scene=0, scenes=[Scene(nodes=[])], nodes=[], meshes=[], materials=[], accessors=[], bufferViews=[], buffers=[Buffer(byteLength=0)])
     binary_blob, material_by_color = bytearray(), {}
     def append_mesh(part):
