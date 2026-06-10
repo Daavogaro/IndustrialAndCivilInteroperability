@@ -1,4 +1,5 @@
 import { StatusString } from "../../../components/Sidebar/MessagePanel";
+import { useProject } from "../../../context/ProjectContext";
 
 type FundamentalNodeButtonProps = {
   metadata: string;
@@ -11,7 +12,9 @@ export function FundamentalNodeButton({
   setMessage,
   onUpdated,
 }: FundamentalNodeButtonProps) {
-  const graphName = "http://localhost:8890/Elettra2/";
+  const { activeProject } = useProject();
+  const graphName = activeProject?.graphUri ?? "";
+
   const fetchFundamentalNode = async (graph: string, metadata: string) => {
     const res = await fetch("/api/add-fundamental-node", {
       method: "POST",
@@ -26,6 +29,7 @@ export function FundamentalNodeButton({
       body: JSON.stringify({
         metadata: metadata,
         toBeDeleted: false,
+        graph: graph,
       }),
     });
 

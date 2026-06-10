@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { refreshStepHierarchy } from "./Hierarchy/HierarchyButtons/buttons/UpdateHierarchyButton";
 import { FundamentalNodeButton } from "./gLTFViewer/FundamentalNodeButton";
 import { findNode } from "../ProductDetailPage/NodeDetails/NodeDetails";
+import { useProject } from "../../context/ProjectContext";
 
 type STEPPageProps = {
   setTree: (tree: TreeNode[]) => void;
@@ -26,7 +27,7 @@ export function STEPPage({
   tree,
   nodeUri,
 }: STEPPageProps) {
-  const graphName = "http://localhost:8890/Elettra2/";
+  const { activeProject } = useProject();
   const [hoveredUri, setHoveredUri] = useState<string | null>(null);
   const nodeData = findNode(tree, nodeUri);
 
@@ -37,8 +38,9 @@ export function STEPPage({
   }, [nodeUri]);
 
   useEffect(() => {
-    refreshStepHierarchy(setTree, setMessage);
-  }, [setTree, setMessage]);
+    if (!activeProject?.graphUri) return;
+    refreshStepHierarchy(activeProject.graphUri, setTree, setMessage);
+  }, [activeProject?.graphUri, setTree, setMessage]);
 
   const handleSelectNode = async (uri: string) => {
     setNodeUri(uri);
@@ -58,7 +60,8 @@ export function STEPPage({
 
       <div style={{ padding: "10px" }}>
         <p>
-          <strong>Graph URI:</strong> {graphName}
+          <strong>Project:</strong>{" "}
+          {activeProject ? `${activeProject.name} — ${activeProject.graphUri}` : "No project selected"}
         </p>
       </div>
 
@@ -120,7 +123,9 @@ export function STEPPage({
                 <FundamentalNodeButton
                   metadata={nodeData?.metadata || ""}
                   setMessage={setMessage}
-                  onUpdated={() => refreshStepHierarchy(setTree, setMessage)}
+                  onUpdated={() =>
+                    refreshStepHierarchy(activeProject?.graphUri ?? "", setTree, setMessage)
+                  }
                 />
               </div>
             ) : (

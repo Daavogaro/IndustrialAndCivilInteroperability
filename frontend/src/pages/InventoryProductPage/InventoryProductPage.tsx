@@ -3,6 +3,7 @@ import { Topbar } from "../../components/Topbar";
 import { useProductInventory, InventoryItem } from "./useProductInventory";
 import { ProductCard } from "./ProductCard";
 import { StatusString } from "../../components/Sidebar/MessagePanel";
+import { useProject } from "../../context/ProjectContext";
 
 type SortKey = "name" | "lastEdit" | "status" | "author";
 
@@ -34,7 +35,8 @@ function sortItems(items: InventoryItem[], key: SortKey): InventoryItem[] {
 
 
 export function InventoryProductPage() {
-  const { items, loading, error, refresh } = useProductInventory();
+  const { activeProject } = useProject();
+  const { items, loading, error, refresh } = useProductInventory(activeProject?.graphUri);
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("name");
 

@@ -1,21 +1,23 @@
 import { StatusString } from "../../../../../components/Sidebar/MessagePanel";
 import { fetchQuery } from "../../../../../utils/fetchQuery";
 import { buildTree, TreeNode } from "../../buildTree";
+import { useProject } from "../../../../../context/ProjectContext";
+
 export type UpdateButtonsProps = {
   setTree: (tree: TreeNode[]) => void;
   setMessage: (message: { status: StatusString; text: string }) => void;
 };
 
 export async function refreshStepHierarchy(
+  graphUri: string,
   setTree: (tree: TreeNode[]) => void,
   setMessage: (message: { status: StatusString; text: string }) => void,
 ) {
-  const graphName = "http://localhost:8890/Elettra2/";
   const queryRootElement = `
     PREFIX x3d:  <https://www.web3d.org/specifications/X3dOntology4.0#>
     PREFIX pre: <http://www.loc.gov/premis/rdf/v3/>
-    SELECT ?root ?cadType ?metadata ?visible ?display ?dimensions ?attrib ?fileUrl 
-    FROM <${graphName}>
+    SELECT ?root ?cadType ?metadata ?visible ?display ?dimensions ?attrib ?fileUrl
+    FROM <${graphUri}>
     WHERE {
       ?root a x3d:CADAssembly .
       ?root a ?cadType .
@@ -41,7 +43,7 @@ export async function refreshStepHierarchy(
     PREFIX x3d:  <https://www.web3d.org/specifications/X3dOntology4.0#>
     PREFIX pre: <http://www.loc.gov/premis/rdf/v3/>
     SELECT ?parent ?child ?cadType ?metadata ?visible ?display ?dimensions ?attrib ?fileUrl
-    FROM <${graphName}>
+    FROM <${graphUri}>
     WHERE {
       ?child x3d:hasParentCADPart ?parent .
       ?child a ?cadType .
@@ -65,7 +67,7 @@ export async function refreshStepHierarchy(
     PREFIX ifc: <https://w3id.org/ifc/IFC4X3_ADD2#>
     PREFIX express: <https://w3id.org/express#>
     SELECT ?node ?ifcClass ?gidValue ?predefinedType ?objectType
-    FROM <${graphName}>
+    FROM <${graphUri}>
     WHERE {
       ?node a ?ifcClass .
       ?node x3d:hasMetadata ?metadata .
@@ -90,7 +92,7 @@ export async function refreshStepHierarchy(
     PREFIX express: <https://w3id.org/express#>
     PREFIX owl: <http://www.w3.org/2002/07/owl#>
     SELECT ?node ?psetName ?propName ?propValue ?datatype
-    FROM <${graphName}>
+    FROM <${graphUri}>
     WHERE {
       ?s a ifc:IfcRelDefinesByProperties .
       ?s ifc:relatedObjects_IfcRelDefinesByProperties ?node .
@@ -121,8 +123,8 @@ export async function refreshStepHierarchy(
       cadType: r.cadType,
       metadata: r.metadata,
       fileUrl: r.fileUrl
-    ? r.fileUrl.replace("file:///", "")
-    : r.fileUrl,
+        ? r.fileUrl.replace("file:///", "")
+        : r.fileUrl,
     }));
 
     // fetch edges
@@ -174,9 +176,12 @@ export function UpdateHierarchyButton({
   setTree,
   setMessage,
 }: UpdateButtonsProps) {
+  const { activeProject } = useProject();
+
   const buildHierarchy = async () => {
-    await refreshStepHierarchy(setTree, setMessage);
+    await refreshStepHierarchy(activeProject?.graphUri ?? "", setTree, setMessage);
   };
+
   return (
     <span
       className="generalButton material-icons-round"

@@ -4,7 +4,7 @@ import queue as stdlib_queue
 from fastapi import APIRouter, WebSocket
 from fastapi.concurrency import run_in_threadpool
 
-from ..models.models import GLB_FOLDER, JSON_FOLDER, GLTF_FOLDER, STEP_FOLDER, RDF_FOLDER
+from ..models.models import GLB_FOLDER, JSON_FOLDER, GLTF_FOLDER, STEP_FOLDER, RDF_FOLDER, get_project_folders
 from ..services.importing_STEP.compess_gltf import compress_gltf
 from ..services.importing_STEP.gltf import return_gltf_hierarchy
 from ..services.db_requests.import_in_DB import import_to_db
@@ -62,15 +62,30 @@ async def websocket_convert(websocket: WebSocket):
         filename = sanitize_filename(data.get("filename", ""))
         graph_name = data.get("graph_name")
         parent_uri = data.get("parent_uri")
+        project_id = data.get("project_id")
         ownerFirstName = data.get("ownerFirstName", "Unknown")
         ownerLastName = data.get("ownerLastName", "Unknown")
         time = data.get("time", "Unknown")
 
         stem, _ = os.path.splitext(filename)
 
-        input_file = os.path.join(STEP_FOLDER, filename)
-        output_file = os.path.join(GLTF_FOLDER, stem + ".gltf")
-        output_file_compressed = os.path.join(GLB_FOLDER, stem + ".glb")
+        if project_id:
+            folders = get_project_folders(project_id)
+            step_folder = folders["step"]
+            gltf_folder = folders["gltf"]
+            glb_folder = folders["glb"]
+            json_folder = folders["json"]
+            rdf_folder = folders["rdf"]
+        else:
+            step_folder = STEP_FOLDER
+            gltf_folder = GLTF_FOLDER
+            glb_folder = GLB_FOLDER
+            json_folder = JSON_FOLDER
+            rdf_folder = RDF_FOLDER
+
+        input_file = os.path.join(step_folder, filename)
+        output_file = os.path.join(gltf_folder, stem + ".gltf")
+        output_file_compressed = os.path.join(glb_folder, stem + ".glb")
 
         progress_q: stdlib_queue.Queue = stdlib_queue.Queue()
 
@@ -97,8 +112,8 @@ async def websocket_convert(websocket: WebSocket):
         await websocket.send_json({"status": "wip", "text": "Parsing hierarchy"})
         hierarchy = await return_gltf_hierarchy(gltf_path)
 
-        os.makedirs(JSON_FOLDER, exist_ok=True)
-        hierarchy_file = os.path.join(JSON_FOLDER, stem + ".json")
+        os.makedirs(json_folder, exist_ok=True)
+        hierarchy_file = os.path.join(json_folder, stem + ".json")
         await run_in_threadpool(write_json_file, hierarchy_file, hierarchy)
         await websocket.send_json({"status": "success", "text": "Hierarchy parsed and saved as JSON"})
 
@@ -127,7 +142,7 @@ async def websocket_convert(websocket: WebSocket):
         await run_in_threadpool(compress_gltf, gltf_path, output_file_compressed)
         await websocket.send_json({"status": "success", "text": "gLTF Compressed"})
 
-        file_path = os.path.join(RDF_FOLDER, "bulk_import.nt")
+        file_path = os.path.join(rdf_folder, "bulk_import.nt")
         await run_in_threadpool(write_text_file, file_path, rdf_data)
         await websocket.send_json({"status": "success", "text": "RDF file created"})
 

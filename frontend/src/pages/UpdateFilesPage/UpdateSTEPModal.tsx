@@ -2,6 +2,7 @@ import { useState } from "react";
 import { toogleModal } from "../../utils/htmlFunctions";
 import { StatusString } from "../../components/Sidebar/MessagePanel";
 import { TreeNode } from "../STEPPage/Hierarchy/buildTree";
+import { useProject } from "../../context/ProjectContext";
 
 type UpdateSTEPModalProps = {
   fileName: string 
@@ -11,7 +12,8 @@ type UpdateSTEPModalProps = {
 };
 
 export function UpdateSTEPModal({ fileName, tree, setMessage }: UpdateSTEPModalProps) {
-  const graphName = "http://localhost:8890/Elettra2/";
+  const { activeProject } = useProject();
+  const graphName = activeProject?.graphUri ?? "";
   const ownerFirstName = "Davide";
   const ownerLastName = "Avogaro";
   const time = new Date().toISOString();
@@ -36,6 +38,7 @@ export function UpdateSTEPModal({ fileName, tree, setMessage }: UpdateSTEPModalP
       const formData = new FormData();
       formData.append("file", file);
       formData.append("fileName", fileName.replace(".gltf", ".stp"));
+      if (activeProject?.id) formData.append("projectId", activeProject.id);
 
       const res = await fetch("/api/upload-step", {
         method: "POST",
@@ -61,6 +64,7 @@ export function UpdateSTEPModal({ fileName, tree, setMessage }: UpdateSTEPModalP
            JSON.stringify({
              filename: uploadedFilename,
              graph_name: graphName,
+             project_id: activeProject?.id ?? null,
              tree: tree,
              ownerFirstName: ownerFirstName,
              ownerLastName: ownerLastName,
