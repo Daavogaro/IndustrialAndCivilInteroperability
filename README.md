@@ -26,10 +26,10 @@ Docker is a platform for building, shipping, and running applications inside **c
 2. Open a new terminal and run `docker-compose up --build` 
 3. Open on your Web Browser http://localhost:8890/ if you can see the Virtuoso page the database is running
 4. Click on [Conductor](http://localhost:8890/conductor/) and you can login into the database with the credential:
-	   Account: `dba`
-	   Password: `ddd`
-5. Click on `Database >> Interactive SQL` and in the panel write `grant SPARQL_UPDATE to "SPARQL"` in order to have the permissions to write triples in the graph database
-6. Close the terminal
+	- Account: `dba`
+ 	- Password: `ddd`
+6. Click on `Database >> Interactive SQL` and in the panel write `grant SPARQL_UPDATE to "SPARQL"` in order to have the permissions to write triples in the graph database
+7. Close the terminal
 
 ## Node.js
 **Node.js** is an open-source JavaScript runtime that lets you run JavaScript outside of a web browser. This tool allow us to run the frontend. 
@@ -39,20 +39,20 @@ Docker is a platform for building, shipping, and running applications inside **c
 ### Installation of libraries
 1. Open this GitHub folder in VSCode
 2. Open a new terminal and run 
-   `cd frontend`: to change the folder 
-   `npm install`: to install all the libraries 
+	- `cd frontend`: to change the folder 
+	- `npm install`: to install all the libraries 
 3. Close the terminal
 # Execution
 - **Backend**: 
 	1. open a new terminal and run 
-	   `conda activate OCC` : we are activating the Conda environment
-	   `python backend\run.py` : we run the backend
+		- `conda activate OCC` : we are activating the Conda environment
+		- `python backend\run.py` : we run the backend
 	2. If we see as last message `INFO:     Application startup complete.` the backend is running 
 - **Database**: 
 	1. Open a new terminal and run `docker-compose up --build` 
 	2. Open on your Web Browser http://localhost:8890/ if you can see the Virtuoso page the database is running
 - **Frontend**: 
 	1. open a new terminal and run 
-	   `cd frontend`: we enter in the frontend folder
-	   `npm run dev`: we run the frontend
+		- `cd frontend`: we enter in the frontend folder
+		- `npm run dev`: we run the frontend
 	2. Open on your Web Browser http://localhost:3000/ if you can see the Web Application page the frontend is running
