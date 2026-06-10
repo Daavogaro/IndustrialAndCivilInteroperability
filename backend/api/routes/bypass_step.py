@@ -62,7 +62,7 @@ def sanitize_filename(filename: str) -> str:
     return f"{stem}{extension.lower()}"
 
 # Un websocket è una connessione bidirezionale tra client e server che permette di inviare dati in tempo reale. In questo caso, lo usiamo per comunicare con il frontend React durante tutto il processo di conversione e parsing, in modo da poter aggiornare l'utente sullo stato dell'operazione.
-@router.websocket("/ws/convert")
+@router.websocket("/ws/convert-bypass")
 async def websocket_convert(websocket: WebSocket):
     await websocket.accept() # Accettiamo la connessione websocket. Ora possiamo inviare e ricevere messaggi da questo client.
 

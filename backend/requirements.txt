@@ -8,3 +8,4 @@ numpy
 httpx
 ifcopenshell
 rdflib
+pythonocc-core

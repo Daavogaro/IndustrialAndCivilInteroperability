@@ -31,7 +31,7 @@ app.add_middleware(
 # Un router è un modo per organizzare le rotte in FastAPI. Vuol dire che ogni volta che verrà richiamato il router verrà aggiunto  il prefisso "/api" a tutte le rotte definite in api.router. In questo modo, tutte le rotte definite in api.router saranno accessibili tramite URL che iniziano con "/api".
 # Ogni router che usiamo nel backend deve essere incluso in questo file main.py, altrimenti non sarà accessibile. Quindi, se definiamo una nuova rotta in un nuovo file, dobbiamo ricordarci di importare quel file e includere il router qui.
 app.include_router(upload_STEP.router, prefix="/api")
-# app.include_router(mayo_and_gltf.router, prefix="/api")
+app.include_router(mayo_and_gltf.router, prefix="/api")
 app.include_router(bypass_step.router, prefix="/api")
 app.include_router(sparql_query.router, prefix="/api")
 app.include_router(add_child.router, prefix="/api")
