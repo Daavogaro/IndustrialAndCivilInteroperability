@@ -22,7 +22,7 @@ class URIs(BaseModel):
 async def add_child(request: URIs):
     g = Graph()
     g.bind("ex", GRAPH_NAMESPACE)
-    exist_nodes=await existing_nodes()
+    exist_nodes=await existing_nodes(request.graph)
     number = 1
     
     def get_by_name(items: list[ExistingProps], target: str) -> ExistingProps | None:

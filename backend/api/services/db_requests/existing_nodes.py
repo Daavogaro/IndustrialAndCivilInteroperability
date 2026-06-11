@@ -98,7 +98,7 @@ def convert_sparql_results(results_json: dict, psets_by_node: dict[str, dict]) -
     return output
 
 
-async def existing_nodes() -> list[ExistingProps]:
+async def existing_nodes(graph: str) -> list[ExistingProps]:
     base_query = """
     PREFIX x3d: <https://www.web3d.org/specifications/X3dOntology4.0#>
     PREFIX ifc: <https://w3id.org/ifc/IFC4X3_ADD2#>
@@ -115,6 +115,7 @@ async def existing_nodes() -> list[ExistingProps]:
         (SAMPLE(?ifcClassLocal) AS ?ifcClass)
         (SAMPLE(?predefinedTypeLocal) AS ?predefinedType)
         (SAMPLE(?objectTypeLocal) AS ?objectType)
+    FROM <__GRAPH__>
     WHERE {
         ?node x3d:hasMetadata ?name .
         ?node x3d:name ?number .
@@ -150,6 +151,7 @@ async def existing_nodes() -> list[ExistingProps]:
     PREFIX express: <https://w3id.org/express#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     SELECT DISTINCT ?name ?psetName ?propName ?ifcValueType ?propValue ?dataType
+    FROM <__GRAPH__>
     WHERE {
         ?node x3d:hasMetadata ?name .
         ?node ifc:isDefinedBy_IfcObject ?relDefines .
@@ -183,6 +185,9 @@ async def existing_nodes() -> list[ExistingProps]:
         }
     }
     """
+
+    base_query = base_query.replace("__GRAPH__", graph)
+    psets_query = psets_query.replace("__GRAPH__", graph)
 
     base_result = await sparql_query(request=SparqlRequest(query=base_query))
     psets_result = await sparql_query(request=SparqlRequest(query=psets_query))

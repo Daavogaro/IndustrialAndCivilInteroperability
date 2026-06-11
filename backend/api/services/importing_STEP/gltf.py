@@ -145,10 +145,10 @@ def build_node_hierarchy(gltf, buffer_cache, node_index, mesh_cache, nameAndNumb
 # MAIN ENTRY POINT
 # ------------------------------------------------------------
 
-async def return_gltf_hierarchy(gltf_path):
+async def return_gltf_hierarchy(gltf_path, graph: str):
     gltf_dir = os.path.dirname(gltf_path)
     gltf = GLTF2().load(gltf_path)
-    nameAndNumberList = await name_and_number_query()
+    nameAndNumberList = await name_and_number_query(graph)
 
     buffer_cache = preload_buffers(gltf, gltf_dir)
     mesh_cache = {}

@@ -18,6 +18,8 @@ SELECT ?metadata
        (COUNT(DISTINCT ?node) AS ?count)
        (SAMPLE(?cadType) AS ?cadType)
        (SAMPLE(?ifcClass) AS ?ifcClass)
+       (MAX(IF(BOUND(?addedRaw), 1, 0)) AS ?hasAdded)
+       (MAX(IF(BOUND(?removedRaw), 1, 0)) AS ?hasRemoved)
 FROM <{graph}>
 WHERE {{
   ?node x3d:hasMetadata ?metadata .
@@ -29,6 +31,8 @@ WHERE {{
     ?node a ?ifcClass .
     FILTER(STRSTARTS(STR(?ifcClass), "https://w3id.org/ifc/IFC4X3_ADD2#"))
   }}
+  OPTIONAL {{ ?metadata x3d:hasAddedEntities ?addedRaw . }}
+  OPTIONAL {{ ?metadata x3d:hasRemovedEntities ?removedRaw . }}
 }}
 GROUP BY ?metadata
 ORDER BY DESC(?count)
@@ -53,6 +57,8 @@ def _transform(bindings: list) -> list:
             "count": int(b["count"]["value"]),
             "cadType": cad_type_uri.split("#")[-1],
             "ifcClass": ifc_raw["value"].split("#")[-1] if ifc_raw else None,
+            "hasAddedEntities": b.get("hasAdded", {}).get("value") == "1",
+            "hasRemovedEntities": b.get("hasRemoved", {}).get("value") == "1",
             "lastEditor": _FAKE_EDITOR,
             "lastEditDate": _FAKE_EDIT_DATE,
         })

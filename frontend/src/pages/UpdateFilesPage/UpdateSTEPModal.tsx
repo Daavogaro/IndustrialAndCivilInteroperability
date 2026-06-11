@@ -14,10 +14,10 @@ type UpdateSTEPModalProps = {
 export function UpdateSTEPModal({ fileName, tree, setMessage }: UpdateSTEPModalProps) {
   const { activeProject } = useProject();
   const graphName = activeProject?.graphUri ?? "";
-  const ownerFirstName = "Davide";
-  const ownerLastName = "Avogaro";
   const time = new Date().toISOString();
-  
+
+  const [ownerFirstName, setOwnerFirstName] = useState("");
+  const [ownerLastName, setOwnerLastName] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -106,6 +106,28 @@ export function UpdateSTEPModal({ fileName, tree, setMessage }: UpdateSTEPModalP
         <h3 style={{ color: "white", paddingBottom: 10 }}>
           Update a STEP file to update {fileName}
         </h3>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            rowGap: 8,
+            paddingBottom: 10,
+          }}>
+          <input
+            type="text"
+            placeholder="First Name"
+            value={ownerFirstName}
+            onChange={(e) => setOwnerFirstName(e.target.value)}
+            style={{ color: "white", padding: 6 }}
+          />
+          <input
+            type="text"
+            placeholder="Last Name"
+            value={ownerLastName}
+            onChange={(e) => setOwnerLastName(e.target.value)}
+            style={{ color: "white", padding: 6 }}
+          />
+        </div>
         <input
           type="file"
           accept=".stp"
@@ -125,13 +147,20 @@ export function UpdateSTEPModal({ fileName, tree, setMessage }: UpdateSTEPModalP
             onClick={() => {
               toogleModal("update-step-modal");
               setFile(null);
+              setOwnerFirstName("");
+              setOwnerLastName("");
             }}>
             <span className="material-icons-round">cancel</span>
             Cancel
           </button>
           <button
             style={{ backgroundColor: "rgb(18, 145, 18)" }}
-            disabled={!file || uploading}
+            disabled={
+              !file ||
+              uploading ||
+              !ownerFirstName.trim() ||
+              !ownerLastName.trim()
+            }
             onClick={() => {
               handleUpload(fileName);
             }}>

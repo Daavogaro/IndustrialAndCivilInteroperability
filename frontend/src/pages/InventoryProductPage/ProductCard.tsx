@@ -24,11 +24,21 @@ export function ProductCard({
   count,
   cadType,
   ifcClass,
+  hasAddedEntities,
+  hasRemovedEntities,
   lastEditor,
   lastEditDate,
 }: ProductCardProps) {
   const incomplete = ifcClass === null;
+  const hasChanges = hasAddedEntities || hasRemovedEntities;
+  const changed = hasChanges && !incomplete;
   const [hovered, setHovered] = useState(false);
+
+  const changeChipText = hasAddedEntities && hasRemovedEntities
+    ? "Structure changed: entities added & removed"
+    : hasAddedEntities
+      ? "Structure changed: entities added"
+      : "Structure changed: entities removed";
 
   const cardStyle: React.CSSProperties = {
     padding: 16,
@@ -39,7 +49,11 @@ export function ProductCard({
     transform: hovered ? "translateY(-3px)" : "translateY(0)",
     boxShadow: hovered ? "0 6px 18px rgba(0,0,0,0.4)" : "0 2px 4px rgba(0,0,0,0.2)",
     filter: hovered ? "brightness(1.12)" : "brightness(1)",
-    ...(incomplete ? { backgroundColor: "#c0392b", color: "white" } : {}),
+    ...(incomplete
+      ? { backgroundColor: "#c0392b", color: "white" }
+      : changed
+        ? { backgroundColor: "#c8860a", color: "white" }
+        : {}),
   };
 
   return (
@@ -47,7 +61,7 @@ export function ProductCard({
       to={`/product/${encodeURIComponent(label)}`}
       style={{ textDecoration: "none" }}>
       <div
-        className={incomplete ? undefined : "ifc-card"}
+        className={incomplete || changed ? undefined : "ifc-card"}
         style={cardStyle}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
@@ -76,6 +90,21 @@ export function ProductCard({
           }}>
           {cadType}
         </span>
+
+        {changed && (
+          <span
+            style={{
+              display: "block",
+              backgroundColor: "rgba(0,0,0,0.25)",
+              color: "white",
+              borderRadius: 4,
+              padding: "2px 6px",
+              fontSize: "var(--font-sm)",
+              marginBottom: 8,
+            }}>
+            ⚠ {changeChipText}
+          </span>
+        )}
 
         <p style={{ marginBottom: 4, color: "var(--grey-6)" }}>
           <strong>Instances:</strong> {count}

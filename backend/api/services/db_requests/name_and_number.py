@@ -6,10 +6,11 @@ from ..importing_STEP.RDF_conversion import NameAndNumber
 class SparqlRequest(BaseModel):
     query: str
 
-async def name_and_number_query():
+async def name_and_number_query(graph: str):
     nameAndNumber_query = f"""
             PREFIX x3d:  <https://www.web3d.org/specifications/X3dOntology4.0#>
             SELECT ?name (MAX(?number) AS ?maxNumber)
+            FROM <{graph}>
             WHERE {{
               ?node x3d:hasMetadata ?name .
               ?node x3d:name ?number .

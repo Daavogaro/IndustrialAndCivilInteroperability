@@ -110,7 +110,7 @@ async def websocket_convert(websocket: WebSocket):
         await websocket.send_json({"status": "success", "text": "Conversion Done"})
 
         await websocket.send_json({"status": "wip", "text": "Parsing hierarchy"})
-        hierarchy = await return_gltf_hierarchy(gltf_path)
+        hierarchy = await return_gltf_hierarchy(gltf_path, graph_name)
 
         os.makedirs(json_folder, exist_ok=True)
         hierarchy_file = os.path.join(json_folder, stem + ".json")
@@ -120,7 +120,7 @@ async def websocket_convert(websocket: WebSocket):
         await websocket.send_json({"status": "wip", "text": "Converting hierarchy to RDF"})
         data = await run_in_threadpool(read_json_file, hierarchy_file)
         hierarchy_nodes = await run_in_threadpool(validate_geometry_nodes, data)
-        exist_nodes = await existing_nodes()
+        exist_nodes = await existing_nodes(graph_name)
 
         input_file_url = gltf_path.replace("\\", "/")
         input_filename = stem + ".gltf"

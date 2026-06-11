@@ -6,6 +6,8 @@ import re
 
 from ....services.db_requests.substitution_file_query import substitution_file_query
 
+from ....models.models import GRAPH_NAMESPACE
+
 from ....services.importing_STEP.RDF_conversion import NameAndNumber
 
 from ....services.db_requests.name_and_number import name_and_number_query
@@ -247,6 +249,67 @@ async def delete_remaining_nodes_sparql(graph: str, nodes_to_substitute: list, o
 
 
 # ------------------------------------------------------------
+# REMOVAL-AFFECTED PRODUCTS (nearest Fundamental-Node ancestor of removed nodes)
+# ------------------------------------------------------------
+
+async def removal_parents_query(graph: str, nodes_to_substitute: list) -> set[str]:
+    """
+    For every removed instance (a remaining substitution number), find the nearest
+    ancestor whose metadata is a Fundamental_Node and return the set of those product
+    labels. Must run BEFORE the removed nodes are deleted, while they still exist.
+    """
+    removed_uris = []
+    for item in (nodes_to_substitute or []):
+        metadata = item.get("metadata")
+        if not metadata:
+            continue
+        for num in item.get("numbers", []):
+            removed_uris.append(f"<{GRAPH_NAMESPACE}{metadata}.{num}>")
+
+    if not removed_uris:
+        return set()
+
+    values = " ".join(removed_uris)
+    query = f"""
+        PREFIX x3d: <https://www.web3d.org/specifications/X3dOntology4.0#>
+        SELECT ?node ?meta (COUNT(DISTINCT ?between) AS ?depth)
+        FROM <{graph}>
+        WHERE {{
+            VALUES ?node {{ {values} }}
+            ?node x3d:hasParentCADPart* ?anc .
+            ?anc x3d:attrib ?attrib .
+            FILTER(STR(?attrib) = "Fundamental_Node")
+            ?anc x3d:hasMetadata ?meta .
+            ?node x3d:hasParentCADPart* ?between .
+            ?between x3d:hasParentCADPart* ?anc .
+        }}
+        GROUP BY ?node ?meta
+        ORDER BY ?node ?depth
+    """
+
+    try:
+        result = await sparql_query(request=SparqlRequest(query=query))
+    except Exception as e:
+        print(f"  Error resolving removal parents: {e}")
+        return set()
+
+    # Pick the nearest (smallest depth) Fundamental-Node ancestor per removed node.
+    nearest: dict[str, tuple[int, str]] = {}
+    for binding in result["results"]["bindings"]:
+        node = binding["node"]["value"]
+        meta = binding["meta"]["value"]
+        depth = int(binding["depth"]["value"])
+        if node not in nearest or depth < nearest[node][0]:
+            nearest[node] = (depth, meta)
+
+    labels: set[str] = set()
+    for _depth, meta in nearest.values():
+        parts = meta.split("#")
+        labels.add("#".join(parts[1:]) if len(parts) > 1 else meta)
+    return labels
+
+
+# ------------------------------------------------------------
 # MAIN ENTRY POINT
 # ------------------------------------------------------------
 
@@ -254,7 +317,7 @@ async def return_gltf_hierarchy(gltf_path,graph:str, original_file_url:str):
     gltf_dir = os.path.dirname(gltf_path)
     gltf = GLTF2().load(gltf_path)
    
-    existing_Nodes = await name_and_number_query()
+    existing_Nodes = await name_and_number_query(graph)
     
     nodes_to_substitute = await substitution_file_query(graph, original_file_url)
     print("_______________________________________")
@@ -301,6 +364,16 @@ async def return_gltf_hierarchy(gltf_path,graph:str, original_file_url:str):
         # Avoid breaking the function if printing fails
         pass
     
+    # Resolve which Fundamental-Node products lost entities. This must happen BEFORE
+    # the removed nodes are deleted, while their parent chain is still in the graph.
+    removal_parents: set[str] = set()
+    try:
+        removal_parents = await removal_parents_query(graph, nodes_to_substitute)
+    except Exception as e:
+        print(f"Error during removal_parents_query: {e}")
+        import traceback
+        traceback.print_exc()
+
     # Delete remaining nodes that were not used during hierarchy building
     try:
         print("Attempting to delete remaining nodes with SPARQL...")
@@ -310,4 +383,4 @@ async def return_gltf_hierarchy(gltf_path,graph:str, original_file_url:str):
         import traceback
         traceback.print_exc()
 
-    return scenes_data
+    return scenes_data, removal_parents

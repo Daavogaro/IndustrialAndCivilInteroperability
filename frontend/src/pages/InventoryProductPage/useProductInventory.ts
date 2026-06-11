@@ -6,6 +6,8 @@ export type InventoryItem = {
   count: number;
   cadType: string;
   ifcClass: string | null;
+  hasAddedEntities: boolean;
+  hasRemovedEntities: boolean;
   lastEditor: string;
   lastEditDate: string;
 };

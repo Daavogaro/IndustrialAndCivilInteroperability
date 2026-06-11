@@ -11,6 +11,9 @@ import { CollapsiblePanel } from "./CollapsiblePanel";
 import { ProductGLTFViewer } from "./ProductGLTFViewer";
 import { useProductHierarchy } from "./useProductHierarchy";
 import { useProject } from "../../context/ProjectContext";
+import { fetchQuery } from "../../utils/fetchQuery";
+
+const NAMESPACE = "https://elettra2.0#";
 
 type ProductPageProps = {
   setMessage: (message: { status: StatusString; text: string }) => void;
@@ -29,12 +32,80 @@ export function ProductDetailPage({ setMessage }: ProductPageProps) {
   const [viewerCollapsed, setViewerCollapsed] = useState(false);
   const [ifcCollapsed, setIfcCollapsed] = useState(false);
 
+  const [changeFlags, setChangeFlags] = useState<{
+    added: boolean;
+    removed: boolean;
+  }>({ added: false, removed: false });
+
+  const metadataUri = `${NAMESPACE}${label}`;
+  const hasChanges = changeFlags.added || changeFlags.removed;
+
   // Initialise selection to the root once the hierarchy is loaded
   useEffect(() => {
     if (rootUri && !selectedNodeUri) {
       setSelectedNodeUri(rootUri);
     }
   }, [rootUri]);
+
+  // Read the change-review flags for this product's metadata URI.
+  useEffect(() => {
+    const graphUri = activeProject?.graphUri;
+    if (!label || !graphUri) return;
+    let cancelled = false;
+
+    const fetchFlags = async () => {
+      const query = `
+        PREFIX x3d: <https://www.web3d.org/specifications/X3dOntology4.0#>
+        SELECT ?added ?removed
+        FROM <${graphUri}>
+        WHERE {
+          OPTIONAL { <${metadataUri}> x3d:hasAddedEntities ?added }
+          OPTIONAL { <${metadataUri}> x3d:hasRemovedEntities ?removed }
+        }
+      `;
+      try {
+        const rows = await fetchQuery(query);
+        if (cancelled) return;
+        const row = rows[0] ?? {};
+        setChangeFlags({
+          added: row.added !== undefined,
+          removed: row.removed !== undefined,
+        });
+      } catch {
+        // Non-fatal: leave flags unset if the read fails.
+      }
+    };
+
+    fetchFlags();
+    return () => {
+      cancelled = true;
+    };
+  }, [label, activeProject?.graphUri, metadataUri]);
+
+  const handleMarkReviewed = async () => {
+    const graphUri = activeProject?.graphUri;
+    if (!graphUri) return;
+    try {
+      const res = await fetch("/api/review-changes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ metadata_uri: metadataUri, graph: graphUri }),
+      });
+      if (!res.ok) {
+        throw new Error(`${res.status} ${res.statusText}`);
+      }
+      setChangeFlags({ added: false, removed: false });
+      setMessage({ status: "success", text: "Marked as reviewed" });
+      refresh();
+    } catch (err) {
+      setMessage({
+        status: "error",
+        text:
+          "Failed to mark as reviewed: " +
+          (err instanceof Error ? err.message : String(err)),
+      });
+    }
+  };
 
 
   // Trigger viewer resize when its panel is expanded/collapsed
@@ -130,6 +201,18 @@ export function ProductDetailPage({ setMessage }: ProductPageProps) {
             onClick={() => setSelectedNodeUri(rootUri)}
             style={{ display: "inline-block" }}>
             ↩ Product root
+          </span>
+        )}
+        {hasChanges && activeProject && (
+          <span
+            className="generalButton"
+            onClick={handleMarkReviewed}
+            style={{
+              display: "inline-block",
+              backgroundColor: "#c8860a",
+              color: "white",
+            }}>
+            ⚠ Mark as Reviewed
           </span>
         )}
       </div>
