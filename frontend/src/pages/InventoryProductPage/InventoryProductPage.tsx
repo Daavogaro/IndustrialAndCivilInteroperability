@@ -21,12 +21,12 @@ function sortItems(items: InventoryItem[], key: SortKey): InventoryItem[] {
       return copy.sort((a, b) => a.label.localeCompare(b.label));
     case "lastEdit":
       return copy.sort((a, b) => b.lastEditDate.localeCompare(a.lastEditDate));
-    case "status":
-      return copy.sort((a, b) => {
-        const aIncomplete = a.ifcClass === null ? 0 : 1;
-        const bIncomplete = b.ifcClass === null ? 0 : 1;
-        return aIncomplete - bIncomplete;
-      });
+    case "status": {
+      // Obsolete (yellow) first, then incomplete (red), then complete.
+      const rank = (i: InventoryItem) =>
+        i.obsolete ? 0 : i.ifcClass === null ? 1 : 2;
+      return copy.sort((a, b) => rank(a) - rank(b));
+    }
     case "author":
       return copy.sort((a, b) => a.lastEditor.localeCompare(b.lastEditor));
   }

@@ -8,6 +8,10 @@ type UseProductHierarchy = {
   loading: boolean;
   error: string | null;
   refresh: () => void;
+  obsolete: boolean;
+  obsoleteFiles: string[];
+  addedEntities: string[];
+  removedEntities: string[];
 };
 
 export function useProductHierarchy(
@@ -19,6 +23,10 @@ export function useProductHierarchy(
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tick, setTick] = useState(0);
+  const [obsolete, setObsolete] = useState(false);
+  const [obsoleteFiles, setObsoleteFiles] = useState<string[]>([]);
+  const [addedEntities, setAddedEntities] = useState<string[]>([]);
+  const [removedEntities, setRemovedEntities] = useState<string[]>([]);
 
   const refresh = useCallback(() => setTick((t) => t + 1), []);
 
@@ -48,6 +56,10 @@ export function useProductHierarchy(
 
         setRootUri(data.rootUri);
         setTree(built);
+        setObsolete(data.obsolete ?? false);
+        setObsoleteFiles(data.obsoleteFiles ?? []);
+        setAddedEntities(data.addedEntities ?? []);
+        setRemovedEntities(data.removedEntities ?? []);
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : "Unknown error");
@@ -63,5 +75,16 @@ export function useProductHierarchy(
     };
   }, [label, graphUri, tick]);
 
-  return { rootUri, tree, setTree, loading, error, refresh };
+  return {
+    rootUri,
+    tree,
+    setTree,
+    loading,
+    error,
+    refresh,
+    obsolete,
+    obsoleteFiles,
+    addedEntities,
+    removedEntities,
+  };
 }

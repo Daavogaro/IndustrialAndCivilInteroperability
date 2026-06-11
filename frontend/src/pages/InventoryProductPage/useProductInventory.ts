@@ -6,6 +6,7 @@ export type InventoryItem = {
   count: number;
   cadType: string;
   ifcClass: string | null;
+  obsolete: boolean;
   lastEditor: string;
   lastEditDate: string;
 };

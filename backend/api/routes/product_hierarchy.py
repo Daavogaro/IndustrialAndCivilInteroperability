@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.concurrency import run_in_threadpool
 from SPARQLWrapper import SPARQLWrapper, JSON
+import os
 import urllib.parse
 from ..models.models import VIRTUOSO_URL
 from .projects import assert_known_graph
@@ -194,12 +195,50 @@ WHERE {{
         for b in bindings_4
     ]
 
+    # Query 5 — obsolescence: instances of this product carrying markers, the
+    # files they live in, and the union of added/removed entity names.
+    q5 = f"""
+PREFIX x3d: <https://www.web3d.org/specifications/X3dOntology4.0#>
+PREFIX pre: <http://www.loc.gov/premis/rdf/v3/>
+SELECT ?fileUrl ?added ?removed
+FROM <{graph}>
+WHERE {{
+  ?s x3d:hasMetadata <{metadata_uri}> .
+  ?s x3d:hasParentX3D ?file .
+  ?file pre:storedAt ?fileUrl .
+  OPTIONAL {{ ?s x3d:hasAddedEntities ?added . }}
+  OPTIONAL {{ ?s x3d:hasRemovedEntities ?removed . }}
+  FILTER(EXISTS {{ ?s x3d:hasAddedEntities ?x }} || EXISTS {{ ?s x3d:hasRemovedEntities ?y }})
+}}
+"""
+    sparql.setQuery(q5)
+    r5 = sparql.query().convert()
+    bindings_5 = r5.get("results", {}).get("bindings", [])
+
+    obsolete_files = set()
+    added_entities = set()
+    removed_entities = set()
+    for b in bindings_5:
+        file_url = _get_val(b, "fileUrl")
+        if file_url:
+            obsolete_files.add(os.path.basename(_strip_file_uri(file_url)))
+        added = _get_val(b, "added")
+        if added:
+            added_entities.add(added)
+        removed = _get_val(b, "removed")
+        if removed:
+            removed_entities.add(removed)
+
     return {
         "rootUri": root_uri,
         "roots": [root_record],
         "edges": edges,
         "ifcData": ifc_data,
         "ifcPsetData": ifc_pset_data,
+        "obsolete": len(obsolete_files) > 0,
+        "obsoleteFiles": sorted(obsolete_files),
+        "addedEntities": sorted(added_entities),
+        "removedEntities": sorted(removed_entities),
     }
 
 

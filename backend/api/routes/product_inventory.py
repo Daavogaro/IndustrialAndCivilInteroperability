@@ -18,6 +18,7 @@ SELECT ?metadata
        (COUNT(DISTINCT ?node) AS ?count)
        (SAMPLE(?cadType) AS ?cadType)
        (SAMPLE(?ifcClass) AS ?ifcClass)
+       (MAX(IF(BOUND(?rem) || BOUND(?add), 1, 0)) AS ?obsoleteFlag)
 FROM <{graph}>
 WHERE {{
   ?node x3d:hasMetadata ?metadata .
@@ -29,6 +30,8 @@ WHERE {{
     ?node a ?ifcClass .
     FILTER(STRSTARTS(STR(?ifcClass), "https://w3id.org/ifc/IFC4X3_ADD2#"))
   }}
+  OPTIONAL {{ ?node x3d:hasRemovedEntities ?rem }}
+  OPTIONAL {{ ?node x3d:hasAddedEntities ?add }}
 }}
 GROUP BY ?metadata
 ORDER BY DESC(?count)
@@ -53,6 +56,7 @@ def _transform(bindings: list) -> list:
             "count": int(b["count"]["value"]),
             "cadType": cad_type_uri.split("#")[-1],
             "ifcClass": ifc_raw["value"].split("#")[-1] if ifc_raw else None,
+            "obsolete": b.get("obsoleteFlag", {}).get("value") in ("1", "true"),
             "lastEditor": _FAKE_EDITOR,
             "lastEditDate": _FAKE_EDIT_DATE,
         })

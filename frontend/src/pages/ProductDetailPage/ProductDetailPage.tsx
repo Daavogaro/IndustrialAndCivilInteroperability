@@ -10,6 +10,7 @@ import { IFCNodeDetails } from "../IFCPage/NodeDetails/IFCNodeDetails";
 import { CollapsiblePanel } from "./CollapsiblePanel";
 import { ProductGLTFViewer } from "./ProductGLTFViewer";
 import { useProductHierarchy } from "./useProductHierarchy";
+import { ObsolescenceBanner } from "./ObsolescenceBanner";
 import { useProject } from "../../context/ProjectContext";
 
 type ProductPageProps = {
@@ -20,11 +21,49 @@ export function ProductDetailPage({ setMessage }: ProductPageProps) {
   const navigate = useNavigate();
   const { activeProject } = useProject();
 
-  const { rootUri, tree, setTree, loading, error, refresh } =
-    useProductHierarchy(label, activeProject?.graphUri);
+  const {
+    rootUri,
+    tree,
+    setTree,
+    loading,
+    error,
+    refresh,
+    obsolete,
+    obsoleteFiles,
+    addedEntities,
+    removedEntities,
+  } = useProductHierarchy(label, activeProject?.graphUri);
 
   const [selectedNodeUri, setSelectedNodeUri] = useState<string | null>(null);
   const [hoveredUri, setHoveredUri] = useState<string | null>(null);
+  const [reviewing, setReviewing] = useState(false);
+
+  const handleMarkReviewed = async () => {
+    const metadata = tree[0]?.metadata;
+    if (!metadata || !activeProject?.graphUri) return;
+    setReviewing(true);
+    try {
+      const res = await fetch("/api/mark-reviewed", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          graph: activeProject.graphUri,
+          metadata,
+        }),
+      });
+      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+      const data = await res.json();
+      setMessage({ status: "success", text: data.text ?? "Marked as reviewed" });
+      refresh();
+    } catch (err) {
+      setMessage({
+        status: "error",
+        text: err instanceof Error ? err.message : "Mark as reviewed failed",
+      });
+    } finally {
+      setReviewing(false);
+    }
+  };
 
   const [viewerCollapsed, setViewerCollapsed] = useState(false);
   const [ifcCollapsed, setIfcCollapsed] = useState(false);
@@ -103,12 +142,23 @@ export function ProductDetailPage({ setMessage }: ProductPageProps) {
     <div
       style={{
         display: "grid",
-        gridTemplateRows: "auto auto 1fr",
+        gridTemplateRows: obsolete ? "auto auto auto 1fr" : "auto auto 1fr",
         height: "100vh",
         overflow: "hidden",
       }}>
       {/* Row 1: Topbar */}
       <Topbar title={label} />
+
+      {/* Obsolescence banner (only when the product is flagged) */}
+      {obsolete && (
+        <ObsolescenceBanner
+          obsoleteFiles={obsoleteFiles}
+          addedEntities={addedEntities}
+          removedEntities={removedEntities}
+          busy={reviewing}
+          onMarkReviewed={handleMarkReviewed}
+        />
+      )}
 
       {/* Row 2: Back navigation */}
       <div

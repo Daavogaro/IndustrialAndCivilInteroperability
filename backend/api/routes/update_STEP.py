@@ -8,7 +8,14 @@ from ..services.importing_STEP.compess_gltf import compress_gltf
 from ..services.db_requests.updatingSTEP.gltf_update_STEP import return_gltf_hierarchy
 from ..services.db_requests.import_in_DB import import_to_db
 from ..services.importing_STEP.RDF_conversion import NameAndNumber, convert_hierarchy_in_rdf
-from ..services.importing_STEP.mayo import convert_with_mayo
+from ..services.importing_STEP.occ_converter import export_gltf
+from ..services.db_requests.updatingSTEP.diff_fundamental_nodes import (
+    snapshot_file_fundamentals,
+    build_new_fundamentals,
+    diff_fundamentals,
+    drop_changed_fundamental_ifc,
+    write_and_propagate_markers,
+)
 import os
 import json
 import httpx
@@ -102,53 +109,57 @@ async def websocket_convert(websocket: WebSocket):
         await websocket.send_json({"status": "wip", "text": "Starting conversion"}) # Inviamo un messaggio al client per indicare che la conversione è iniziata. Il client può usare questo messaggio per mostrare un indicatore di caricamento o aggiornare lo stato dell'interfaccia utente.
 
         async with httpx.AsyncClient() as client: # Dato che la chiamata al servizio Windows potrebbe richiedere del tempo, usiamo httpx.AsyncClient per fare una richiesta HTTP asincrona. In questo modo, il server FastAPI non si bloccherà in attesa della risposta e potrà continuare a gestire altre richieste o websocket.
-            # Chiamata a Mayo
-            print(f"Calling Mayo service for file: {input_file}")
-            await run_in_threadpool(convert_with_mayo, input_file, output_file)
-            await websocket.send_json({"status": "success", "text": "Conversion Done with Mayo"}) # Se la conversione è andata a buon fine, inviamo un messaggio al client per indicare che la conversione è stata completata con successo.
-            # Parsing gerarchia
+            # Conversione STEP -> GLTF con il convertitore OCC in-process (come l'upload principale).
+            print(f"Converting STEP to GLTF (OCC) for file: {input_file}")
+            input_filename = filename.replace(".stp", ".gltf")
+            input_file_url = output_file.replace("\\", "/")
+            await run_in_threadpool(export_gltf, input_file, output_file)
+            await websocket.send_json({"status": "success", "text": "Conversion Done"})
+
+            # Snapshot delle vecchie assembly dei fundamental node (e di tutti i
+            # nomi dei nodi) PRIMA che return_gltf_hierarchy rinumeri/cancelli.
+            old_fundamentals, old_node_names = await snapshot_file_fundamentals(graph_name, input_file_url)
+
+            # Parsing gerarchia (rinomina i nuovi nodi riusando i numeri esistenti,
+            # cancella i nodi rimossi e la vecchia provenance del File).
             await websocket.send_json({"status": "wip", "text": "Parsing hierarchy"})
             try:
-                hierarchy = await return_gltf_hierarchy(
-                    os.path.join(gltf_folder, filename.replace(".stp", ".gltf")),
-                    graph_name,
-                    os.path.join(gltf_folder, filename.replace(".stp", ".gltf")),
-                )
+                hierarchy = await return_gltf_hierarchy(output_file, graph_name, input_file_url)
             except Exception as e:
                 await websocket.send_json({"status": "error", "text": f"return_gltf_hierarchy error: {e}"})
                 raise
             os.makedirs(json_folder, exist_ok=True)
             hierarchy_file = os.path.join(json_folder, filename.replace(".stp", ".json"))
-            await run_in_threadpool(write_json_file, hierarchy_file, hierarchy) # Scriviamo il file JSON della gerarchia in un thread separato per non bloccare il server. La funzione write_json_file è una funzione sincrona che scrive un dizionario su un file JSON. run_in_threadpool è una funzione di FastAPI che permette di eseguire funzioni sincrone in un thread separato, in modo da non bloccare il loop asincrono principale del server.
+            await run_in_threadpool(write_json_file, hierarchy_file, hierarchy)
             await websocket.send_json({
                 "status": "success",
                 "text": "Hierarchy parsed and saved as JSON"
             })
-            # Conversione gerarchia in RDF 
-            await websocket.send_json({"status": "wip", "text": "Converting hierarchy to RDF"})
-            data = await run_in_threadpool(read_json_file, hierarchy_file) # Leggiamo il file JSON della gerarchia in un thread separato. La funzione read_json_file è una funzione sincrona che legge un file JSON e restituisce un dizionario. Anche questa operazione potrebbe richiedere del tempo, quindi la eseguiamo in un thread separato. 
+
+            # Diff dei pattern dei fundamental node: vecchio vs nuovo.
+            await websocket.send_json({"status": "wip", "text": "Detecting changes"})
+            data = await run_in_threadpool(read_json_file, hierarchy_file)
             hierarchy_nodes_from_file = await run_in_threadpool(validate_geometry_nodes, data)
-            exist_nodes=await existing_nodes()
-            # Run the updated hierarchy extraction so node renaming and the
-            # remaining substitution-number debug print both execute.
-            
-            
-            # Viene lanciata una query SPARQL per ottenere la lista dei nomi e dei numeri già presenti nel database, in modo da poter assegnare un numero univoco a ogni nodo della gerarchia che stiamo importando.
-            input_file_url = gltf_folder + "/" + filename.replace(".stp", ".gltf")
-            input_filename = filename.replace(".stp", ".gltf")
-            
+            exist_nodes = await existing_nodes()
+
+            new_fundamentals = build_new_fundamentals(hierarchy_nodes_from_file, exist_nodes)
+            diff = diff_fundamentals(old_fundamentals, new_fundamentals)
+            changed_labels = {entry["label"] for entry in diff}
+
+            # Conversione gerarchia in RDF (inserisce solo i nodi nuovi; salta le
+            # proprietà IFC dei fundamental node cambiati).
+            await websocket.send_json({"status": "wip", "text": "Converting hierarchy to RDF"})
             rdf_data = await run_in_threadpool(
                 rdf_update_step,
                 hierarchy_nodes_from_file,
-                None,
                 exist_nodes,
-                tree,
-                "https://elettra2.0#",
+                old_node_names,
+                changed_labels,
                 input_filename,
                 input_file_url,
                 ownerFirstName,
                 ownerLastName,
-                time
+                time,
             )
             await websocket.send_json({"status": "wip", "text": "Compressing gLTF"}) # Inviamo un messaggio al client per indicare che stiamo iniziando la fase di compressione del file gLTF. Anche questa operazione potrebbe richiedere del tempo, quindi è importante tenere aggiornato l'utente sullo stato dell'operazione.
             await run_in_threadpool(compress_gltf, output_file, output_file_compressed)
@@ -179,6 +190,27 @@ async def websocket_convert(websocket: WebSocket):
                 "status": "success",
                 "text": f"Imported {total_lines} triples in DB"
             })
+
+            # -------------------------
+            # Obsolescence markers
+            # -------------------------
+            if changed_labels:
+                await websocket.send_json({"status": "wip", "text": "Flagging obsolete products"})
+                # Drop the IFC properties of the changed fundamental nodes in THIS file.
+                await run_in_threadpool(
+                    drop_changed_fundamental_ifc, graph_name, input_file_url, changed_labels
+                )
+                # Attach + propagate the added/removed markers across all files and projects.
+                await run_in_threadpool(write_and_propagate_markers, diff, graph_name)
+                await websocket.send_json({
+                    "status": "success",
+                    "text": f"Flagged {len(changed_labels)} changed product(s) as obsolete",
+                })
+            else:
+                await websocket.send_json({
+                    "status": "success",
+                    "text": "No fundamental-node changes detected",
+                })
 
     except Exception as e:
         await websocket.send_json({
