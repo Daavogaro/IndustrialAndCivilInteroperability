@@ -182,7 +182,7 @@ export function ProductDetailPage({ setMessage }: ProductPageProps) {
             title="Product Viewer"
             collapsed={viewerCollapsed}
             onToggle={() => setViewerCollapsed((v) => !v)}>
-            <ProductGLTFViewer productLabel={label} hoveredUri={hoveredUri} />
+            <ProductGLTFViewer productLabel={label} hoveredUri={hoveredUri} rootUri={rootUri} />
           </CollapsiblePanel>
 
           {/* Bottom panel: IFC properties */}
