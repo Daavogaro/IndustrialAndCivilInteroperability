@@ -1,8 +1,9 @@
+import ifcopenshell
 from rdflib import OWL, Graph, Namespace, Literal, RDF, URIRef,RDFS
 from pydantic import BaseModel
 from typing_extensions import TypedDict
 from pathlib import Path
-from ...models.models import PREMIS_NAMESPACE, VIRTUOSO_URL,GRAPH_NAMESPACE, X3D_NAMESPACE, XSD_NAMESPACE,PROV_NAMESPACE,FOAF_NAMESPACE
+from ...models.models import PREMIS_NAMESPACE, VIRTUOSO_URL,GRAPH_NAMESPACE, X3D_NAMESPACE, XSD_NAMESPACE,PROV_NAMESPACE,FOAF_NAMESPACE, IFC_NAMESPACE, EXPRESS_NAMESPACE
 
 class NameAndNumber(TypedDict):
     name: str
@@ -10,10 +11,14 @@ class NameAndNumber(TypedDict):
 
 class ExistingProps(TypedDict):
     name: str
-    number:int
+    number: int
     visible: bool | None
-    display:bool|None
-    attrib: str |None
+    display: bool | None
+    attrib: str | None
+    ifc_class: str | None
+    predefined_type: str | None
+    object_type: str | None
+    psets: dict | None
 
 
 class Dimensions(TypedDict):
@@ -43,6 +48,8 @@ def convert_hierarchy_in_rdf(
     g.bind("x3d", X3D_NAMESPACE)
     g.bind("rdfs", RDFS)
     g.bind("ex", GRAPH_NAMESPACE)
+    g.bind("ifc", IFC_NAMESPACE)
+    g.bind("express", EXPRESS_NAMESPACE)
     # Forse queste sarà da toglierle, perchè in teoria dovrebbe bastare importare le ontologie
     g.add((X3D_NAMESPACE.bboxSize, RDF.type, OWL.DatatypeProperty))
     g.add((X3D_NAMESPACE.name, RDF.type, OWL.DatatypeProperty))
@@ -59,6 +66,11 @@ def convert_hierarchy_in_rdf(
     g.add((FOAF_NAMESPACE.firstName, RDF.type, OWL.DatatypeProperty))
     g.add((FOAF_NAMESPACE.lastName, RDF.type, OWL.DatatypeProperty))
     g.add((PROV_NAMESPACE.wasAttributedTo, RDF.type, OWL.ObjectProperty))
+    g.add((EXPRESS_NAMESPACE.hasString, RDF.type, OWL.DatatypeProperty))
+    g.add((EXPRESS_NAMESPACE.hasInteger, RDF.type, OWL.DatatypeProperty))
+    g.add((EXPRESS_NAMESPACE.hasDouble, RDF.type, OWL.DatatypeProperty))
+    g.add((EXPRESS_NAMESPACE.hasBoolean, RDF.type, OWL.DatatypeProperty))
+    g.add((EXPRESS_NAMESPACE.hasHexBinary, RDF.type, OWL.DatatypeProperty))
     
     file = GRAPH_NAMESPACE[fileName]
     g.add((file, RDF.type, PREMIS_NAMESPACE.File))
@@ -125,6 +137,99 @@ def convert_hierarchy_in_rdf(
         if parent_uri is not None:
             g.add((parent_uri, X3D_NAMESPACE.children, node_uri))
             g.add((node_uri, X3D_NAMESPACE.hasParentCADPart, parent_uri))
+
+        # IFC metadata reuse
+        if existing_prop and existing_prop.get("ifc_class"):
+            ifc_class = existing_prop["ifc_class"]
+            predefined_type = existing_prop.get("predefined_type")
+            object_type = existing_prop.get("object_type")
+            psets = existing_prop.get("psets") or {}
+
+            g.add((node_uri, RDF.type, IFC_NAMESPACE[ifc_class]))
+
+            guid_uri = GRAPH_NAMESPACE["GUID_" + original_name]
+            g.add((node_uri, IFC_NAMESPACE["globalId_IfcRoot"], guid_uri))
+            g.add((guid_uri, RDF.type, IFC_NAMESPACE["IfcGloballyUniqueId"]))
+            g.add((guid_uri, RDF.value, Literal(ifcopenshell.guid.new(), datatype=XSD_NAMESPACE.string)))
+
+            name_label_uri = GRAPH_NAMESPACE["Name_" + original_name]
+            g.add((node_uri, IFC_NAMESPACE["name_IfcRoot"], name_label_uri))
+            g.add((name_label_uri, RDF.type, IFC_NAMESPACE["IfcLabel"]))
+            g.add((name_label_uri, RDF.value, Literal(original_name, datatype=XSD_NAMESPACE.string)))
+
+            if predefined_type:
+                g.add((node_uri, IFC_NAMESPACE["predefinedType_" + ifc_class], IFC_NAMESPACE[predefined_type]))
+
+            if object_type:
+                object_type_uri = GRAPH_NAMESPACE["ObjectType_" + label]
+                g.add((object_type_uri, RDF.type, IFC_NAMESPACE["IfcLabel"]))
+                g.add((object_type_uri, EXPRESS_NAMESPACE.hasString, Literal(object_type, datatype=XSD_NAMESPACE.string)))
+                g.add((node_uri, IFC_NAMESPACE["objectType_IfcObject"], object_type_uri))
+
+            rel_psets_uris = []
+            for pset_name, properties in psets.items():
+                rel_defines_uri = GRAPH_NAMESPACE[f"IfcRelDefinesByProperties_{label}_{pset_name}"]
+                g.add((rel_defines_uri, RDF.type, IFC_NAMESPACE["IfcRelDefinesByProperties"]))
+                rel_psets_uris.append(rel_defines_uri)
+
+                rel_defines_guid_uri = GRAPH_NAMESPACE[f"IfcGloballyUniqueId_IRDBP_{label}_{pset_name}"]
+                g.add((rel_defines_guid_uri, RDF.type, IFC_NAMESPACE["IfcGloballyUniqueId"]))
+                g.add((rel_defines_guid_uri, EXPRESS_NAMESPACE.hasString, Literal(ifcopenshell.guid.new(), datatype=XSD_NAMESPACE.string)))
+                g.add((rel_defines_uri, IFC_NAMESPACE["globalId_IfcRoot"], rel_defines_guid_uri))
+
+                pset_uri = GRAPH_NAMESPACE[f"IfcPropertySet_{label}_{pset_name}"]
+                g.add((pset_uri, RDF.type, IFC_NAMESPACE["IfcPropertySet"]))
+                g.add((rel_defines_uri, IFC_NAMESPACE["relatingPropertyDefinition_IfcRelDefinesByProperties"], pset_uri))
+                g.add((pset_uri, IFC_NAMESPACE["definesOccurrence_IfcPropertySetDefinition"], rel_defines_uri))
+
+                pset_guid_uri = GRAPH_NAMESPACE[f"IfcGloballyUniqueId_PSet_{label}_{pset_name}"]
+                g.add((pset_guid_uri, RDF.type, IFC_NAMESPACE["IfcGloballyUniqueId"]))
+                g.add((pset_guid_uri, EXPRESS_NAMESPACE.hasString, Literal(ifcopenshell.guid.new(), datatype=XSD_NAMESPACE.string)))
+                g.add((pset_uri, IFC_NAMESPACE["globalId_IfcRoot"], pset_guid_uri))
+
+                pset_label_uri = GRAPH_NAMESPACE[f"IfcLabel_{pset_name}"]
+                g.add((pset_label_uri, RDF.type, IFC_NAMESPACE["IfcLabel"]))
+                g.add((pset_label_uri, EXPRESS_NAMESPACE.hasString, Literal(pset_name, datatype=XSD_NAMESPACE.string)))
+                g.add((pset_uri, IFC_NAMESPACE["name_IfcRoot"], pset_label_uri))
+
+                for prop_name, prop_data in properties.items():
+                    if not isinstance(prop_data, dict):
+                        continue
+                    prop_value = prop_data.get("value")
+                    ifc_value = prop_data.get("ifc_value")
+                    data_type = prop_data.get("data_type")
+                    if not ifc_value or not data_type or prop_value is None or prop_value == "":
+                        continue
+
+                    prop_uri = GRAPH_NAMESPACE[f"IfcPropertySingleValue_{label}_{pset_name}_{prop_name}"]
+                    g.add((prop_uri, RDF.type, IFC_NAMESPACE["IfcPropertySingleValue"]))
+                    g.add((pset_uri, IFC_NAMESPACE["hasProperties_IfcPropertySet"], prop_uri))
+                    g.add((prop_uri, IFC_NAMESPACE["partOfPset_IfcPropertySingleValue"], pset_uri))
+
+                    prop_name_id_uri = GRAPH_NAMESPACE[f"IfcIdentifier_{prop_name}"]
+                    g.add((prop_name_id_uri, RDF.type, IFC_NAMESPACE["IfcIdentifier"]))
+                    g.add((prop_name_id_uri, EXPRESS_NAMESPACE.hasString, Literal(prop_name, datatype=XSD_NAMESPACE.string)))
+                    g.add((prop_uri, IFC_NAMESPACE["name_IfcProperty"], prop_name_id_uri))
+
+                    ifc_value_uri = GRAPH_NAMESPACE[f"{ifc_value}_{label}_{pset_name}_{prop_name}"]
+                    g.add((ifc_value_uri, RDF.type, IFC_NAMESPACE[ifc_value]))
+                    g.add((prop_uri, IFC_NAMESPACE["nominalValue_IfcPropertySingleValue"], ifc_value_uri))
+
+                    if data_type == "STRING":
+                        g.add((ifc_value_uri, EXPRESS_NAMESPACE.hasString, Literal(str(prop_value), datatype=XSD_NAMESPACE.string)))
+                    elif data_type == "INTEGER":
+                        g.add((ifc_value_uri, EXPRESS_NAMESPACE.hasInteger, Literal(int(prop_value), datatype=XSD_NAMESPACE.integer)))
+                    elif data_type in ("DOUBLE", "REAL"):
+                        g.add((ifc_value_uri, EXPRESS_NAMESPACE.hasDouble, Literal(float(prop_value), datatype=XSD_NAMESPACE.double)))
+                    elif data_type == "BOOLEAN":
+                        bool_val = prop_value if isinstance(prop_value, bool) else str(prop_value).lower() == "true"
+                        g.add((ifc_value_uri, EXPRESS_NAMESPACE.hasBoolean, Literal(bool_val, datatype=XSD_NAMESPACE.boolean)))
+                    elif data_type == "HEX_BINARY":
+                        g.add((ifc_value_uri, EXPRESS_NAMESPACE.hasHexBinary, Literal(str(prop_value), datatype=XSD_NAMESPACE.hexBinary)))
+
+            for rel in rel_psets_uris:
+                g.add((rel, IFC_NAMESPACE["relatedObjects_IfcRelDefinesByProperties"], node_uri))
+                g.add((node_uri, IFC_NAMESPACE["isDefinedBy_IfcObject"], rel))
 
         # Recurse
         for child in node.children:

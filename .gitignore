@@ -15,7 +15,7 @@ backend/api/routes/__pycache__
 backend/db/
 
 
-tmp/projects.json
+tmp/projects
 
 tmp/GLB/*
 !tmp/GLB/.gitkeep
