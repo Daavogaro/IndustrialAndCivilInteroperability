@@ -16,6 +16,7 @@ from api.services.ifc_conversion import blender
 from api.routes import update_STEP
 from api.routes import product_inventory
 from api.routes import product_hierarchy
+from api.routes import projects
 
 # FASTAPi è un framework web per costruire API in Python. In questo file, stiamo creando un'app FastAPI.
 app = FastAPI()
@@ -44,6 +45,8 @@ app.include_router(gltf_upload.router, prefix="/api")
 app.include_router(update_STEP.router, prefix="/api")
 app.include_router(product_inventory.router, prefix="/api")
 app.include_router(product_hierarchy.router, prefix="/api")
+app.include_router(projects.router, prefix="/api")
 
 app.mount("/api/glb", StaticFiles(directory="tmp/GLB"), name="glb")
+app.mount("/api/static", StaticFiles(directory="tmp"), name="static")
 

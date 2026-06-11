@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'meshoptimizer';
+import { useProject } from '../../../context/ProjectContext';
 
 
 type GLTFViewerProps = {
@@ -12,6 +13,8 @@ type GLTFViewerProps = {
 
 
 export function GLTFViewer({ uri, hoverUri = null }: GLTFViewerProps) {
+  const { activeProject } = useProject();
+  const projectId = activeProject?.id ?? null;
   const [loadedFiles, setLoadedFiles] = React.useState<string[]>([])
   const [visibleFiles, setVisibleFiles] = React.useState<Record<string, boolean>>({})
   const sceneRef = React.useRef<THREE.Scene | null>(null)
@@ -385,7 +388,7 @@ export function GLTFViewer({ uri, hoverUri = null }: GLTFViewerProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ files: [] }),
+        body: JSON.stringify({ files: [], projectId }),
       })
 
       const data: { files: string[] } = await res.json()
@@ -468,7 +471,7 @@ export function GLTFViewer({ uri, hoverUri = null }: GLTFViewerProps) {
       viewerContainer.removeChild(renderer.domElement)
     }
   
-  }, [clearUriHighlight])
+  }, [clearUriHighlight, projectId])
 
   React.useEffect(() => {
     const activeUri = hoverUri ?? uri

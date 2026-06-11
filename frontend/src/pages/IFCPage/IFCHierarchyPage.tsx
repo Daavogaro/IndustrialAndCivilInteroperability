@@ -6,6 +6,7 @@ import { UpdateHierarchyButton } from "../STEPPage/Hierarchy/HierarchyButtons/bu
 import { buildFundamentalTree } from "./Hierarchy/builtIFCTree";
 import { IfcTreeList } from "./Hierarchy/IFCTreeList";
 import { IFCNodeDetails } from "./NodeDetails/IFCNodeDetails";
+import { useProject } from "../../context/ProjectContext";
 
 type IFCHierarchyPageProps = {
   setTree: (tree: TreeNode[]) => void;
@@ -37,7 +38,7 @@ export function IFCHierarchyPage({
   setTree,
   tree,
 }: IFCHierarchyPageProps) {
-  const graphName = "http://localhost:8890/Elettra2/";
+  const { activeProject } = useProject();
   const [selectedUris, setSelectedUris] = useState<string[]>([]);
 
   const fundamentalTree = buildFundamentalTree(tree);
@@ -67,7 +68,8 @@ export function IFCHierarchyPage({
 
       <div style={{ padding: "10px" }}>
         <p>
-          <strong>Graph URI:</strong> {graphName}
+          <strong>Project:</strong>{" "}
+          {activeProject ? `${activeProject.name} — ${activeProject.graphUri}` : "No project selected"}
         </p>
       </div>
 

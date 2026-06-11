@@ -10,7 +10,10 @@ type UseProductHierarchy = {
   refresh: () => void;
 };
 
-export function useProductHierarchy(label: string): UseProductHierarchy {
+export function useProductHierarchy(
+  label: string,
+  graphUri: string | null | undefined,
+): UseProductHierarchy {
   const [rootUri, setRootUri] = useState<string | null>(null);
   const [tree, setTree] = useState<TreeNode[]>([]);
   const [loading, setLoading] = useState(false);
@@ -20,14 +23,15 @@ export function useProductHierarchy(label: string): UseProductHierarchy {
   const refresh = useCallback(() => setTick((t) => t + 1), []);
 
   useEffect(() => {
-    if (!label) return;
+    if (!label || !graphUri) return;
     let cancelled = false;
 
     const fetchHierarchy = async () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`/api/product-hierarchy/${encodeURIComponent(label)}`);
+        const url = `/api/product-hierarchy/${encodeURIComponent(label)}?graph=${encodeURIComponent(graphUri)}`;
+        const res = await fetch(url);
         if (!res.ok) {
           throw new Error(`${res.status} ${res.statusText}`);
         }
@@ -57,7 +61,7 @@ export function useProductHierarchy(label: string): UseProductHierarchy {
     return () => {
       cancelled = true;
     };
-  }, [label, tick]);
+  }, [label, graphUri, tick]);
 
   return { rootUri, tree, setTree, loading, error, refresh };
 }

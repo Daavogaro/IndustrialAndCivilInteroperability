@@ -2,6 +2,7 @@ import os
 
 from rdflib import Namespace
 from pathlib import Path
+from typing import Dict
 
 
 MAYO_EXE = r"C:\Program Files\Fougue\Mayo\mayo-conv.exe"
@@ -20,6 +21,21 @@ GLB_FOLDER = str(BASE_DIR / "tmp" / "GLB")
 JSON_FOLDER = str(BASE_DIR / "tmp" / "JSON")
 RDF_FOLDER = str(BASE_DIR / "tmp" / "RDF")
 IFC_FOLDER = str(BASE_DIR / "tmp" / "IFC")
+
+
+def get_project_folders(project_id: str) -> Dict[str, str]:
+    base = BASE_DIR / "tmp" / "projects" / project_id
+    folders = {
+        "step": str(base / "STEP"),
+        "gltf": str(base / "gLTF"),
+        "glb": str(base / "GLB"),
+        "json": str(base / "JSON"),
+        "rdf": str(base / "RDF"),
+        "ifc": str(base / "IFC"),
+    }
+    for path in folders.values():
+        os.makedirs(path, exist_ok=True)
+    return folders
 
 
 VIRTUOSO_HOST = os.getenv("DB_HOST", "localhost")    
