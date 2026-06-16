@@ -194,12 +194,93 @@ WHERE {{
         for b in bindings_4
     ]
 
+    # Query 5 — IfcDistributionPort attributes (keyed to the element node via
+    # IfcRelNests).
+    q5 = f"""
+PREFIX x3d: <https://www.web3d.org/specifications/X3dOntology4.0#>
+PREFIX ifc: <https://w3id.org/ifc/IFC4X3_ADD2#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?node ?portName ?systemType ?predefinedType ?flowDirection
+FROM <{graph}>
+WHERE {{
+  {{ <{root_uri}> x3d:children* ?node . }} UNION {{ BIND(<{root_uri}> AS ?node) }}
+  ?rel a ifc:IfcRelNests .
+  ?rel ifc:relatingObject_IfcRelNests ?node .
+  ?rel ifc:relatedObjects_IfcRelNests ?port .
+  ?port a ifc:IfcDistributionPort .
+  OPTIONAL {{ ?port ifc:name_IfcRoot ?nameLabel . ?nameLabel rdf:value ?portName . }}
+  OPTIONAL {{ ?port ifc:systemType_IfcDistributionPort ?systemType . }}
+  OPTIONAL {{ ?port ifc:predefinedType_IfcDistributionPort ?predefinedType . }}
+  OPTIONAL {{ ?port ifc:flowDirection_IfcDistributionPort ?flowDirection . }}
+}}
+"""
+    sparql.setQuery(q5)
+    r5 = sparql.query().convert()
+    bindings_5 = r5.get("results", {}).get("bindings", [])
+
+    port_data = [
+        {
+            "node": b["node"]["value"],
+            "portName": _get_val(b, "portName"),
+            "systemType": _get_val(b, "systemType"),
+            "predefinedType": _get_val(b, "predefinedType"),
+            "flowDirection": _get_val(b, "flowDirection"),
+        }
+        for b in bindings_5
+    ]
+
+    # Query 6 — IfcDistributionPort property sets (keyed to the element node via
+    # IfcRelNests; the pset is defined on the port).
+    q6 = f"""
+PREFIX x3d: <https://www.web3d.org/specifications/X3dOntology4.0#>
+PREFIX ifc: <https://w3id.org/ifc/IFC4X3_ADD2#>
+PREFIX express: <https://w3id.org/express#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+SELECT ?node ?psetName ?propName ?propValue ?datatype
+FROM <{graph}>
+WHERE {{
+  {{ <{root_uri}> x3d:children* ?node . }} UNION {{ BIND(<{root_uri}> AS ?node) }}
+  ?rel a ifc:IfcRelNests .
+  ?rel ifc:relatingObject_IfcRelNests ?node .
+  ?rel ifc:relatedObjects_IfcRelNests ?port .
+  ?port a ifc:IfcDistributionPort .
+  ?s a ifc:IfcRelDefinesByProperties .
+  ?s ifc:relatedObjects_IfcRelDefinesByProperties ?port .
+  ?s ifc:relatingPropertyDefinition_IfcRelDefinesByProperties ?pset .
+  ?pset ifc:name_IfcRoot ?lbl .
+  ?lbl express:hasString ?psetName .
+  ?pset ifc:hasProperties_IfcPropertySet ?prop .
+  ?prop ifc:name_IfcProperty ?identifier .
+  ?identifier express:hasString ?propName .
+  ?prop ifc:nominalValue_IfcPropertySingleValue ?value .
+  ?value ?p ?propValue .
+  ?p a owl:DatatypeProperty .
+  BIND(DATATYPE(?propValue) AS ?datatype)
+}}
+"""
+    sparql.setQuery(q6)
+    r6 = sparql.query().convert()
+    bindings_6 = r6.get("results", {}).get("bindings", [])
+
+    port_pset_data = [
+        {
+            "node": b["node"]["value"],
+            "psetName": b["psetName"]["value"],
+            "propName": b["propName"]["value"],
+            "propValue": b["propValue"]["value"],
+            "datatype": _get_val(b, "datatype") or "",
+        }
+        for b in bindings_6
+    ]
+
     return {
         "rootUri": root_uri,
         "roots": [root_record],
         "edges": edges,
         "ifcData": ifc_data,
         "ifcPsetData": ifc_pset_data,
+        "portData": port_data,
+        "portPsetData": port_pset_data,
     }
 
 

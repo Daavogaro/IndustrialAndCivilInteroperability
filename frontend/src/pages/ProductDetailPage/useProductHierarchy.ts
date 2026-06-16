@@ -44,6 +44,8 @@ export function useProductHierarchy(
           data.roots,
           data.ifcData,
           data.ifcPsetData,
+          data.portData ?? [],
+          data.portPsetData ?? [],
         );
 
         setRootUri(data.rootUri);

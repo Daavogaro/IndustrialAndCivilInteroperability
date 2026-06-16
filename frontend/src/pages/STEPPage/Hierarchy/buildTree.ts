@@ -15,6 +15,15 @@ export type TreeNode = {
   predefinedType?: string;
   objectType?: string;
   fileUrl?: string;
+  distributionPort?: {
+    name: string;
+    systemType?: string;
+    predefinedType?: string;
+    flowDirection?: string;
+    psets?: {
+      [psetName: string]: { [propertyName: string]: string | number | boolean };
+    };
+  };
   children: TreeNode[];
 };
 
@@ -53,6 +62,20 @@ export function buildTree(
     propValue: string | number | boolean;
     datatype: string;
   }[],
+  portData: {
+    node: string;
+    portName?: string;
+    systemType?: string;
+    predefinedType?: string;
+    flowDirection?: string;
+  }[] = [],
+  portPsetData: {
+    node: string;
+    psetName: string;
+    propName: string;
+    propValue: string | number | boolean;
+    datatype: string;
+  }[] = [],
 ): TreeNode[] {
   const map = new Map<string, TreeNode>();
 
@@ -146,6 +169,83 @@ export function buildTree(
       } else {
         treeNode.psets[psetName][propName] = false;
       }
+    }
+  }
+
+  // Attach IfcDistributionPort attributes (keyed by the element node via
+  // IfcRelNests; enum URIs are reduced to their local name).
+  const localName = (value?: string): string | undefined => {
+    if (!value) {
+      return undefined;
+    }
+    return value.split("#").pop() ?? value;
+  };
+
+  for (const {
+    node,
+    portName,
+    systemType,
+    predefinedType,
+    flowDirection,
+  } of portData) {
+    const treeNode = getNode(node);
+    const port = treeNode.distributionPort ?? {
+      name: localName(portName) ?? `Port_${localName(node) ?? node}`,
+    };
+    if (portName) {
+      port.name = localName(portName) ?? port.name;
+    }
+    const systemTypeName = localName(systemType);
+    if (systemTypeName) {
+      port.systemType = systemTypeName;
+    }
+    const predefinedTypeName = localName(predefinedType);
+    if (predefinedTypeName) {
+      port.predefinedType = predefinedTypeName;
+    }
+    const flowDirectionName = localName(flowDirection);
+    if (flowDirectionName) {
+      port.flowDirection = flowDirectionName;
+    }
+    treeNode.distributionPort = port;
+  }
+
+  // Attach IfcDistributionPort property sets (same datatype coercion as the
+  // element psets above).
+  for (const {
+    node,
+    psetName,
+    propName,
+    propValue,
+    datatype,
+  } of portPsetData) {
+    const treeNode = getNode(node);
+    if (!treeNode.distributionPort) {
+      treeNode.distributionPort = {
+        name: `Port_${localName(node) ?? node}`,
+      };
+    }
+    const port = treeNode.distributionPort;
+    if (!port.psets) {
+      port.psets = {};
+    }
+    if (!port.psets[psetName]) {
+      port.psets[psetName] = {};
+    }
+    if (datatype.split("#")[1] === "string") {
+      port.psets[psetName][propName] = String(propValue);
+    } else if (
+      datatype.split("#")[1] === "integer" ||
+      datatype.split("#")[1] === "double" ||
+      datatype.split("#")[1] === "real"
+    ) {
+      port.psets[psetName][propName] = Number(propValue);
+    } else if (datatype.split("#")[1] === "boolean") {
+      port.psets[psetName][propName] =
+        propValue === "true" ||
+        propValue === true ||
+        propValue === "1" ||
+        propValue === 1;
     }
   }
 

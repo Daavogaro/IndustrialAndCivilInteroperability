@@ -111,6 +111,57 @@ export async function refreshStepHierarchy(
     }
   `;
 
+  // IfcDistributionPort attributes, keyed back to the element node via IfcRelNests.
+  const portQuery = `
+    PREFIX ifc: <https://w3id.org/ifc/IFC4X3_ADD2#>
+    SELECT ?node ?portName ?systemType ?predefinedType ?flowDirection
+    FROM <${graphUri}>
+    WHERE {
+      ?rel a ifc:IfcRelNests .
+      ?rel ifc:relatingObject_IfcRelNests ?node .
+      ?rel ifc:relatedObjects_IfcRelNests ?port .
+      ?port a ifc:IfcDistributionPort .
+      OPTIONAL {
+        ?port ifc:name_IfcRoot ?nameLabel .
+        ?nameLabel rdf:value ?portName .
+      }
+      OPTIONAL { ?port ifc:systemType_IfcDistributionPort ?systemType . }
+      OPTIONAL { ?port ifc:predefinedType_IfcDistributionPort ?predefinedType . }
+      OPTIONAL { ?port ifc:flowDirection_IfcDistributionPort ?flowDirection . }
+    }
+  `;
+
+  // IfcDistributionPort property sets, keyed back to the element node via
+  // IfcRelNests (the pset is defined on the port, ?node is the element).
+  const portPsetQuery = `
+    PREFIX ifc: <https://w3id.org/ifc/IFC4X3_ADD2#>
+    PREFIX express: <https://w3id.org/express#>
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
+    SELECT ?node ?psetName ?propName ?propValue ?datatype
+    FROM <${graphUri}>
+    WHERE {
+      ?rel a ifc:IfcRelNests .
+      ?rel ifc:relatingObject_IfcRelNests ?node .
+      ?rel ifc:relatedObjects_IfcRelNests ?port .
+      ?port a ifc:IfcDistributionPort .
+
+      ?s a ifc:IfcRelDefinesByProperties .
+      ?s ifc:relatedObjects_IfcRelDefinesByProperties ?port .
+      ?s ifc:relatingPropertyDefinition_IfcRelDefinesByProperties ?pset .
+      ?pset ifc:name_IfcRoot ?label .
+      ?label express:hasString ?psetName .
+
+      ?pset ifc:hasProperties_IfcPropertySet ?prop .
+      ?prop ifc:name_IfcProperty ?identifier .
+      ?identifier express:hasString ?propName .
+
+      ?prop ifc:nominalValue_IfcPropertySingleValue ?value .
+      ?value ?p ?propValue .
+      ?p a owl:DatatypeProperty .
+      BIND(DATATYPE(?propValue) AS ?datatype)
+    }
+  `;
+
   try {
     // fetch roots
     const rootData = await fetchQuery(queryRootElement);
@@ -155,9 +206,32 @@ export async function refreshStepHierarchy(
       propValue: p.propValue,
       datatype: p.datatype,
     }));
+    const portRawData = await fetchQuery(portQuery);
+    const portData = portRawData.map((p: any) => ({
+      node: p.node,
+      portName: p.portName,
+      systemType: p.systemType,
+      predefinedType: p.predefinedType,
+      flowDirection: p.flowDirection,
+    }));
+    const portPsetRawData = await fetchQuery(portPsetQuery);
+    const portPsets = portPsetRawData.map((p: any) => ({
+      node: p.node,
+      psetName: p.psetName,
+      propName: p.propName,
+      propValue: p.propValue,
+      datatype: p.datatype,
+    }));
 
     // build tree
-    const hierarchy = buildTree(edges, roots, ifcs, ifcPsets);
+    const hierarchy = buildTree(
+      edges,
+      roots,
+      ifcs,
+      ifcPsets,
+      portData,
+      portPsets,
+    );
     setTree(hierarchy);
     setMessage({
       status: "success",

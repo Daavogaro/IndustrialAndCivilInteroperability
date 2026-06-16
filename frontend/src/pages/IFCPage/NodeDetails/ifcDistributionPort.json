@@ -1,0 +1,406 @@
+{
+  "name": "IfcDistributionPort",
+  "attributes": {
+    "PredefinedType": [
+      "CABLE",
+      "CABLECARRIER",
+      "DUCT",
+      "PIPE",
+      "WIRELESS",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
+    "SystemType": [
+      "AIRCONDITIONING",
+      "AUDIOVISUAL",
+      "CATENARY_SYSTEM",
+      "CHEMICAL",
+      "CHILLEDWATER",
+      "COMMUNICATION",
+      "COMPRESSEDAIR",
+      "CONDENSERWATER",
+      "CONTROL",
+      "CONVEYING",
+      "DATA",
+      "DISPOSAL",
+      "DOMESTICCOLDWATER",
+      "DOMESTICHOTWATER",
+      "DRAINAGE",
+      "EARTHING",
+      "ELECTRICAL",
+      "ELECTROACOUSTIC",
+      "EXHAUST",
+      "FIREPROTECTION",
+      "FIXEDTRANSMISSIONNETWORK",
+      "FUEL",
+      "GAS",
+      "HAZARDOUS",
+      "HEATING",
+      "LIGHTING",
+      "LIGHTNINGPROTECTION",
+      "MOBILENETWORK",
+      "MONITORINGSYSTEM",
+      "MUNICIPALSOLIDWASTE",
+      "OIL",
+      "OPERATIONAL",
+      "OPERATIONALTELEPHONYSYSTEM",
+      "OVERHEAD_CONTACTLINE_SYSTEM",
+      "POWERGENERATION",
+      "RAINWATER",
+      "REFRIGERATION",
+      "RETURN_CIRCUIT",
+      "SECURITY",
+      "SEWAGE",
+      "SIGNAL",
+      "STORMWATER",
+      "TELEPHONE",
+      "TV",
+      "VACUUM",
+      "VENT",
+      "VENTILATION",
+      "WASTEWATER",
+      "WATERSUPPLY",
+      "USERDEFINED",
+      "NOTDEFINED"
+    ],
+    "FlowDirection": [
+      "SINK",
+      "SOURCE",
+      "SOURCEANDSINK",
+      "NOTDEFINED"
+    ]
+  },
+  "propertySets": [
+    {
+      "name": "Pset_DistributionPortCommon",
+      "definition": "Common attributes attached to an instance of IfcDistributionPort.",
+      "properties": [
+        {
+          "name": "PortNumber",
+          "definition": "The port index for logically ordering the port within the containing element or element type.",
+          "dataType": "IfcInteger"
+        },
+        {
+          "name": "ColourCode",
+          "definition": "Name of a colour for identifying the connector, if applicable.",
+          "dataType": "IfcLabel"
+        }
+      ]
+    },
+    {
+      "name": "Pset_DistributionPortPHistoryCable",
+      "definition": "Log of electrical activity attached to an instance of IfcPerformanceHistory having an assigned IfcDistributionPort of type CABLE.",
+      "properties": [],
+      "predefinedTypes": [
+        "CABLE"
+      ]
+    },
+    {
+      "name": "Pset_DistributionPortPHistoryDuct",
+      "definition": "Fluid flow performance history attached to an instance of IfcPerformanceHistory assigned to IfcDistributionPort. This replaces the deprecated IfcFluidFlowProperties for performance values.",
+      "properties": [],
+      "predefinedTypes": [
+        "DUCT"
+      ]
+    },
+    {
+      "name": "Pset_DistributionPortPHistoryPipe",
+      "definition": "Log of substance usage attached to an instance of IfcPerformanceHistory having an assigned IfcDistributionPort of type PIPE.",
+      "properties": [],
+      "predefinedTypes": [
+        "PIPE"
+      ]
+    },
+    {
+      "name": "Pset_DistributionPortTypeCable",
+      "definition": "Cable port occurrence attributes attached to an instance of IfcDistributionPort.",
+      "properties": [
+        {
+          "name": "ElectricalConnectionType",
+          "definition": "The physical port connection:ACPLUG: AC plug DCPLUG: DC plug CRIMP: bare wire",
+          "dataType": "PEnum_DistributionPortElectricalType",
+          "options": [
+            "ACPLUG",
+            "COAXIAL",
+            "CRIMP",
+            "DCPLUG",
+            "DIN",
+            "DSUB",
+            "DVI",
+            "EIAJ",
+            "HDMI",
+            "RADIO",
+            "RCA",
+            "RJ",
+            "SOCKET",
+            "TRS",
+            "USB",
+            "XLR",
+            "OTHER",
+            "NOTKNOWN",
+            "UNSET"
+          ]
+        },
+        {
+          "name": "ConnectionSubtype",
+          "definition": "The physical port connection subtype that further qualifies the ConnectionType. The following values are recommended:ACPLUG: A, B, C, D, E, F, EF, G, H, I, J, K, L, M DIN: Mini3P, Mini4P, Mini5P, Mini6P, Mini7P, Mini8P, Mini9P DSub: DA15, DB25, DC37, DD50, DE9, DE15 EIAJ: RC5720 HDMI: A, B, C RADIO: IEEE802.11g, IEEE802.11n RJ: 4P4C, 6P2C, 8P8C SOCKET: E-11, E-12, E-14, E-17, E-26, E-27, E-39, E-40 TRS: TS_Mini, TS_SubMini, TRS_Mini, TRS_SubMini",
+          "dataType": "IfcLabel"
+        },
+        {
+          "name": "ConnectionGender",
+          "definition": "The physical connection gender.",
+          "dataType": "PEnum_DistributionPortGender",
+          "options": [
+            "FEMALE",
+            "MALE",
+            "OTHER",
+            "NOTKNOWN",
+            "UNSET"
+          ]
+        },
+        {
+          "name": "ConductorFunction",
+          "definition": "Indicates function of the conductors to which the load is connected. Where L1, L2 and L3 represent the phase lines according to IEC 60446 notation (sometimes phase lines may be referenced by color [Red, Blue, Yellow] or by number [1, 2, 3] etc). Protective Earth is sometimes also known as CPC or common protective conductor. Note that for an electrical device, a set of line conductor functions may be applied.",
+          "dataType": "PEnum_ConductorFunctionEnum",
+          "options": [
+            "NEUTRAL",
+            "PHASE_L1",
+            "PHASE_L2",
+            "PHASE_L3",
+            "PROTECTIVEEARTH",
+            "PROTECTIVEEARTHNEUTRAL",
+            "OTHER",
+            "NOTKNOWN",
+            "UNSET"
+          ]
+        },
+        {
+          "name": "CurrentContent3rdHarmonic",
+          "definition": "The ratio between the third harmonic current and the phase current.",
+          "dataType": "IfcPositiveRatioMeasure"
+        },
+        {
+          "name": "Current",
+          "definition": "The actual current and operable range.",
+          "dataType": "IfcElectricCurrentMeasure"
+        },
+        {
+          "name": "Voltage",
+          "definition": "The actual voltage and operable range.",
+          "dataType": "IfcElectricVoltageMeasure"
+        },
+        {
+          "name": "Power",
+          "definition": "The actual power and operable range.",
+          "dataType": "IfcPowerMeasure"
+        },
+        {
+          "name": "Protocols",
+          "definition": "For data ports, identifies the protocols used as defined by the Open System Interconnection (OSI) Basic Reference Model (ISO 7498). Layers include: 1. Physical; 2. DataLink; 3. Network; 4. Transport; 5. Session; 6. Presentation; 7. Application. Example: 3:IP, 4:TCP, 5:HTTP",
+          "dataType": "IfcIdentifier"
+        },
+        {
+          "name": "HasConnector",
+          "definition": "Indicate whether the wire pair end point is terminated with a connector or not.",
+          "dataType": "IfcBoolean"
+        },
+        {
+          "name": "IsWelded",
+          "definition": "Indicates whether the wire pair end point is joined to another wire pair end point by means of a welded junction.",
+          "dataType": "IfcBoolean"
+        }
+      ],
+      "predefinedTypes": [
+        "CABLE"
+      ]
+    },
+    {
+      "name": "Pset_DistributionPortTypeDuct",
+      "definition": "Duct port occurrence attributes attached to an instance of IfcDistributionPort.",
+      "properties": [
+        {
+          "name": "ConnectionType",
+          "definition": "The end-style treatment of the port.",
+          "dataType": "PEnum_DuctConnectionType",
+          "options": [
+            "BEADEDSLEEVE",
+            "COMPRESSION",
+            "CRIMP",
+            "DRAWBAND",
+            "DRIVESLIP",
+            "FLANGED",
+            "NONE",
+            "OUTSIDESLEEVE",
+            "SLIPON",
+            "SOLDERED",
+            "SSLIP",
+            "STANDINGSEAM",
+            "SWEDGE",
+            "WELDED",
+            "OTHER",
+            "USERDEFINED",
+            "NOTDEFINED"
+          ]
+        },
+        {
+          "name": "ConnectionSubtype",
+          "definition": "The physical port connection subtype that further qualifies the ConnectionType.",
+          "dataType": "IfcLabel"
+        },
+        {
+          "name": "NominalWidth",
+          "definition": "The nominal overall width of the object. The size information is provided in addition to the shape representation and the geometric parameters used within. In cases of inconsistency between the geometric parameters and the size properties, provided in the attached property set, the geometric parameters take precedence.",
+          "dataType": "IfcNonNegativeLengthMeasure"
+        },
+        {
+          "name": "NominalHeight",
+          "definition": "The nominal height of the object. The size information is provided in addition to the shape representation and the geometric parameters used within. In cases of inconsistency between the geometric parameters and the size properties, provided in the attached property set, the geometric parameters take precedence. The nominal height of the duct connection. Only provided for rectangular shaped ducts.",
+          "dataType": "IfcPositiveLengthMeasure"
+        },
+        {
+          "name": "NominalThickness",
+          "definition": "The nominal thickness of the object. The size information is provided in addition to the shape representation and the geometric parameters used within. In case of inconsistency between the geometric parameters and the size properties, provided in the attached property set, the geometric parameters take precedence.",
+          "dataType": "IfcNonNegativeLengthMeasure"
+        },
+        {
+          "name": "DryBulbTemperature",
+          "definition": "Dry bulb temperature of the object. Indicates dry bulb temperature of the air.",
+          "dataType": "IfcThermodynamicTemperatureMeasure"
+        },
+        {
+          "name": "WetBulbTemperature",
+          "definition": "Wet bulb temperature of the air.",
+          "dataType": "IfcThermodynamicTemperatureMeasure"
+        },
+        {
+          "name": "VolumetricFlowRate",
+          "definition": "The volumetric flow rate of the fluid.",
+          "dataType": "IfcVolumetricFlowRateMeasure"
+        },
+        {
+          "name": "Velocity",
+          "definition": "The velocity of the fluid.",
+          "dataType": "IfcLinearVelocityMeasure"
+        },
+        {
+          "name": "Pressure",
+          "definition": "The pressure of fluid.",
+          "dataType": "IfcPressureMeasure"
+        }
+      ],
+      "predefinedTypes": [
+        "DUCT"
+      ]
+    },
+    {
+      "name": "Pset_DistributionPortTypePipe",
+      "definition": "Pipe port occurrence attributes attached to an instance of IfcDistributionPort.",
+      "properties": [
+        {
+          "name": "ConnectionType",
+          "definition": "The end-style treatment of the port.",
+          "dataType": "PEnum_PipeEndStyleTreatment",
+          "options": [
+            "BRAZED",
+            "COMPRESSION",
+            "FLANGED",
+            "GROOVED",
+            "NONE",
+            "OUTSIDESLEEVE",
+            "SOLDERED",
+            "SWEDGE",
+            "THREADED",
+            "WELDED",
+            "OTHER",
+            "UNSET"
+          ]
+        },
+        {
+          "name": "ConnectionSubtype",
+          "definition": "The physical port connection subtype that further qualifies the ConnectionType.",
+          "dataType": "IfcLabel"
+        },
+        {
+          "name": "NominalDiameter",
+          "definition": "Nominal diameter or width of the object. The nominal diameter of the pipe connection.",
+          "dataType": "IfcPositiveLengthMeasure"
+        },
+        {
+          "name": "InnerDiameter",
+          "definition": "The actual inner diameter of the object.",
+          "dataType": "IfcPositiveLengthMeasure"
+        },
+        {
+          "name": "OuterDiameter",
+          "definition": "The actual outer diameter of the object.",
+          "dataType": "IfcPositiveLengthMeasure"
+        },
+        {
+          "name": "Temperature",
+          "definition": "Temperature of the fluid.",
+          "dataType": "IfcThermodynamicTemperatureMeasure"
+        },
+        {
+          "name": "VolumetricFlowRate",
+          "definition": "The volumetric flow rate of the fluid.",
+          "dataType": "IfcVolumetricFlowRateMeasure"
+        },
+        {
+          "name": "MassFlowRate",
+          "definition": "The mass flow rate of the fluid.",
+          "dataType": "IfcMassFlowRateMeasure"
+        },
+        {
+          "name": "FlowCondition",
+          "definition": "Defines the flow condition as a percentage of the cross-sectional area.",
+          "dataType": "IfcPositiveRatioMeasure"
+        },
+        {
+          "name": "Velocity",
+          "definition": "The velocity of the fluid.",
+          "dataType": "IfcLinearVelocityMeasure"
+        },
+        {
+          "name": "Pressure",
+          "definition": "The pressure of fluid.",
+          "dataType": "IfcPressureMeasure"
+        }
+      ],
+      "predefinedTypes": [
+        "PIPE"
+      ]
+    },
+    {
+      "name": "Pset_WiredCommunicationPortCommon",
+      "definition": "Properties used for wired communication port.",
+      "properties": [
+        {
+          "name": "CommunicationStandard",
+          "definition": "Indicates the communication standard supported by the physical wired communication port.",
+          "dataType": "PEnum_CommunicationStandard",
+          "options": [
+            "ETHERNET",
+            "STM_1",
+            "STM_16",
+            "STM_256",
+            "STM_4",
+            "STM_64",
+            "USB",
+            "XDSL",
+            "OTHER",
+            "NOTKNOWN",
+            "UNSET"
+          ]
+        },
+        {
+          "name": "MaximumTransferRate",
+          "definition": "Indicates the transmission rate in bit/s over the wired port.",
+          "dataType": "IfcIntegerCountRateMeasure"
+        }
+      ],
+      "predefinedTypes": [
+        "CABLE"
+      ]
+    }
+  ]
+}
