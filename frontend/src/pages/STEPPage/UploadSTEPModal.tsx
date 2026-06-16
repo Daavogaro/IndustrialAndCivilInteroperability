@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { toogleModal } from "../../utils/htmlFunctions";
 import { StatusString } from "../../components/Sidebar/MessagePanel";
+import { useProject } from "../../context/ProjectContext";
 
 type UploadSTEPModalProps = {
   uri: string | null;
@@ -9,7 +10,8 @@ type UploadSTEPModalProps = {
 };
 
 export function UploadSTEPModal({ uri, setMessage }: UploadSTEPModalProps) {
-  const graphName = "http://localhost:8890/Elettra2/";
+  const { activeProject } = useProject();
+  const graphName = activeProject?.graphUri ?? "";
   const ownerFirstName = "Davide";
   const ownerLastName = "Avogaro";
   const time = new Date().toISOString();
@@ -33,6 +35,7 @@ export function UploadSTEPModal({ uri, setMessage }: UploadSTEPModalProps) {
     try {
       const formData = new FormData();
       formData.append("file", file);
+      if (activeProject?.id) formData.append("projectId", activeProject.id);
 
       const res = await fetch("/api/upload-step", {
         method: "POST",
@@ -58,6 +61,7 @@ export function UploadSTEPModal({ uri, setMessage }: UploadSTEPModalProps) {
           JSON.stringify({
             filename: uploadedFilename,
             graph_name: graphName,
+            project_id: activeProject?.id ?? null,
             parent_uri: uri,
             ownerFirstName: ownerFirstName,
             ownerLastName: ownerLastName,

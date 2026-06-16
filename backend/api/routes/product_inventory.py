@@ -1,23 +1,24 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from fastapi.concurrency import run_in_threadpool
 from SPARQLWrapper import SPARQLWrapper, JSON
 from ..models.models import VIRTUOSO_URL
+from .projects import assert_known_graph
 
 router = APIRouter()
-
-GRAPH = "http://localhost:8890/Elettra2/"
 
 # TODO: replace hardcoded provenance with a PROV-based SPARQL query when provenance tracking is implemented
 _FAKE_EDITOR = "Sergio Mattarella"
 _FAKE_EDIT_DATE = "2026-05-14T10:32:00"
 
-_QUERY = f"""
+
+def _run_query(graph: str):
+    query = f"""
 PREFIX x3d: <https://www.web3d.org/specifications/X3dOntology4.0#>
 SELECT ?metadata
        (COUNT(DISTINCT ?node) AS ?count)
        (SAMPLE(?cadType) AS ?cadType)
        (SAMPLE(?ifcClass) AS ?ifcClass)
-FROM <{GRAPH}>
+FROM <{graph}>
 WHERE {{
   ?node x3d:hasMetadata ?metadata .
   ?node x3d:attrib ?attrib .
@@ -32,11 +33,8 @@ WHERE {{
 GROUP BY ?metadata
 ORDER BY DESC(?count)
 """
-
-
-def _run_query():
     sparql = SPARQLWrapper(VIRTUOSO_URL)
-    sparql.setQuery(_QUERY)
+    sparql.setQuery(query)
     sparql.setReturnFormat(JSON)
     sparql.setTimeout(20)
     return sparql.query().convert()
@@ -62,10 +60,13 @@ def _transform(bindings: list) -> list:
 
 
 @router.get("/product-inventory")
-async def product_inventory():
+async def product_inventory(graph: str = Query(...)):
+    assert_known_graph(graph)
     try:
-        result = await run_in_threadpool(_run_query)
+        result = await run_in_threadpool(_run_query, graph)
         bindings = result.get("results", {}).get("bindings", [])
         return _transform(bindings)
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error querying inventory: {e}")

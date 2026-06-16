@@ -5,6 +5,7 @@ import { AssemblyView } from "./AssemblyView/AssemblyView";
 import { FundamentalNodeView } from "./FundamentalNodeView/FundamentalNodeView";
 import { TreeNode } from "../../STEPPage/Hierarchy/buildTree";
 import { refreshStepHierarchy } from "../../STEPPage/Hierarchy/HierarchyButtons/buttons/UpdateHierarchyButton";
+import { useProject } from "../../../context/ProjectContext";
 
 type NodeDetailsProps = {
   uri: string | null;
@@ -66,6 +67,7 @@ export function NodeDetails({
   setMessage,
   setHoveredUri,
 }: NodeDetailsProps) {
+  const { activeProject } = useProject();
   const [treeNodeData, setTreeNodeData] = useState<TreeNode | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -110,7 +112,7 @@ export function NodeDetails({
       const res = await fetch("/api/update-deletion", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ metadata, toBeDeleted: value }),
+        body: JSON.stringify({ metadata, toBeDeleted: value, graph: activeProject?.graphUri ?? "" }),
       });
       const responseData = await res.json();
       setMessage({ status: responseData.status, text: responseData.text });
@@ -131,7 +133,7 @@ export function NodeDetails({
       const res = await fetch("/api/update-simplification", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ metadata, toBeSimplified: value }),
+        body: JSON.stringify({ metadata, toBeSimplified: value, graph: activeProject?.graphUri ?? "" }),
       });
       const responseData = await res.json();
       setMessage({ status: responseData.status, text: responseData.text });
@@ -241,7 +243,7 @@ export function NodeDetails({
             <FundamentalNodeButton
               metadata={treeNodeData.metadata}
               setMessage={setMessage}
-              onUpdated={() => refreshStepHierarchy(setTree, setMessage)}
+              onUpdated={() => refreshStepHierarchy(activeProject?.graphUri ?? "", setTree, setMessage)}
             />
           </div>
         )}

@@ -6,6 +6,7 @@ import { fetchQuery } from "../../utils/fetchQuery";
 import { UpdateFileButton } from "./UpdateFileButton";
 import { UpdateSTEPModal } from "./UpdateSTEPModal";
 import { TreeNode } from "../STEPPage/Hierarchy/buildTree";
+import { useProject } from "../../context/ProjectContext";
 
 type UpdateFilesPageProps = {
     setMessage: (message: { status: StatusString; text: string }) => void;
@@ -13,12 +14,13 @@ type UpdateFilesPageProps = {
 };
 
 export function UpdateFilesPage({ setMessage, tree }: UpdateFilesPageProps) {
+    const { activeProject } = useProject();
     const [fileUrls, setFileUrls] = useState<{ fileUrl: string; time: string; ownerFirstName: string; ownerLastName: string }[]>([]);
     const [fileName, setFileName] = useState<string>("");
 
     useEffect(() => {
         const fetchFiles = async () => {
-            const graphName = "http://localhost:8890/Elettra2/";
+            const graphName = activeProject?.graphUri ?? "";
 
             const queryFiles = `
                 PREFIX x3d: <https://www.web3d.org/specifications/X3dOntology4.0#>
@@ -67,7 +69,7 @@ export function UpdateFilesPage({ setMessage, tree }: UpdateFilesPageProps) {
         };
 
         fetchFiles();
-    }, [setMessage]);
+    }, [setMessage, activeProject?.graphUri]);
 
     return (
         <div>

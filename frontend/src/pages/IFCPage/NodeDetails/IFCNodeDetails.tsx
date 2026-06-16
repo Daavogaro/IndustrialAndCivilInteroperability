@@ -4,6 +4,7 @@ import { StatusString } from "../../../components/Sidebar/MessagePanel";
 import { DownloadIFCButton } from "./DownloadIFCButton";
 import ifcPropertySchemaData from "./ifcPropertySchema.json";
 import resourcesSchemaData from "./resourcesIFCSchema.json";
+import { useProject } from "../../../context/ProjectContext";
 
 type PropertyInputType = "text" | "number" | "boolean" | "select";
 
@@ -153,7 +154,8 @@ export function IFCNodeDetails({
   const [propertyValues, setPropertyValues] = useState<
     Record<string, Record<string, string | number | boolean>>
   >({});
-  const graphName = "http://localhost:8890/Elettra2/";
+  const { activeProject } = useProject();
+  const graphName = activeProject?.graphUri ?? "";
 
   const primaryUri = uris[0] ?? null;
   const selectionKey = uris.join(",");

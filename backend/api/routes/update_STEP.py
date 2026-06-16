@@ -3,7 +3,7 @@ from fastapi.concurrency import run_in_threadpool
 
 from ..services.db_requests.substitution_file_query import substitution_file_query
 
-from ..models.models import GLB_FOLDER, JSON_FOLDER, MAYO_SERVICE_URL,GLTF_FOLDER,STEP_FOLDER,RDF_FOLDER
+from ..models.models import GLB_FOLDER, JSON_FOLDER, MAYO_SERVICE_URL, GLTF_FOLDER, STEP_FOLDER, RDF_FOLDER, get_project_folders
 from ..services.importing_STEP.compess_gltf import compress_gltf
 from ..services.db_requests.updatingSTEP.gltf_update_STEP import return_gltf_hierarchy
 from ..services.db_requests.import_in_DB import import_to_db
@@ -73,14 +73,29 @@ async def websocket_convert(websocket: WebSocket):
         data = await websocket.receive_json() # Aspettiamo di ricevere un messaggio JSON dal client. Ci aspettiamo che questo messaggio contenga il nome del file STEP che l'utente ha caricato e che vogliamo convertire.
         filename = sanitize_filename(data.get("filename", ""))
         graph_name = data.get("graph_name")
+        project_id = data.get("project_id")
         tree = data.get("tree")
         ownerFirstName = data.get("ownerFirstName", "Unknown")
         ownerLastName = data.get("ownerLastName", "Unknown")
         time = data.get("time", "Unknown")
 
-        input_file = os.path.join(STEP_FOLDER, filename)
-        output_file = os.path.join(GLTF_FOLDER, filename.replace(".stp", ".gltf"))
-        output_file_compressed = os.path.join(GLB_FOLDER, filename.replace(".stp", ".glb"))
+        if project_id:
+            folders = get_project_folders(project_id)
+            step_folder = folders["step"]
+            gltf_folder = folders["gltf"]
+            glb_folder = folders["glb"]
+            json_folder = folders["json"]
+            rdf_folder = folders["rdf"]
+        else:
+            step_folder = STEP_FOLDER
+            gltf_folder = GLTF_FOLDER
+            glb_folder = GLB_FOLDER
+            json_folder = JSON_FOLDER
+            rdf_folder = RDF_FOLDER
+
+        input_file = os.path.join(step_folder, filename)
+        output_file = os.path.join(gltf_folder, filename.replace(".stp", ".gltf"))
+        output_file_compressed = os.path.join(glb_folder, filename.replace(".stp", ".glb"))
         # Ad ogni passaggio vengono mandati dei messaggi al client per aggiornarlo sullo stato dell'operazione
 
         # STEP to gLTF conversion
@@ -95,15 +110,15 @@ async def websocket_convert(websocket: WebSocket):
             await websocket.send_json({"status": "wip", "text": "Parsing hierarchy"})
             try:
                 hierarchy = await return_gltf_hierarchy(
-                    os.path.join(GLTF_FOLDER, filename.replace(".stp", ".gltf")),
+                    os.path.join(gltf_folder, filename.replace(".stp", ".gltf")),
                     graph_name,
-                    os.path.join(GLTF_FOLDER, filename.replace(".stp", ".gltf")),
+                    os.path.join(gltf_folder, filename.replace(".stp", ".gltf")),
                 )
             except Exception as e:
                 await websocket.send_json({"status": "error", "text": f"return_gltf_hierarchy error: {e}"})
                 raise
-            os.makedirs(JSON_FOLDER, exist_ok=True)
-            hierarchy_file = os.path.join(JSON_FOLDER, filename.replace(".stp", ".json"))
+            os.makedirs(json_folder, exist_ok=True)
+            hierarchy_file = os.path.join(json_folder, filename.replace(".stp", ".json"))
             await run_in_threadpool(write_json_file, hierarchy_file, hierarchy) # Scriviamo il file JSON della gerarchia in un thread separato per non bloccare il server. La funzione write_json_file è una funzione sincrona che scrive un dizionario su un file JSON. run_in_threadpool è una funzione di FastAPI che permette di eseguire funzioni sincrone in un thread separato, in modo da non bloccare il loop asincrono principale del server.
             await websocket.send_json({
                 "status": "success",
@@ -119,7 +134,7 @@ async def websocket_convert(websocket: WebSocket):
             
             
             # Viene lanciata una query SPARQL per ottenere la lista dei nomi e dei numeri già presenti nel database, in modo da poter assegnare un numero univoco a ogni nodo della gerarchia che stiamo importando.
-            input_file_url = GLTF_FOLDER + "/" + filename.replace(".stp", ".gltf")
+            input_file_url = gltf_folder + "/" + filename.replace(".stp", ".gltf")
             input_filename = filename.replace(".stp", ".gltf")
             
             rdf_data = await run_in_threadpool(
@@ -139,7 +154,7 @@ async def websocket_convert(websocket: WebSocket):
             await run_in_threadpool(compress_gltf, output_file, output_file_compressed)
             await websocket.send_json({"status": "success", "text": "gLTF Compressed"}) # Se la compressione è andata a buon fine, inviamo un messaggio al client per indicare che il file gLTF è stato compresso con successo. A questo punto, abbiamo sia il file gLTF non compresso che quello compresso, e possiamo procedere con le fasi successive di parsing e importazione in DB.
     # 
-            file_path = os.path.join(RDF_FOLDER, "bulk_import.nt")
+            file_path = os.path.join(rdf_folder, "bulk_import.nt")
     # 
             await run_in_threadpool(write_text_file, file_path, rdf_data)
     # 

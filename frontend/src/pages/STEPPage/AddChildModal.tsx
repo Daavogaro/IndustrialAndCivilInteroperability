@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { toogleModal } from "../../utils/htmlFunctions";
+import { useProject } from "../../context/ProjectContext";
 
 type AddChildModalProps = {
   uri: string | null;
 };
 
 export function AddChildModal({ uri }: AddChildModalProps) {
-  const graphName = "http://localhost:8890/Elettra2/";
+  const { activeProject } = useProject();
+  const graphName = activeProject?.graphUri ?? "";
   const [value, setValue] = useState("");
 
   const handleConfirmAddChild = (name: string) => {
@@ -15,7 +17,7 @@ export function AddChildModal({ uri }: AddChildModalProps) {
       child: string,
       parent: string | null,
     ) => {
-      const response = await fetch("http://localhost:8000/api/add-child", {
+      const response = await fetch("/api/add-child", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

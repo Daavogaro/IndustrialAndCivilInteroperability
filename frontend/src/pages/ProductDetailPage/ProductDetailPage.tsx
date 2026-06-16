@@ -10,6 +10,7 @@ import { IFCNodeDetails } from "../IFCPage/NodeDetails/IFCNodeDetails";
 import { CollapsiblePanel } from "./CollapsiblePanel";
 import { ProductGLTFViewer } from "./ProductGLTFViewer";
 import { useProductHierarchy } from "./useProductHierarchy";
+import { useProject } from "../../context/ProjectContext";
 
 type ProductPageProps = {
   setMessage: (message: { status: StatusString; text: string }) => void;
@@ -17,9 +18,10 @@ type ProductPageProps = {
 export function ProductDetailPage({ setMessage }: ProductPageProps) {
   const { label = "" } = useParams<{ label: string }>();
   const navigate = useNavigate();
+  const { activeProject } = useProject();
 
   const { rootUri, tree, setTree, loading, error, refresh } =
-    useProductHierarchy(label);
+    useProductHierarchy(label, activeProject?.graphUri);
 
   const [selectedNodeUri, setSelectedNodeUri] = useState<string | null>(null);
   const [hoveredUri, setHoveredUri] = useState<string | null>(null);
@@ -180,7 +182,7 @@ export function ProductDetailPage({ setMessage }: ProductPageProps) {
             title="Product Viewer"
             collapsed={viewerCollapsed}
             onToggle={() => setViewerCollapsed((v) => !v)}>
-            <ProductGLTFViewer productLabel={label} hoveredUri={hoveredUri} />
+            <ProductGLTFViewer productLabel={label} hoveredUri={hoveredUri} rootUri={rootUri} />
           </CollapsiblePanel>
 
           {/* Bottom panel: IFC properties */}

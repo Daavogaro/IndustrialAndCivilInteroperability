@@ -4,8 +4,8 @@ import shutil
 import re
 from typing import Optional
 
-from ..models.models import STEP_FOLDER
-# Per ogni chiamata dobbiamo creare un Router.
+from ..models.models import STEP_FOLDER, get_project_folders
+
 router = APIRouter()
 
 
@@ -19,11 +19,13 @@ def sanitize_filename(filename: str) -> str:
     return f"{stem}{extension.lower()}"
 
 @router.post("/upload-step")
-async def upload_step(file: UploadFile = File(...), fileName: Optional[str] = Form(None)):
-    # Prefer the provided form `fileName` when present, otherwise use the uploaded file's name
+async def upload_step(
+    file: UploadFile = File(...),
+    fileName: Optional[str] = Form(None),
+    projectId: Optional[str] = Form(None),
+):
     original_filename = fileName if fileName else file.filename
 
-    # If no extension provided in fileName, try to copy it from the uploaded file or default to .stp
     name, ext = os.path.splitext(original_filename)
     if not ext:
         _, uploaded_ext = os.path.splitext(file.filename or "")
@@ -34,7 +36,13 @@ async def upload_step(file: UploadFile = File(...), fileName: Optional[str] = Fo
         return {"status": "error", "text": "Only STEP files allowed"}
 
     safe_filename = sanitize_filename(original_filename)
-    file_path = os.path.join(STEP_FOLDER, safe_filename)
+
+    if projectId:
+        target_folder = get_project_folders(projectId)["step"]
+    else:
+        target_folder = STEP_FOLDER
+
+    file_path = os.path.join(target_folder, safe_filename)
     with open(file_path, "wb") as f:
         shutil.copyfileobj(file.file, f)
 
@@ -42,5 +50,6 @@ async def upload_step(file: UploadFile = File(...), fileName: Optional[str] = Fo
         "status": "uploaded",
         "text": "File uploaded successfully",
         "filename": safe_filename,
-        "path": file_path
+        "path": file_path,
+        "projectId": projectId,
     }

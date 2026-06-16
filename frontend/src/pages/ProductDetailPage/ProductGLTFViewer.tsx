@@ -4,10 +4,12 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { MeshoptDecoder } from "meshoptimizer";
+import { useProject } from "../../context/ProjectContext";
 
 type ProductGLTFViewerProps = {
   productLabel: string;
   hoveredUri?: string | null;
+  rootUri?: string | null;
 };
 
 const normalizeName = (value: unknown): string => {
@@ -23,7 +25,16 @@ const normalizeName = (value: unknown): string => {
 export function ProductGLTFViewer({
   productLabel,
   hoveredUri = null,
+  rootUri = null,
 }: ProductGLTFViewerProps) {
+  const { activeProject } = useProject();
+  const projectId = activeProject?.id ?? null;
+
+  // Keep a ref so the async GLTF-load callback can read the latest rootUri
+  // without being in the main useEffect's dependency array.
+  const rootUriRef = React.useRef<string | null>(rootUri);
+  rootUriRef.current = rootUri;
+
   const [loadedFiles, setLoadedFiles] = React.useState<string[]>([]);
   const sceneRef = React.useRef<THREE.Scene | null>(null);
   const loadedObjectsRef = React.useRef<Record<string, THREE.Object3D>>({});
@@ -227,7 +238,13 @@ export function ProductGLTFViewer({
     };
 
     const isolateProduct = (label: string) => {
-      const target = normalizeName(label + ".1");
+      // Use the rootUri fragment (e.g. "PSI_SLS2_Girder_Superbend.2") when available
+      // so the correct instance is found in the project-specific GLB file.
+      const uri = rootUriRef.current;
+      const objectName = uri
+        ? (uri.includes("#") ? uri.split("#")[1] : uri)
+        : label + ".1";
+      const target = normalizeName(objectName);
       if (!target) return;
 
       let productRoot: THREE.Object3D | null = null;
@@ -344,7 +361,7 @@ export function ProductGLTFViewer({
       const res = await fetch("/api/gltf-upload", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ files: [] }),
+        body: JSON.stringify({ files: [], projectId }),
       });
       const data: { files: string[] } = await res.json();
 
@@ -356,7 +373,6 @@ export function ProductGLTFViewer({
           loadedObjectsRef.current[url] = gltf.scene;
           setLoadedFiles((prev) => (prev.includes(url) ? prev : [...prev, url]));
 
-          // Isolate the current product (first instance)
           isolateProduct(productLabel);
         });
       });
@@ -416,7 +432,7 @@ export function ProductGLTFViewer({
         viewerContainer.removeChild(renderer.domElement);
       }
     };
-  }, [clearUriHighlight, productLabel]);
+  }, [clearUriHighlight, productLabel, projectId]);
 
   React.useEffect(() => {
     applyUriHighlight(hoveredUri ?? null);

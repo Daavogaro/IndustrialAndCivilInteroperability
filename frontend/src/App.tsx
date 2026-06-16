@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { Sidebar } from "./components/Sidebar/Sidebar";
 import { STEPPage } from "./pages/STEPPage/STEPPage";
 import { useEffect, useState } from "react";
@@ -8,6 +8,8 @@ import { TreeNode } from "./pages/STEPPage/Hierarchy/buildTree";
 import { UpdateFilesPage } from "./pages/UpdateFilesPage/UpdateFilesPage";
 import { InventoryProductPage } from "./pages/InventoryProductPage/InventoryProductPage";
 import { ProductDetailPage } from "./pages/ProductDetailPage/ProductDetailPage";
+import { ProjectProvider } from "./context/ProjectContext";
+import { ProjectsPage } from "./pages/ProjectsPage/ProjectsPage";
 
 function App() {
   const [message, setMessage] = useState<{
@@ -29,41 +31,46 @@ function App() {
 
     return () => clearTimeout(timer);
   }, [message]);
+
   return (
-    <div id="app">
-      <Sidebar message={message} />
-      <main style={{ minHeight: 0, overflow: "hidden" }}>
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <STEPPage
-                setMessage={setMessage}
-                tree={tree}
-                setTree={setTree}
-                nodeUri={nodeUri}
-                setNodeUri={setNodeUri}
-              />
-            }
-          />
-          <Route
-            path="/IFCHierarchy"
-            element={
-              <IFCHierarchyPage
-                setMessage={setMessage}
-                tree={tree}
-                setTree={setTree}
-                nodeUri={nodeUri}
-                setNodeUri={setNodeUri}
-              />
-            }
-          />
-          <Route path="/FileUpdate" element={<UpdateFilesPage setMessage={setMessage} tree={tree}/>} />
-          <Route path="/ProductInventory" element={<InventoryProductPage />} />
-          <Route path="/product/:label" element={<ProductDetailPage setMessage={setMessage} />} />
-        </Routes>
-      </main>
-    </div>
+    <ProjectProvider>
+      <div id="app">
+        <Sidebar message={message} />
+        <main style={{ minHeight: 0, overflow: "hidden" }}>
+          <Routes>
+            <Route path="/" element={<Navigate to="/Projects" replace />} />
+            <Route
+              path="/STEP"
+              element={
+                <STEPPage
+                  setMessage={setMessage}
+                  tree={tree}
+                  setTree={setTree}
+                  nodeUri={nodeUri}
+                  setNodeUri={setNodeUri}
+                />
+              }
+            />
+            <Route
+              path="/IFCHierarchy"
+              element={
+                <IFCHierarchyPage
+                  setMessage={setMessage}
+                  tree={tree}
+                  setTree={setTree}
+                  nodeUri={nodeUri}
+                  setNodeUri={setNodeUri}
+                />
+              }
+            />
+            <Route path="/FileUpdate" element={<UpdateFilesPage setMessage={setMessage} tree={tree} />} />
+            <Route path="/ProductInventory" element={<InventoryProductPage />} />
+            <Route path="/product/:label" element={<ProductDetailPage setMessage={setMessage} />} />
+            <Route path="/Projects" element={<ProjectsPage />} />
+          </Routes>
+        </main>
+      </div>
+    </ProjectProvider>
   );
 }
 

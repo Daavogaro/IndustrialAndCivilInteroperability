@@ -1,12 +1,12 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from fastapi.concurrency import run_in_threadpool
 from SPARQLWrapper import SPARQLWrapper, JSON
 import urllib.parse
 from ..models.models import VIRTUOSO_URL
+from .projects import assert_known_graph
 
 router = APIRouter()
 
-GRAPH = "http://localhost:8890/Elettra2/"
 METADATA_NS = "https://elettra2.0#"
 
 
@@ -21,7 +21,7 @@ def _strip_file_uri(val: str | None) -> str:
     return ""
 
 
-def _run_all(decoded_label: str) -> dict:
+def _run_all(decoded_label: str, graph: str) -> dict:
     metadata_uri = f"{METADATA_NS}{decoded_label}"
 
     sparql = SPARQLWrapper(VIRTUOSO_URL)
@@ -33,7 +33,7 @@ def _run_all(decoded_label: str) -> dict:
 PREFIX x3d: <https://www.web3d.org/specifications/X3dOntology4.0#>
 PREFIX pre: <http://www.loc.gov/premis/rdf/v3/>
 SELECT ?root ?cadType ?metadata ?visible ?display ?dimensions ?fileUrl
-FROM <{GRAPH}>
+FROM <{graph}>
 WHERE {{
   ?root x3d:hasMetadata <{metadata_uri}> .
   ?root x3d:hasMetadata ?metadata .
@@ -79,7 +79,7 @@ LIMIT 1
 PREFIX x3d: <https://www.web3d.org/specifications/X3dOntology4.0#>
 PREFIX pre: <http://www.loc.gov/premis/rdf/v3/>
 SELECT ?parent ?child ?cadType ?metadata ?visible ?display ?dimensions ?attrib ?fileUrl
-FROM <{GRAPH}>
+FROM <{graph}>
 WHERE {{
   <{root_uri}> x3d:children* ?parent .
   ?parent x3d:children ?child .
@@ -122,7 +122,7 @@ PREFIX x3d: <https://www.web3d.org/specifications/X3dOntology4.0#>
 PREFIX ifc: <https://w3id.org/ifc/IFC4X3_ADD2#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 SELECT ?node ?ifcClass ?predefinedType ?objectType
-FROM <{GRAPH}>
+FROM <{graph}>
 WHERE {{
   {{ <{root_uri}> x3d:children* ?node . }} UNION {{ BIND(<{root_uri}> AS ?node) }}
   ?node a ?ifcClass .
@@ -162,7 +162,7 @@ PREFIX express: <https://w3id.org/express#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 SELECT ?node ?psetName ?propName ?propValue ?datatype
-FROM <{GRAPH}>
+FROM <{graph}>
 WHERE {{
   {{ <{root_uri}> x3d:children* ?node . }} UNION {{ BIND(<{root_uri}> AS ?node) }}
   ?s a ifc:IfcRelDefinesByProperties .
@@ -204,15 +204,18 @@ WHERE {{
 
 
 @router.get("/product-hierarchy/{label}")
-async def product_hierarchy(label: str):
+async def product_hierarchy(label: str, graph: str = Query(...)):
+    assert_known_graph(graph)
     decoded = urllib.parse.unquote(label).strip()
     if not decoded:
         raise HTTPException(status_code=404, detail="Product not found")
     try:
-        return await run_in_threadpool(_run_all, decoded)
+        return await run_in_threadpool(_run_all, decoded, graph)
     except ValueError as exc:
         if str(exc) == "not_found":
             raise HTTPException(status_code=404, detail="Product not found")
         raise HTTPException(status_code=500, detail=str(exc))
+    except HTTPException:
+        raise
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Error querying hierarchy: {exc}")

@@ -17,7 +17,7 @@ type UseProductInventory = {
   refresh: () => void;
 };
 
-export function useProductInventory(): UseProductInventory {
+export function useProductInventory(graphUri: string | null | undefined): UseProductInventory {
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,13 +26,15 @@ export function useProductInventory(): UseProductInventory {
   const refresh = useCallback(() => setTick((t) => t + 1), []);
 
   useEffect(() => {
+    if (!graphUri) return;
+
     let cancelled = false;
 
     const fetchInventory = async () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch("/api/product-inventory");
+        const res = await fetch(`/api/product-inventory?graph=${encodeURIComponent(graphUri)}`);
         if (!res.ok) {
           throw new Error(`${res.status} ${res.statusText}`);
         }
@@ -47,7 +49,7 @@ export function useProductInventory(): UseProductInventory {
 
     fetchInventory();
     return () => { cancelled = true; };
-  }, [tick]);
+  }, [graphUri, tick]);
 
   return { items, loading, error, refresh };
 }
