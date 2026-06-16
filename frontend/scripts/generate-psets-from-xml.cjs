@@ -347,6 +347,9 @@ function parsePsetFile(xml, penums) {
     return null;
   }
 
+  // Each <ClassName> is either "IfcFoo" or "IfcFoo/PREDEFINEDTYPE" (the latter
+  // restricts the set to occurrences of that predefined type). We drop the
+  // Ifc*Type variants and keep { base, predefinedType } for the rest.
   const applicableClasses = [];
   const acBlockMatch = header.match(/<ApplicableClasses>([\s\S]*?)<\/ApplicableClasses>/);
   if (acBlockMatch) {
@@ -354,9 +357,17 @@ function parsePsetFile(xml, penums) {
     let cm;
     while ((cm = cnRegex.exec(acBlockMatch[1])) !== null) {
       const cn = cm[1].trim();
-      if (cn && !cn.endsWith("Type")) {
-        applicableClasses.push(cn);
+      if (!cn) {
+        continue;
       }
+      const slashIdx = cn.indexOf("/");
+      const base = slashIdx >= 0 ? cn.slice(0, slashIdx).trim() : cn;
+      const predefinedType =
+        slashIdx >= 0 ? cn.slice(slashIdx + 1).trim().toUpperCase() : null;
+      if (base.endsWith("Type")) {
+        continue; // drop Ifc*Type variants
+      }
+      applicableClasses.push({ base, predefinedType });
     }
   }
 
@@ -437,12 +448,25 @@ function main() {
   }
 
   // Expand applicable classes to concrete descendants present in our class set.
+  // Returns Map<concreteClass, { unconstrained, predefinedTypes:Set }>:
+  // - unconstrained = the set applies to the class regardless of predefined type
+  // - predefinedTypes = the union of predefined-type constraints (only meaningful
+  //   when unconstrained is false).
   function expandApplicable(applicableClasses) {
-    const targets = new Set();
-    for (const cn of applicableClasses) {
+    const targets = new Map();
+    for (const entry of applicableClasses) {
       for (const concrete of concreteNames) {
-        if (concrete === cn || isDescendantOf(concrete, cn)) {
-          targets.add(concrete);
+        if (concrete === entry.base || isDescendantOf(concrete, entry.base)) {
+          let t = targets.get(concrete);
+          if (!t) {
+            t = { unconstrained: false, predefinedTypes: new Set() };
+            targets.set(concrete, t);
+          }
+          if (entry.predefinedType === null) {
+            t.unconstrained = true;
+          } else {
+            t.predefinedTypes.add(entry.predefinedType);
+          }
         }
       }
     }
@@ -456,22 +480,30 @@ function main() {
   }
 
   for (const set of parsedSets) {
-    const setObject = {
-      name: set.name,
-      definition: set.definition,
-      properties: set.properties.map((p) => {
-        const obj = { name: p.name, definition: p.definition, dataType: p.dataType };
-        if (p.options && p.options.length > 0) {
-          obj.options = p.options;
-        }
-        return obj;
-      }),
-    };
+    const properties = set.properties.map((p) => {
+      const obj = { name: p.name, definition: p.definition, dataType: p.dataType };
+      if (p.options && p.options.length > 0) {
+        obj.options = p.options;
+      }
+      return obj;
+    });
     const targets = expandApplicable(set.applicableClasses);
-    for (const target of targets) {
+    for (const [target, constraint] of targets) {
       const cls = classByName.get(target);
       if (!cls) {
         continue;
+      }
+      const setObject = {
+        name: set.name,
+        definition: set.definition,
+        properties,
+      };
+      // Attach a predefined-type constraint only when this class is never
+      // referenced unconstrained for this set.
+      if (!constraint.unconstrained && constraint.predefinedTypes.size > 0) {
+        setObject.predefinedTypes = Array.from(constraint.predefinedTypes).sort(
+          (a, b) => a.localeCompare(b),
+        );
       }
       const existingIdx = cls.propertySets.findIndex((s) => s.name === setObject.name);
       if (existingIdx >= 0) {

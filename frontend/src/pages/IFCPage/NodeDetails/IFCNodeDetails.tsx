@@ -29,6 +29,9 @@ type PSetSpec = {
   name: string;
   properties: PropertySpec[];
   definition?: string;
+  // When present, the set only applies to occurrences whose predefined type is
+  // one of these (e.g. Pset_TicketVendingMachine -> ["VENDINGMACHINE"]).
+  predefinedTypes?: string[];
 };
 
 type PropertyPayload = {
@@ -191,6 +194,13 @@ export function IFCNodeDetails({
   const availablePsets =
     ifcClass === "None" ? [] : (IFC_CLASS_TO_PSETS[ifcClass] ?? []);
 
+  // A predefined-type-restricted set is only selectable/submittable when the
+  // current predefined type is one of its allowed types.
+  const isPsetApplicableFor = (pset: PSetSpec) =>
+    !pset.predefinedTypes ||
+    pset.predefinedTypes.length === 0 ||
+    pset.predefinedTypes.includes(predefinedType);
+
   const getDefaultPropertyValue = (property: PropertySpec) => {
     const inputType = resolvePropertyInputType(property);
 
@@ -266,7 +276,7 @@ export function IFCNodeDetails({
       .filter(([, isSelected]) => isSelected)
       .forEach(([psetName]) => {
         const psetSpec = availablePsets.find((item) => item.name === psetName);
-        if (!psetSpec) {
+        if (!psetSpec || !isPsetApplicableFor(psetSpec)) {
           return;
         }
 
@@ -287,6 +297,10 @@ export function IFCNodeDetails({
     Object.entries(selectedPsets)
       .filter(([, isSelected]) => isSelected)
       .forEach(([psetName]) => {
+        const psetSpec = availablePsets.find((item) => item.name === psetName);
+        if (!psetSpec || !isPsetApplicableFor(psetSpec)) {
+          return;
+        }
         updatedPsets[psetName] = { ...(propertyValues[psetName] ?? {}) };
       });
 
@@ -355,6 +369,38 @@ export function IFCNodeDetails({
     setPredefinedType(nextTypes[0]);
     setSelectedPsets({});
     setPropertyValues({});
+  };
+
+  const onPredefinedTypeChange = (nextPredefinedType: string) => {
+    setPredefinedType(nextPredefinedType);
+
+    // Deselect any predefined-type-restricted pset that no longer applies to
+    // the new predefined type, and clear its property values, so stale data
+    // for the wrong predefined type isn't sent to the Blender scripts.
+    const noLongerApplicable = availablePsets.filter(
+      (pset) =>
+        selectedPsets[pset.name] &&
+        pset.predefinedTypes &&
+        pset.predefinedTypes.length > 0 &&
+        !pset.predefinedTypes.includes(nextPredefinedType),
+    );
+    if (noLongerApplicable.length === 0) {
+      return;
+    }
+    setSelectedPsets((prev) => {
+      const next = { ...prev };
+      noLongerApplicable.forEach((pset) => {
+        delete next[pset.name];
+      });
+      return next;
+    });
+    setPropertyValues((prev) => {
+      const next = { ...prev };
+      noLongerApplicable.forEach((pset) => {
+        delete next[pset.name];
+      });
+      return next;
+    });
   };
 
   const onIFCPropertiesFormReset = () => {
@@ -512,7 +558,7 @@ export function IFCNodeDetails({
                 style={{ height: 23 }}
                 value={predefinedType}
                 defaultValue={"NOTDEFINED"}
-                onChange={(e) => setPredefinedType(e.target.value)}>
+                onChange={(e) => onPredefinedTypeChange(e.target.value)}>
                 {availablePredefinedTypes.map((predefinedTypeOption) => (
                   <option
                     key={predefinedTypeOption}
@@ -550,22 +596,34 @@ export function IFCNodeDetails({
           </p>
         ) : (
           <div style={{ display: "grid", gap: 10 }}>
-            {availablePsets.map((pset) => (
+            {availablePsets.map((pset) => {
+              // Predefined-type-restricted sets are listed but only selectable
+              // when the current predefined type matches.
+              const requiredPredefinedTypes = pset.predefinedTypes ?? [];
+              const isPredefinedTypeRestricted =
+                requiredPredefinedTypes.length > 0;
+              const isPsetApplicable = isPsetApplicableFor(pset);
+
+              return (
               <div
                 key={pset.name}
                 className="ifc-card"
-                style={{ border: "1px solid var(--grey-3)" }}>
+                style={{
+                  border: "1px solid var(--grey-3)",
+                  opacity: isPsetApplicable ? 1 : 0.55,
+                }}>
                 <label
                   style={{
                     display: "flex",
                     alignItems: "center",
                     gap: 8,
-                    marginBottom: 10,
-                    cursor: "pointer",
+                    marginBottom: isPredefinedTypeRestricted ? 4 : 10,
+                    cursor: isPsetApplicable ? "pointer" : "not-allowed",
                   }}>
                   <input
                     type="checkbox"
                     checked={!!selectedPsets[pset.name]}
+                    disabled={!isPsetApplicable}
                     onChange={(e) =>
                       togglePsetSelection(pset.name, e.target.checked)
                     }
@@ -574,7 +632,23 @@ export function IFCNodeDetails({
                   <InfoTooltip definition={pset.definition} />
                 </label>
 
-                {selectedPsets[pset.name] && (
+                {isPredefinedTypeRestricted && (
+                  <div
+                    style={{
+                      marginBottom: 10,
+                      fontSize: 12,
+                      color: isPsetApplicable
+                        ? "var(--grey-6)"
+                        : "var(--warning, #b8860b)",
+                    }}>
+                    Only for PredefinedType:{" "}
+                    {requiredPredefinedTypes.join(", ")}
+                    {!isPsetApplicable &&
+                      ` (current: ${predefinedType || "NOTDEFINED"})`}
+                  </div>
+                )}
+
+                {selectedPsets[pset.name] && isPsetApplicable && (
                   <div
                     style={{
                       display: "grid",
@@ -670,7 +744,8 @@ export function IFCNodeDetails({
                   </div>
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
         <div
