@@ -12,6 +12,7 @@ type PropertySpec = {
   name: string;
   dataType: string;
   options?: string[];
+  definition?: string;
 };
 
 type ResourceSpec = {
@@ -27,6 +28,7 @@ type IFCResourcesSchema = {
 type PSetSpec = {
   name: string;
   properties: PropertySpec[];
+  definition?: string;
 };
 
 type PropertyPayload = {
@@ -72,6 +74,27 @@ const IFC_CLASS_TO_PSETS: Record<string, PSetSpec[]> =
     },
     {},
   );
+
+// Small info indicator: shows the IFC definition text on hover via a native
+// title tooltip. Rendered only when a (non-empty) definition is available.
+function InfoTooltip({ definition }: { definition?: string }) {
+  if (!definition) {
+    return null;
+  }
+  return (
+    <span
+      className="material-icons-round"
+      title={definition}
+      onClick={(e) => {
+        // Prevent toggling a surrounding label/checkbox when clicked.
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+      style={{ fontSize: 16, color: "var(--grey-6)", cursor: "help" }}>
+      info
+    </span>
+  );
+}
 
 const resolvePropertyInputType = (
   property: PropertySpec,
@@ -548,6 +571,7 @@ export function IFCNodeDetails({
                     }
                   />
                   <strong>{pset.name}</strong>
+                  <InfoTooltip definition={pset.definition} />
                 </label>
 
                 {selectedPsets[pset.name] && (
@@ -575,8 +599,14 @@ export function IFCNodeDetails({
                           }}>
                           <label
                             htmlFor={`${pset.name}-${property.name}`}
-                            style={{ display: "block", marginBottom: 4 }}>
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 4,
+                              marginBottom: 4,
+                            }}>
                             {property.name}
+                            <InfoTooltip definition={property.definition} />
                           </label>
                           <div
                             style={{
