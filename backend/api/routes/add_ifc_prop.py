@@ -225,6 +225,88 @@ async def _delete_existing_port(graph: str, subject):
     await delete_from_db(graph, delete_template, where_body)
 
 
+async def _delete_existing_element_properties(graph: str, subject):
+    """Remove the IFC annotations previously written onto `subject` (its IFC type,
+    GUID, name label, predefinedType link, objectType label and every element
+    property-set subtree) so a re-submission stays clean (delete-then-insert).
+
+    `subject` is a shared X3D node, so this deletes ONLY the IFC-namespace triples
+    and leaves the X3D structural data (hasMetadata, hasParentCADPart, …) intact.
+    The port subtree is owned by `_delete_existing_port`; its `isNestedBy` link is
+    explicitly excluded here so the two deletes stay independent of each other.
+
+    Done in two cheap steps to avoid a cartesian-product DELETE (which can hang
+    Virtuoso): first collect the dependent resources by traversing the 1:1/1:few
+    structural predicates, then delete by subject/object index lookups."""
+    subject_iri = f"<{subject}>"
+    ifc = str(IFC_NAMESPACE)
+    rdf_type = "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>"
+    nested_by = f"<{ifc}isNestedBy_IfcObjectDefinition>"
+    collect_query = f"""
+    SELECT DISTINCT ?guid ?nameLabel ?objType ?rel ?relGuid ?pset ?psGuid ?psLabel ?prop ?ident ?nomval
+    WHERE {{
+      GRAPH <{graph}> {{
+        {{ {subject_iri} <{ifc}globalId_IfcRoot> ?guid . }}
+        UNION
+        {{ {subject_iri} <{ifc}name_IfcRoot> ?nameLabel . }}
+        UNION
+        {{ {subject_iri} <{ifc}objectType_IfcObject> ?objType . }}
+        UNION
+        {{
+          {subject_iri} <{ifc}isDefinedBy_IfcObject> ?rel .
+          OPTIONAL {{ ?rel <{ifc}globalId_IfcRoot> ?relGuid . }}
+          OPTIONAL {{
+            ?rel <{ifc}relatingPropertyDefinition_IfcRelDefinesByProperties> ?pset .
+            OPTIONAL {{ ?pset <{ifc}globalId_IfcRoot> ?psGuid . }}
+            OPTIONAL {{ ?pset <{ifc}name_IfcRoot> ?psLabel . }}
+            OPTIONAL {{
+              ?pset <{ifc}hasProperties_IfcPropertySet> ?prop .
+              OPTIONAL {{ ?prop <{ifc}name_IfcProperty> ?ident . }}
+              OPTIONAL {{ ?prop <{ifc}nominalValue_IfcPropertySingleValue> ?nomval . }}
+            }}
+          }}
+        }}
+      }}
+    }}
+    """
+    response = requests.post(
+        VIRTUOSO_URL,
+        data={"query": collect_query},
+        headers={"Accept": "application/sparql-results+json"},
+    )
+    bindings = response.json()["results"]["bindings"]
+
+    resources = set()
+    for row in bindings:
+        for value in row.values():
+            if value.get("type") in ("uri", "bnode"):
+                resources.add(value["value"])
+
+    delete_template = "?s ?p ?o ."
+    where_parts = []
+    if resources:
+        values_list = " ".join(f"<{uri}>" for uri in resources)
+        # Delete every triple touching a dependent resource (as subject or object):
+        # this clears the GUID/name/objectType/pset subtrees and the element's
+        # back-references to them (isDefinedBy / relatedObjects).
+        where_parts.append(f"{{ VALUES ?s {{ {values_list} }} ?s ?p ?o . }}")
+        where_parts.append(f"{{ VALUES ?o {{ {values_list} }} ?s ?p ?o . }}")
+    # Delete the element's own outgoing IFC links (globalId/name/objectType/
+    # predefinedType_*/isDefinedBy) — index lookup on the subject, no scan. Exclude
+    # the port nest link, which `_delete_existing_port` owns.
+    where_parts.append(
+        f"{{ VALUES ?s {{ {subject_iri} }} ?s ?p ?o ."
+        f" FILTER(STRSTARTS(STR(?p), \"{ifc}\") && ?p != {nested_by}) }}"
+    )
+    # Delete the element's IFC rdf:type (keeping its X3D types).
+    where_parts.append(
+        f"{{ VALUES ?s {{ {subject_iri} }} VALUES ?p {{ {rdf_type} }} ?s ?p ?o ."
+        f" FILTER(STRSTARTS(STR(?o), \"{ifc}\")) }}"
+    )
+    where_body = "\n      UNION\n      ".join(where_parts)
+    await delete_from_db(graph, delete_template, where_body)
+
+
 @router.post("/add-ifc-properties")
 async def add_ifc_properties(request: IFCProps):
     graph = request.graph
@@ -340,6 +422,11 @@ async def add_ifc_properties(request: IFCProps):
     for bind in binding:
         guid = ifcopenshell.guid.new()
         subject = URIRef(bind["s"]["value"])
+
+        # Clear any IFC properties previously written onto this element so a
+        # re-submission stays clean (delete-then-insert) — same logic as the port.
+        await _delete_existing_element_properties(graph, subject)
+
         g.add((subject, RDF.type, IFC_NAMESPACE[ifc_class]))
         guid_uri = GRAPH_NAMESPACE["GUID_" + subject.split("#")[-1]]
         g.add((subject, IFC_NAMESPACE["globalId_IfcRoot"], guid_uri))
