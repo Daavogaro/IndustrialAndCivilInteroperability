@@ -10,7 +10,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "generate:ifc-schema": "node scripts/generate-ifc-schema-from-webifc.cjs"
+    "generate:ifc-schema": "node scripts/generate-ifc-schema-from-xsd.cjs",
+    "generate:psets": "node scripts/generate-psets-from-xml.cjs",
+    "generate:ifc-full": "npm run generate:ifc-schema && npm run generate:psets"
   },
   "dependencies": {
     "@thatopen/components": "^3.4.2",

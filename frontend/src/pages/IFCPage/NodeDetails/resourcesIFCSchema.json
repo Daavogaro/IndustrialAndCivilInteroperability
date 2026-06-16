@@ -1,144 +1,5429 @@
-{"classes": [
+{
+  "classes": [
     {
-        "name": "IfcBoolean",
-        "inputType": "boolean",
-        "dataType": "BOOLEAN"
-    },
-    {
-        "name": "IfcCountMeasure",
-        "inputType": "number",
-        "dataType": "INTEGER"
+      "name": "IfcAccelerationMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
     },
     {
-        "name": "IfcDate",
-        "inputType": "date",
-        "dataType": "DATE"
+      "name": "IfcAngularVelocityMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
     },
     {
-        "name": "IfcIdentifier",
-        "inputType": "text",
-        "dataType": "STRING"
+      "name": "IfcAreaDensityMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
     },
     {
-        "name": "IfcInteger",
-        "inputType": "number",
-        "dataType": "INTEGER"
+      "name": "IfcAreaMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
     },
     {
-        "name": "IfcLabel",
-        "inputType": "text",
-        "dataType": "STRING"
-    },
-     {
-        "name": "IfcElectricCurrentMeasure",
-        "inputType": "number",
-        "dataType": "REAL"
+      "name": "IfcBoolean",
+      "inputType": "boolean",
+      "dataType": "BOOLEAN"
     },
     {
-        "name": "IfcElectricVoltageMeasure",
-        "inputType": "number",
-        "dataType": "REAL"
-    },
-     {
-        "name": "IfcFrequencyMeasure",
-        "inputType": "number",
-        "dataType": "REAL"
-    },
-     {
-        "name": "IfcElectricCurrentMeasure",
-        "inputType": "number",
-        "dataType": "REAL"
+      "name": "IfcComplexNumber",
+      "inputType": "text",
+      "dataType": "STRING"
     },
     {
-        "name": "IfcPlaneAngleMeasure",
-        "inputType": "number",
-        "dataType": "REAL"
+      "name": "IfcCountMeasure",
+      "inputType": "number",
+      "dataType": "INTEGER"
     },
     {
-        "name": "IfcPositiveLengthMeasure",
-        "inputType": "number",
-        "dataType": "REAL"
+      "name": "IfcDate",
+      "inputType": "date",
+      "dataType": "DATE"
     },
     {
-        "name": "IfcPowerMeasure",
-        "inputType": "number",
-        "dataType": "REAL"
-    },
-    
-    {
-        "name": "IfcThermalTransmittanceMeasure",
-        "inputType": "number",
-        "dataType": "REAL"
+      "name": "IfcDateTime",
+      "inputType": "datetime-local",
+      "dataType": "DATETIME"
     },
     {
-        "name": "IfcQuantityArea",
-        "inputType": "number",
-        "dataType": "REAL"
+      "name": "IfcDuration",
+      "inputType": "text",
+      "dataType": "STRING"
     },
     {
-        "name": "IfcQuantityLength",
-        "inputType": "number",
-        "dataType": "REAL"
+      "name": "IfcDynamicViscosityMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
     },
     {
-        "name": "IfcQuantityVolume",
-        "inputType": "number",
-        "dataType": "REAL"
+      "name": "IfcElectricCapacitanceMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
     },
     {
-        "name": "IfcQuantityWeight",
-        "inputType": "number",
-        "dataType": "REAL"
-    },
-
-
-
-    {
-        "name": "PEnum_ConductorFunctionEnum",
-        "inputType": "select",
-        "options": [
-                "NEUTRAL",
-                "PHASE_L1",
-                "PHASE_L2",
-                "PHASE_L3",
-                "PROTECTIVEEARTH",
-                "PROTECTIVEEARTHNEUTRAL",
-                "OTHER",
-                "NOTKNOWN",
-                "UNSET"
-              ],
-        "dataType": "ENUM"
+      "name": "IfcElectricChargeMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
     },
     {
-        "name": "PEnum_ElementStatus",
-        "inputType": "select",
-        "options": [
-                "DEMOLISH",
-                "EXISTING",
-                "NEW",
-                "TEMPORARY",
-                "OTHER",
-                "NOTKNOWN",
-                "UNSET"
-              ],
-        "dataType": "ENUM"
+      "name": "IfcElectricConductanceMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
     },
     {
-        "name": "PEnum_InsulationStandardClass",
-        "inputType": "select",
-        "options": [
-                "CLASS0APPLIANCE",
-                "CLASS0IAPPLIANCE",
-                "CLASSIAPPLIANCE",
-                "CLASSIIAPPLIANCE",
-                "CLASSIIIAPPLIANCE",
-                "OTHER",
-                "NOTKNOWN",
-                "UNSET"
-              ],
-        "dataType": "ENUM"
+      "name": "IfcElectricCurrentMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcElectricResistanceMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcElectricVoltageMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcEnergyMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcForceMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcFrequencyMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcHeatFluxDensityMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcHeatingValueMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcIdentifier",
+      "inputType": "text",
+      "dataType": "STRING"
+    },
+    {
+      "name": "IfcIlluminanceMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcInductanceMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcInteger",
+      "inputType": "number",
+      "dataType": "INTEGER"
+    },
+    {
+      "name": "IfcIntegerCountRateMeasure",
+      "inputType": "number",
+      "dataType": "INTEGER"
+    },
+    {
+      "name": "IfcIonConcentrationMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcIsothermalMoistureCapacityMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcLabel",
+      "inputType": "text",
+      "dataType": "STRING"
+    },
+    {
+      "name": "IfcLengthMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcLinearVelocityMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcLogical",
+      "inputType": "boolean",
+      "dataType": "BOOLEAN"
+    },
+    {
+      "name": "IfcLuminousFluxMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcMassDensityMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcMassFlowRateMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcMassMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcMassPerLengthMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcModulusOfElasticityMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcMoistureDiffusivityMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcMolecularWeightMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcMomentOfInertiaMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcMonetaryMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcNonNegativeLengthMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcNormalisedRatioMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcNumericMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcPHMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcPlanarForceMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcPlaneAngleMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcPositiveLengthMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcPositivePlaneAngleMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcPositiveRatioMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcPowerMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcPressureMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcQuantityArea",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcQuantityCount",
+      "inputType": "number",
+      "dataType": "INTEGER"
+    },
+    {
+      "name": "IfcQuantityLength",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcQuantityTime",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcQuantityVolume",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcQuantityWeight",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcRadioActivityMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcRatioMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcReal",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcRotationalFrequencyMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcSectionModulusMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcSoundPowerLevelMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcSoundPowerMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcSoundPressureMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcSpecificHeatCapacityMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcTemperatureRateOfChangeMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcText",
+      "inputType": "text",
+      "dataType": "STRING"
+    },
+    {
+      "name": "IfcThermalConductivityMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcThermalExpansionCoefficientMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcThermalResistanceMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcThermalTransmittanceMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcThermodynamicTemperatureMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcTime",
+      "inputType": "text",
+      "dataType": "STRING"
+    },
+    {
+      "name": "IfcTimeMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcTorqueMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcURIReference",
+      "inputType": "text",
+      "dataType": "STRING"
+    },
+    {
+      "name": "IfcVaporPermeabilityMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcVolumeMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcVolumetricFlowRateMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "IfcWarpingConstantMeasure",
+      "inputType": "number",
+      "dataType": "REAL"
+    },
+    {
+      "name": "PEnum_AccidentResponse",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "EMERGENCYINSPECTION",
+        "EMERGENCYPROCEDURE",
+        "REACTIVE",
+        "URGENTINSPECTION",
+        "URGENTPROCEDURE"
+      ]
+    },
+    {
+      "name": "PEnum_AcquisitionMethod",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "GPS",
+        "LASERSCAN_AIRBORNE",
+        "LASERSCAN_GROUND",
+        "SONAR",
+        "THEODOLITE",
+        "NOTKNOWN",
+        "UNSET",
+        "USERDEFINED"
+      ]
+    },
+    {
+      "name": "PEnum_ActuatorApplication",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DAMPERACTUATOR",
+        "ENTRYEXITDEVICE",
+        "FIRESMOKEDAMPERACTUATOR",
+        "LAMPACTUATOR",
+        "SUNBLINDACTUATOR",
+        "VALVEPOSITIONER",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AddedMassCoefficientMethod",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "PIANC",
+        "SHIGERU_UEDA",
+        "VASCO_COSTA"
+      ]
+    },
+    {
+      "name": "PEnum_AdditionalProcessing",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "INSPECTION",
+        "ISOLATION",
+        "NONE",
+        "TARIFFS"
+      ]
+    },
+    {
+      "name": "PEnum_AddressabilityType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "IMPLEMENTED",
+        "NOTIMPLEMENTED",
+        "UPGRADEABLETO",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AddressType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DISTRIBUTIONPOINT",
+        "HOME",
+        "OFFICE",
+        "SITE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AdjustmentValueType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "LIST",
+        "RANGE"
+      ]
+    },
+    {
+      "name": "PEnum_AirHandlerConstruction",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CONSTRUCTEDONSITE",
+        "MANUFACTUREDITEM",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AirHandlerFanCoilArrangement",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BLOWTHROUGH",
+        "DRAWTHROUGH",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AirSideSystemDistributionType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DUALDUCT",
+        "MULTIZONE",
+        "SINGLEDUCT",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AirSideSystemType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CONSTANTVOLUME",
+        "CONSTANTVOLUMEBYPASS",
+        "CONSTANTVOLUMEMULTIPLEZONEREHEAT",
+        "CONSTANTVOLUMESINGLEZONE",
+        "VARIABLEAIRVOLUME",
+        "VARIABLEAIRVOLUMEDUALCONDUIT",
+        "VARIABLEAIRVOLUMEFANPOWERED",
+        "VARIABLEAIRVOLUMEINDUCTION",
+        "VARIABLEAIRVOLUMEREHEAT",
+        "VARIABLEAIRVOLUMEVARIABLEDIFFUSERS",
+        "VARIABLEAIRVOLUMEVARIABLETEMPERATURE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AirTerminalAirFlowType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "EXHAUSTAIR",
+        "RETURNAIR",
+        "SUPPLYAIR",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AirTerminalBoxArrangementType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DUALDUCT",
+        "SINGLEDUCT",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AirTerminalBoxReheatType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ELECTRICALREHEAT",
+        "GASREHEAT",
+        "NONE",
+        "STEAMCOILREHEAT",
+        "WATERCOILREHEAT",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AirTerminalCoreType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CURVEDBLADE",
+        "NONE",
+        "REMOVABLE",
+        "REVERSIBLE",
+        "SHUTTERBLADE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AirTerminalDischargeDirection",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ADJUSTABLE",
+        "PARALLEL",
+        "PERPENDICULAR",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AirTerminalFaceType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DOUBLEDEFLECTION",
+        "EGGCRATE",
+        "FOURWAYPATTERN",
+        "LOUVERED",
+        "PERFORATED",
+        "SIGHTPROOF",
+        "SINGLEDEFLECTION",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AirTerminalFinishType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ANNODIZED",
+        "NONE",
+        "PAINTED",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AirTerminalFlowControlType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BELLOWS",
+        "DAMPER",
+        "NONE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AirTerminalFlowPattern",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "COMPACTJET",
+        "DISPLACMENT",
+        "LINEARDOUBLE",
+        "LINEARFOURWAY",
+        "LINEARSINGLE",
+        "RADIAL",
+        "SWIRL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AirTerminalLocation",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CEILINGINTERIOR",
+        "CEILINGPERIMETER",
+        "FLOOR",
+        "SIDEWALLHIGH",
+        "SIDEWALLLOW",
+        "SILL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AirTerminalMountingType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FLATFLUSH",
+        "LAYIN",
+        "SURFACE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AirTerminalShape",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "RECTANGULAR",
+        "ROUND",
+        "SLOT",
+        "SQUARE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AirToAirHeatTransferHeatTransferType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "LATENT",
+        "SENSIBLE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AnchorageType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CASTIN",
+        "DRILLEDANDFIXED",
+        "THROUGHBOLTED"
+      ]
+    },
+    {
+      "name": "PEnum_AntennaType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CEILING",
+        "PANEL",
+        "YAGI",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ArrangerPositionEnum",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FRONTSIDE",
+        "HORIZONTAL",
+        "REARSIDE",
+        "VERTICAL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AssemblyPlace",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FACTORY",
+        "OFFSITE",
+        "SITE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AssetAccountingType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FIXED",
+        "NONFIXED",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AssetInsuranceType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "PERSONAL",
+        "REAL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AssetRating",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "HIGH",
+        "LOW",
+        "MODERATE",
+        "VERYHIGH",
+        "VERYLOW"
+      ]
+    },
+    {
+      "name": "PEnum_AssetTaxType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CAPITALISED",
+        "EXPENSED",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AudioVisualAmplifierType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FIXED",
+        "VARIABLE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AudioVisualCameraType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "AUDIOVIDEO",
+        "PHOTO",
+        "VIDEO",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AudioVisualDisplayTouchScreen",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "MULTITOUCH",
+        "NONE",
+        "SINGLETOUCH",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AudioVisualDisplayType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CRT",
+        "DLP",
+        "LCD",
+        "LED",
+        "PLASMA",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AudioVisualPlayerType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "AUDIO",
+        "VIDEO",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AudioVisualProjectorType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AudioVisualReceiverType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "AUDIO",
+        "AUDIOVIDEO",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AudioVisualSpeakerMounting",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CEILING",
+        "FREESTANDING",
+        "OUTDOOR",
+        "WALL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AudioVisualSpeakerType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "COAXIAL",
+        "FULLRANGE",
+        "MIDRANGE",
+        "TWEETER",
+        "WOOFER",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AudioVisualTunerType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "AUDIO",
+        "VIDEO",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_AxleCountingEquipmentType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "EVALUATOR",
+        "WHEELDETECTOR",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_BackflowPreventerType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ANTISIPHONVALVE",
+        "ATMOSPHERICVACUUMBREAKER",
+        "DOUBLECHECKBACKFLOWPREVENTER",
+        "NONE",
+        "PRESSUREVACUUMBREAKER",
+        "REDUCEDPRESSUREBACKFLOWPREVENTER",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_BackInletPatternType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "1",
+        "12",
+        "123",
+        "1234",
+        "124",
+        "13",
+        "134",
+        "14",
+        "2",
+        "23",
+        "234",
+        "24",
+        "3",
+        "34",
+        "4",
+        "NONE"
+      ]
+    },
+    {
+      "name": "PEnum_BackupSupplySystemType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CENTRALBATTERY",
+        "LOCALBATTERY",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_BathType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DOMESTIC",
+        "FOOT",
+        "PLUNGE",
+        "POOL",
+        "SITZ",
+        "SPA",
+        "TREATMENT",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_BatteryChargingType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "RECHARGEABLE",
+        "SINGLECHARGE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_BerthApproach",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "END",
+        "SIDE"
+      ]
+    },
+    {
+      "name": "PEnum_BerthMode",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BOW",
+        "STERN"
+      ]
+    },
+    {
+      "name": "PEnum_BladesOrientation",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BLADESINSIDE",
+        "BLADESOUTSIDE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_BoilerOperatingMode",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FIXED",
+        "MODULATING",
+        "TWOSTEP",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_BoreholeState",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CAP_REPLACED",
+        "CASING_INSTALLED",
+        "CASING_PARTIALLY_REPLACED",
+        "CASING_REPLACED",
+        "CHAMBER_RECONDITIONED",
+        "DECONSTRUCTED",
+        "INSTALLED",
+        "PARTIALLY_DECONSTRUCTED",
+        "PARTIALLY_REFILLED",
+        "RECONDITIONED",
+        "REFILLED",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_BranchLineDirection",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "LEFTDEVIATION",
+        "LEFT_LEFTDEVIATION",
+        "LEFT_RIGHTDEVIATION",
+        "RIGHTDEVIATION",
+        "RIGHT_LEFTDEVIATION",
+        "RIGHT_RIGHTDEVIATION",
+        "SYMETRIC",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_BreechingInletCouplingType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "INSTANTANEOUS_FEMALE",
+        "INSTANTANEOUS_MALE",
+        "OTHER",
+        "USERDEFINED",
+        "NOTDEFINED"
+      ]
+    },
+    {
+      "name": "PEnum_BreechingInletType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FOURWAY",
+        "TWOWAY",
+        "OTHER",
+        "USERDEFINED",
+        "NOTDEFINED"
+      ]
+    },
+    {
+      "name": "PEnum_BuildingThermalExposure",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "HEAVY",
+        "LIGHT",
+        "MEDIUM",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_BumperOrientation",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "OPPOSITETOSTATIONDIRECTION",
+        "STATIONDIRECTION",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CableArmourType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DIELECTRIC",
+        "METALLIC",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CableFunctionType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "POWERSUPPLY",
+        "TELECOMMUNICATION",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CantileverAssemblyType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CENTER_CANTILEVER",
+        "DIRECT_SUSPENSION",
+        "INSULATED_OVERLAP_CANTILEVER",
+        "INSULATED_SUSPENSION_SET",
+        "MECHANICAL_OVERLAP_CANTILEVER",
+        "MIDPOINT_CANTILEVER",
+        "MULTIPLE_TRACK_CANTILEVER",
+        "OUT_OF_RUNNING_CANTILEVER",
+        "PHASE_SEPARATION_CANTILEVER",
+        "SINGLE",
+        "SYSTEM_SEPARATION_CANTILEVER",
+        "TRANSITION_CANTILEVER",
+        "TURNOUT_CANTILEVER",
+        "UNDERBRIDGE_CANTILEVER",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CatenaryStayType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DOUBLE_STAY",
+        "SINGLE_STAY",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CentrifugalFanArrangement",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ARRANGEMENT1",
+        "ARRANGEMENT10",
+        "ARRANGEMENT2",
+        "ARRANGEMENT3",
+        "ARRANGEMENT4",
+        "ARRANGEMENT7",
+        "ARRANGEMENT8",
+        "ARRANGEMENT9",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CentrifugalFanDischargePosition",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BOTTOMANGULARDOWN",
+        "BOTTOMANGULARUP",
+        "BOTTOMHORIZONTAL",
+        "DOWNBLAST",
+        "TOPANGULARDOWN",
+        "TOPANGULARUP",
+        "TOPHORIZONTAL",
+        "UPBLAST",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CentrifugalFanRotation",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CLOCKWISE",
+        "COUNTERCLOCKWISE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CheckRailType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "TYPE_33C1",
+        "TYPE_40C1",
+        "TYPE_47C1",
+        "TYPE_CR3_60U",
+        "TYPE_R260",
+        "TYPE_R320CR",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CisternHeight",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "HIGHLEVEL",
+        "LOWLEVEL",
+        "NONE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CoilConnectionDirection",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "LEFT",
+        "RIGHT",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CoilCoolant",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BRINE",
+        "GLYCOL",
+        "WATER",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CoilFluidArrangement",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CROSSCOUNTERFLOW",
+        "CROSSFLOW",
+        "CROSSPARALLELFLOW",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CoilPlacementType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CEILING",
+        "FLOOR",
+        "UNIT",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CommonInterfaceType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DRYCONTACTSINTERFACE",
+        "MANAGEMENTINTERFACE",
+        "OTHER_IO_INTERFACE",
+        "SYNCHRONIZATIONINTERFACE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CommunicationStandard",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ETHERNET",
+        "STM_1",
+        "STM_16",
+        "STM_256",
+        "STM_4",
+        "STM_64",
+        "USB",
+        "XDSL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ComplementaryWorks",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DISPERSING_WELLS",
+        "LIFTING_WATER_WELLS",
+        "TRANSVERSAL_WATER_REMOVAL",
+        "OTHER",
+        "NOTKNOWN",
+        "NOTDEFINED"
+      ]
+    },
+    {
+      "name": "PEnum_CompressedAirFilterType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ACTIVATEDCARBON",
+        "COALESCENSE_FILTER",
+        "PARTICLE_FILTER",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CompressorTypePowerSource",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ENGINEDRIVEN",
+        "GASTURBINE",
+        "MOTORDRIVEN",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ComputerUIType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CLI",
+        "GUI",
+        "TOUCHSCREEN",
+        "TOUCHTONE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ConcreteCastingMethod",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "INSITU",
+        "MIXED",
+        "PRECAST",
+        "PRINTED",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ConductorFunctionEnum",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "NEUTRAL",
+        "PHASE_L1",
+        "PHASE_L2",
+        "PHASE_L3",
+        "PROTECTIVEEARTH",
+        "PROTECTIVEEARTHNEUTRAL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ConduitShapeType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CIRCULAR",
+        "OVAL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ConstructionEnum",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FLEXIBLESTRANDEDCONDUCTOR",
+        "SOLIDCONDUCTOR",
+        "STRANDEDCONDUCTOR",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ContactorType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CAPACITORSWITCHING",
+        "LOWCURRENT",
+        "MAGNETICLATCHING",
+        "MECHANICALLATCHING",
+        "MODULAR",
+        "REVERSING",
+        "STANDARD",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ControlDamperOperation",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "EXPONENTIAL",
+        "LINEAR",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ControllerApplication",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BOILERCONTROLLER",
+        "CONSTANTLIGHTCONTROLLER",
+        "DISCHARGEAIRCONTROLLER",
+        "FANCOILUNITCONTROLLER",
+        "LIGHTINGPANELCONTROLLER",
+        "MODEMCONTROLLER",
+        "OCCUPANCYCONTROLLER",
+        "PARTITIONWALLCONTROLLER",
+        "PUMPCONTROLLER",
+        "REALTIMEBASEDSCHEDULER",
+        "REALTIMEKEEPER",
+        "ROOFTOPUNITCONTROLLER",
+        "SCENECONTROLLER",
+        "SPACECONFORTCONTROLLER",
+        "SUNBLINDCONTROLLER",
+        "TELEPHONEDIRECTORY",
+        "UNITVENTILATORCONTROLLER",
+        "VAV",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ControllerInterfaceType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "EARTHQUAKERELAYINTERFACE",
+        "FOREIGNOBJECTRELAYINTERFACE",
+        "RS_422",
+        "RS_485",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ControllerMultiPositionType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "INPUT",
+        "OUTPUT",
+        "VARIABLE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ControllerProportionalType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "PROPORTIONAL",
+        "PROPORTIONALINTEGRAL",
+        "PROPORTIONALINTEGRALDERIVATIVE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ControllerTwoPositionType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "AND",
+        "AVERAGE",
+        "CALENDAR",
+        "INPUT",
+        "LOWERBANDSWITCH",
+        "LOWERLIMITSWITCH",
+        "NOT",
+        "OR",
+        "OUTPUT",
+        "UPPERBANDSWITCH",
+        "UPPERLIMITSWITCH",
+        "VARIABLE",
+        "XOR",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ControllerTypeFloating",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ABSOLUTE",
+        "ACCUMULATOR",
+        "AVERAGE",
+        "BINARY",
+        "CONSTANT",
+        "DERIVATIVE",
+        "DIVIDE",
+        "HYSTERESIS",
+        "INPUT",
+        "INTEGRAL",
+        "INVERSE",
+        "LOWERLIMITCONTROL",
+        "MAXIMUM",
+        "MINIMUM",
+        "MODIFIER",
+        "OUTPUT",
+        "PRODUCT",
+        "PULSECONVERTER",
+        "REPORT",
+        "RUNNINGAVERAGE",
+        "SPLIT",
+        "SUBTRACT",
+        "SUM",
+        "UPPERLIMITCONTROL",
+        "VARIABLE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ControllerTypeProgrammable",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "PRIMARY",
+        "SECONDARY",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CooledBeamActiveAirFlowConfigurationType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BIDIRECTIONAL",
+        "UNIDIRECTIONALLEFT",
+        "UNIDIRECTIONALRIGHT",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CooledBeamIntegratedLightingType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DIRECT",
+        "DIRECTANDINDIRECT",
+        "INDIRECT",
+        "NONE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CooledBeamPipeConnection",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "LEFT",
+        "RIGHT",
+        "STRAIGHT",
+        "TOP",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CooledBeamSupplyAirConnectionType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "LEFT",
+        "RIGHT",
+        "STRAIGHT",
+        "TOP",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CooledBeamWaterFlowControlSystemType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "2WAYVALVE",
+        "3WAYVALVE",
+        "NONE",
+        "ONOFFVALVE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CoolingTowerCapacityControl",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BYPASSVALVECONTROL",
+        "DAMPERSCONTROL",
+        "FANCYCLING",
+        "MULTIPLESERIESPUMPS",
+        "TWOSPEEDFAN",
+        "TWOSPEEDPUMP",
+        "VARIABLESPEEDFAN",
+        "VARIABLESPEEDPUMP",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CoolingTowerCircuitType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CLOSEDCIRCUITDRY",
+        "CLOSEDCIRCUITDRYWET",
+        "CLOSEDCIRCUITWET",
+        "OPENCIRCUIT",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CoolingTowerControlStrategy",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FIXEDEXITINGWATERTEMP",
+        "WETBULBTEMPRESET",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CoolingTowerFlowArrangement",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "COUNTERFLOW",
+        "CROSSFLOW",
+        "PARALLELFLOW",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CoolingTowerSprayType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FILMTYPEFILL",
+        "SPLASHTYPEFILL",
+        "SPRAYFILLED",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CoreColoursEnum",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BLACK",
+        "BLUE",
+        "BROWN",
+        "GOLD",
+        "GREEN",
+        "GREENANDYELLOW",
+        "GREY",
+        "ORANGE",
+        "PINK",
+        "RED",
+        "SILVER",
+        "TURQUOISE",
+        "VIOLET",
+        "WHITE",
+        "YELLOW",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_CurveShapeEnum",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "EXTERNAL",
+        "INTERNAL"
+      ]
+    },
+    {
+      "name": "PEnum_DamperBladeAction",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FOLDINGCURTAIN",
+        "OPPOSED",
+        "PARALLEL",
+        "SINGLE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_DamperBladeEdge",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CRIMPED",
+        "UNCRIMPED",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_DamperBladeShape",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "EXTRUDEDAIRFOIL",
+        "FABRICATEDAIRFOIL",
+        "FLAT",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_DamperOperation",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "AUTOMATIC",
+        "MANUAL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_DamperOrientation",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "HORIZONTAL",
+        "VERTICAL",
+        "VERTICALORHORIZONTAL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_DamperSizingMethod",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "EXACT",
+        "NOMINAL",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_DataCollectionType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "AUTOMATICANDCONTINUOUS",
+        "MANUALANDSINGLE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_DataConnectionType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "COPPER",
+        "FIBER",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_DataTransmissionUnitUsage",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "EARTHQUAKE",
+        "FOREIGNOBJECT",
+        "WINDANDRAIN",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_DispatchingBoardType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CENTER",
+        "STATION",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_DistributionPortElectricalType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ACPLUG",
+        "COAXIAL",
+        "CRIMP",
+        "DCPLUG",
+        "DIN",
+        "DSUB",
+        "DVI",
+        "EIAJ",
+        "HDMI",
+        "RADIO",
+        "RCA",
+        "RJ",
+        "SOCKET",
+        "TRS",
+        "USB",
+        "XLR",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_DistributionPortGender",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FEMALE",
+        "MALE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_DistributionSystemElectricalCategory",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "EXTRALOWVOLTAGE",
+        "HIGHVOLTAGE",
+        "LOWVOLTAGE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_DistributionSystemElectricalType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "IT",
+        "TN",
+        "TN_C",
+        "TN_C_S",
+        "TN_S",
+        "TT",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_DoorPanelOperationEnum",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DOUBLE_ACTING",
+        "FIXEDPANEL",
+        "FOLDING",
+        "REVOLVING",
+        "ROLLINGUP",
+        "SLIDING",
+        "SWINGING",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET",
+        "NOTDEFINED"
+      ]
+    },
+    {
+      "name": "PEnum_DoorPanelPositionEnum",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "LEFT",
+        "MIDDLE",
+        "RIGHT",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_DrillOnRail",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BOTHENDS",
+        "NONE",
+        "ONEEND",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_DuctConnectionType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BEADEDSLEEVE",
+        "COMPRESSION",
+        "CRIMP",
+        "DRAWBAND",
+        "DRIVESLIP",
+        "FLANGED",
+        "NONE",
+        "OUTSIDESLEEVE",
+        "SLIPON",
+        "SOLDERED",
+        "SSLIP",
+        "STANDINGSEAM",
+        "SWEDGE",
+        "WELDED",
+        "OTHER",
+        "USERDEFINED",
+        "NOTDEFINED"
+      ]
+    },
+    {
+      "name": "PEnum_DuctSegmentShape",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FLATOVAL",
+        "RECTANGULAR",
+        "ROUND",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_DuctSizingMethod",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CONSTANTFRICTION",
+        "CONSTANTPRESSURE",
+        "STATICREGAIN",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_EarthFailureDeviceType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "STANDARD",
+        "TIMEDELAYED",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_EarthquakeSensorType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "2DIRECTION",
+        "3DIRECTION",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ElectricActuatorType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "MAGNETIC",
+        "MOTORDRIVE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ElectricalFeederType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ALONGTRACKFEEDER",
+        "BYPASSFEEDER",
+        "NEGATIVEFEEDER",
+        "POSITIVEFEEDER",
+        "REINFORCINGFEEDER",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ElectricApplianceDishwasherType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BOTTLEWASHER",
+        "CUTLERYWASHER",
+        "DISHWASHER",
+        "POTWASHER",
+        "TRAYWASHER",
+        "UNKNOWN",
+        "OTHER",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ElectricApplianceElectricCookerType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "COOKINGKETTLE",
+        "DEEPFRYER",
+        "OVEN",
+        "STEAMCOOKER",
+        "STOVE",
+        "TILTINGFRYINGPAN",
+        "UNKNOWN",
+        "OTHER",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ElectrificationType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "AC",
+        "DC",
+        "NON_ELECTRIFIED",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ElectroMagneticTrippingUnitType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "OL",
+        "TMP_BM",
+        "TMP_MP",
+        "TMP_SC",
+        "TMP_STD",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ElectronicFilterType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BANDPASSFLITER",
+        "BANDSTOPFILTER",
+        "FILTERCAPACITOR",
+        "HARMONICFILTER",
+        "HIGHPASSFILTER",
+        "LOWPASSFILTER",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ElectronicTrippingUnitType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "EP_BM",
+        "EP_MP",
+        "EP_SC",
+        "EP_STD",
+        "EP_TIMEDELAYED",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ElementComponentCorrosionTreatment",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "EPOXYCOATED",
+        "GALVANISED",
+        "NONE",
+        "PAINTED",
+        "STAINLESS",
+        "NOTDEFINED"
+      ]
+    },
+    {
+      "name": "PEnum_ElementComponentDeliveryType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ATTACHED_FOR_DELIVERY",
+        "CAST_IN_PLACE",
+        "LOOSE",
+        "PRECAST",
+        "WELDED_TO_STRUCTURE",
+        "NOTDEFINED"
+      ]
+    },
+    {
+      "name": "PEnum_ElementShading",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FIXED",
+        "MOVABLE",
+        "OVERHANG",
+        "SIDEFIN",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ElementStatus",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DEMOLISH",
+        "EXISTING",
+        "NEW",
+        "TEMPORARY",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_EndShapeType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CONCAVECONVEX",
+        "CONCAVEFLAT",
+        "CONVEXCONVEX",
+        "FLATCONVEX",
+        "FLATFLAT",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_EnergySource",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "COAL",
+        "COAL_PULVERIZED",
+        "ELECTRICITY",
+        "GAS",
+        "OIL",
+        "PROPANE",
+        "WOOD",
+        "WOOD_CHIP",
+        "WOOD_PELLET",
+        "WOOD_PULVERIZED",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_EngineEnergySource",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BIFUEL",
+        "BIODIESEL",
+        "DIESEL",
+        "GASOLINE",
+        "HYDROGEN",
+        "NATURALGAS",
+        "PROPANE",
+        "SEWAGEGAS",
+        "UNKNOWN",
+        "OTHER",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_EvaporativeCoolerFlowArrangement",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "COUNTERFLOW",
+        "CROSSFLOW",
+        "PARALLELFLOW",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_EvaporatorCoolant",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BRINE",
+        "GLYCOL",
+        "WATER",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_EvaporatorMediumType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "COLDAIR",
+        "COLDLIQUID",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ExpansionDirection",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BI_DIRECTION",
+        "SINGLE_DIRECTION",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_FailPosition",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FAILCLOSED",
+        "FAILOPEN",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_FanApplicationType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "COOLINGTOWER",
+        "EXHAUSTAIR",
+        "RETURNAIR",
+        "SUPPLYAIR",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_FanCapacityControlType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BLADEPITCHANGLE",
+        "DISCHARGEDAMPER",
+        "INLETVANE",
+        "TWOSPEED",
+        "VARIABLESPEEDDRIVE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_FanCoilPosition",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BLOWTHROUGH",
+        "DRAWTHROUGH",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_FanDischargeType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DAMPER",
+        "DUCT",
+        "LOUVER",
+        "SCREEN",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_FanMotorConnectionType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BELTDRIVE",
+        "COUPLING",
+        "DIRECTDRIVE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_FanMotorPosition",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "INAIRSTREAM",
+        "OUTOFAIRSTREAM",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_FanMountingType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CONCRETEPAD",
+        "DUCTMOUNTED",
+        "FIELDERECTEDCURB",
+        "MANUFACTUREDCURB",
+        "SUSPENDED",
+        "WALLMOUNTED",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_FaucetFunction",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "COLD",
+        "HOT",
+        "MIXED",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_FaucetOperation",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CERAMICDISC",
+        "LEVERHANDLE",
+        "NONCONCUSSIVESELFCLOSING",
+        "QUARTERTURN",
+        "QUICKACTION",
+        "SCREWDOWN",
+        "SELFCLOSING",
+        "TIMEDSELFCLOSING",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_FaucetType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BIB",
+        "DIVERTER",
+        "DIVIDEDFLOWCOMBINATION",
+        "GLOBE",
+        "PILLAR",
+        "SINGLEOUTLETCOMBINATION",
+        "SPRAY",
+        "SPRAYMIXING",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_FenderType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ARCH",
+        "CELL",
+        "CONE",
+        "CYLINDER",
+        "PNEUMATIC"
+      ]
+    },
+    {
+      "name": "PEnum_FiberColour",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "AQUA",
+        "BLACK",
+        "BLUE",
+        "BROWN",
+        "GREEN",
+        "ORANGE",
+        "RED",
+        "ROSE",
+        "SLATE",
+        "VIOLET",
+        "WHITE",
+        "YELLOW",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_FiberMode",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "MULTIMODE",
+        "SINGLEMODE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_FiberType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BEND_INSENSITIVEFIBER",
+        "CUTOFFSHIFTEDFIBER",
+        "DISPERSIONSHIFTEDFIBER",
+        "LOWWATERPEAKFIBER",
+        "NON_ZERODISPERSIONSHIFTEDFIBER",
+        "OM1",
+        "OM2",
+        "OM3",
+        "OM4",
+        "OM5",
+        "STANDARDSINGLEMODEFIBER",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_FilterAirParticleFilterSeparationType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BAG",
+        "PLEAT",
+        "TREADSEPARATION",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_FilterAirParticleFilterType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ADHESIVERESERVOIR",
+        "COARSECELLFOAMS",
+        "COARSEMETALSCREEN",
+        "COARSESPUNGLASS",
+        "ELECTRICALFILTER",
+        "HEPAFILTER",
+        "MEDIUMELECTRETFILTER",
+        "MEDIUMNATURALFIBERFILTER",
+        "MEMBRANEFILTERS",
+        "RENEWABLEMOVINGCURTIANDRYMEDIAFILTER",
+        "ROLLFORM",
+        "ULPAFILTER",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_FilterWaterFilterType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FILTRATION_DIATOMACEOUSEARTH",
+        "FILTRATION_SAND",
+        "PURIFICATION_DEIONIZING",
+        "PURIFICATION_REVERSEOSMOSIS",
+        "SOFTENING_ZEOLITE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_FireDamperActuationType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "GRAVITY",
+        "SPRING",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_FireDamperClosureRating",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DYNAMIC",
+        "STATIC",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_FireHydrantType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DRYBARREL",
+        "WETBARREL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_FittingJunctionType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CROSS",
+        "TEE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_FlowMeterPurpose",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "MASTER",
+        "SUBMASTER",
+        "SUBMETER",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_FlushType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "LEVER",
+        "PULL",
+        "PUSH",
+        "SENSOR",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ForeignObjectDetectionSensorType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DUALPOWERNETWORK",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_FountainType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DRINKINGWATER",
+        "EYEWASH",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_FunctionEnum",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "LINE",
+        "NEUTRAL",
+        "PROTECTIVEEARTH",
+        "PROTECTIVEEARTHNEUTRAL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_FurniturePanelType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ACOUSTICAL",
+        "DOOR",
+        "ENDS",
+        "GLAZED",
+        "HORZ_SEG",
+        "MONOLITHIC",
+        "OPEN",
+        "SCREEN",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_FuseDisconnectorType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ENGINEPROTECTIONDEVICE",
+        "FUSEDSWITCH",
+        "HRC",
+        "OVERLOADPROTECTIONDEVICE",
+        "SWITCHDISCONNECTORFUSE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_GasType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "COMMERCIALBUTANE",
+        "COMMERCIALPROPANE",
+        "LIQUEFIEDPETROLEUMGAS",
+        "NATURALGAS",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_GuardRailConnection",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FISHPLATE",
+        "NONE",
+        "WELD",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_GuardRailType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "GUARDRAILANDSPOTSLEEPERS",
+        "GUARDRAILSONLY",
+        "SPOTSLEEPERSONLY",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_GullyType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BACKINLET",
+        "VERTICAL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_HeatExchangerArrangement",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "COUNTERFLOW",
+        "CROSSFLOW",
+        "MULTIPASS",
+        "PARALLELFLOW",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_HeatTransferMedium",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "STEAM",
+        "WATER",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_HoseNozzleType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FOG",
+        "STRAIGHTSTREAM",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_HoseReelMountingType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CABINET_RECESSED",
+        "CABINET_SEMIRECESSED",
+        "SURFACE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_HoseReelType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "RACK",
+        "REEL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_HumidifierApplication",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FIXED",
+        "PORTABLE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_HumidifierInternalControl",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "MODULATING",
+        "NONE",
+        "ONOFF",
+        "STEPPED",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ImageShootingMode",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "AUTOMATIC",
+        "MANUAL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_InletPatternType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "1",
+        "12",
+        "123",
+        "1234",
+        "124",
+        "13",
+        "134",
+        "14",
+        "2",
+        "23",
+        "234",
+        "24",
+        "3",
+        "34",
+        "4",
+        "NONE"
+      ]
+    },
+    {
+      "name": "PEnum_InputOutputSignalType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CURRENT",
+        "VOLTAGE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_InstallationMethodFlagEnum",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BELOWCEILING",
+        "INDUCT",
+        "INSOIL",
+        "ONWALL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_InstalledCondition",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "NEW",
+        "REGENERATED",
+        "REUSED",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_InsulationStandardClass",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CLASS0APPLIANCE",
+        "CLASS0IAPPLIANCE",
+        "CLASSIAPPLIANCE",
+        "CLASSIIAPPLIANCE",
+        "CLASSIIIAPPLIANCE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_InsulatorType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "LONGRODINSULATOR",
+        "PININSULATOR",
+        "POSTINSULATOR",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_IsolatingPurpose",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "LANDING",
+        "LANDINGWITHPRESSUREREGULATION",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_JunctionBoxMountingType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CUT_IN",
+        "FACENAIL",
+        "SIDENAIL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_JunctionBoxPlacingType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CEILING",
+        "FLOOR",
+        "WALL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_JunctionBoxShapeType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "RECTANGULAR",
+        "ROUND",
+        "SLOT",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_LampBallastType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CONVENTIONAL",
+        "ELECTRONIC",
+        "LOWLOSS",
+        "RESISTOR",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_LampCompensationType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CAPACITIVE",
+        "INDUCTIVE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_LifeCyclePhase",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ACQUISITION",
+        "CRADLETOSITE",
+        "DECONSTRUCTION",
+        "DISPOSAL",
+        "DISPOSALTRANSPORT",
+        "GROWTH",
+        "INSTALLATION",
+        "MAINTENANCE",
+        "MANUFACTURE",
+        "OCCUPANCY",
+        "OPERATION",
+        "PROCUREMENT",
+        "PRODUCTION",
+        "PRODUCTIONTRANSPORT",
+        "RECOVERY",
+        "REFURBISHMENT",
+        "REPAIR",
+        "REPLACEMENT",
+        "TRANSPORT",
+        "USAGE",
+        "WASTE",
+        "WHOLELIFECYCLE",
+        "USERDEFINED",
+        "NOTDEFINED"
+      ]
+    },
+    {
+      "name": "PEnum_LightFixtureMountingType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CABLESPANNED",
+        "FREESTANDING",
+        "POLE_SIDE",
+        "POLE_TOP",
+        "RECESSED",
+        "SURFACE",
+        "SUSPENDED",
+        "TRACKMOUNTED",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_LightFixturePlacingType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CEILING",
+        "FLOOR",
+        "FURNITURE",
+        "POLE",
+        "WALL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_LightFixtureSecurityLightingType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BLUEILLUMINATION",
+        "EMERGENCYEXITLIGHT",
+        "SAFETYLIGHT",
+        "WARNINGLIGHT",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_LineCharacteristic",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ENTERDEPOT",
+        "EXITDEPOT",
+        "FREIGHT",
+        "PASSENGER",
+        "PASSENGERANDFREIGHT",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_LoadDisconnectionType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "OFFLOAD",
+        "ONLOAD",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_LRMType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "LRM_ABSOLUTE",
+        "LRM_INTERPOLATIVE",
+        "LRM_RELATIVE",
+        "LRM_USERDEFINED"
+      ]
+    },
+    {
+      "name": "PEnum_LubricationPowerSupply",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ELECTRIC",
+        "PHOTOVOLTAIC",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_LubricationSystemType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ACTIVE_LUBRICATION",
+        "PASSIVE_LUBRICATION",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_MaintenanceType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CONDITIONBASED",
+        "CORRECTIVE",
+        "PLANNEDCORRECTIVE",
+        "SCHEDULED",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_MarkerType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "APPROACHING_MARKER",
+        "CABLE_POST_MARKER",
+        "COMMUNICATION_MODE_CONVERSION_MARKER",
+        "EMU_STOP_POSITION_SIGN",
+        "FOUR_ASPECT_CAB_SIGNAL_CONNECT_SIGN",
+        "FOUR_ASPECT_CAB_SIGNAL_DISCONNECT_SIGN",
+        "LEVEL_CONVERSION_SIGN",
+        "LOCOMOTIVE_STOP_POSITION_SIGN",
+        "RELAY_STATION_SIGN",
+        "RESTRICTION_PLACE_SIGN",
+        "RESTRICTION_PROTECTION_AREA_TERMINAL_SIGN",
+        "RESTRICTION_SIGN",
+        "SECTION_SIGNAL_MARKER",
+        "STOP_SIGN",
+        "TRACK_CIRCUIT_TUNING_ZONE_SIGN",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_MasterUnitType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ANALOG",
+        "DIGITAL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_MaterialEnum",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ALUMINIUM",
+        "COPPER",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_MechanicalStressType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "MECHANICAL_COMPRESSION",
+        "MECHANICAL_TRACTION",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_MeterReadOutType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DIAL",
+        "DIGITAL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_MixingValveControl",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "MANUAL",
+        "PREDEFINED",
+        "THERMOSTATIC",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ModemTrafficInterfaceType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "E1",
+        "FASTETHERNET",
+        "XDSL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_MonitoringType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FEEDBACK",
+        "INSPECTION",
+        "IOT",
+        "PPM",
+        "SENSORS"
+      ]
+    },
+    {
+      "name": "PEnum_MooringDeviceType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CLEAT",
+        "DOUBLEBUTT",
+        "HORN",
+        "KIDNEY",
+        "PILLAR",
+        "RING",
+        "SINGLEBUTT",
+        "THEAD"
+      ]
+    },
+    {
+      "name": "PEnum_MotorEnclosureType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "OPENDRIPPROOF",
+        "TOTALLYENCLOSEDAIROVER",
+        "TOTALLYENCLOSEDFANCOOLED",
+        "TOTALLYENCLOSEDNONVENTILATED",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_MountingMethodEnum",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "LADDER",
+        "PERFORATEDTRAY",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_MovementSensingType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "PHOTOELECTRICCELL",
+        "PRESSUREPAD",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_OCSFasteningType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "EARTHING_FITTING",
+        "JOINT_FITTING",
+        "REGISTRATION_FITTING",
+        "SUPPORT_FITTING",
+        "SUSPENSION_FITTING",
+        "TENSIONING_FITTING",
+        "TERMINATION_FITTING",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_OpticalCableStructureType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BREAKOUT",
+        "LOOSETUBE",
+        "PATCHCORD",
+        "PIGTAIL",
+        "TIGHTBUFFERED",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_OpticalNetworkUnitType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ACTIVE",
+        "PASSIVE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_OpticalSplitterType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "MULTIMODE",
+        "SINGLEMODE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_OverheadContactLineType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "COMPOUND_CATENARY_SUSPENSION",
+        "OCL_WITH_CATENARY_SUSPENSION",
+        "OCL_WITH_STITCHED_CATENARY_SUSPENSION",
+        "RIGID_CATENARY",
+        "TROLLY_TYPE_CONTACT_LINE",
+        "TROLLY_TYPE_WITH_STITCHWIRE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_PackingCareType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FRAGILE",
+        "HANDLEWITHCARE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_PaymentMethod",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CARD",
+        "CASH",
+        "E_PAYMENT",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_PermeableCoveringOperationEnum",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "GRILL",
+        "LOUVER",
+        "SCREEN",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_PictogramEscapeDirectionType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DOWNARROW",
+        "LEFTARROW",
+        "RIGHTARROW",
+        "UPARROW",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_PipeEndStyleTreatment",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BRAZED",
+        "COMPRESSION",
+        "FLANGED",
+        "GROOVED",
+        "NONE",
+        "OUTSIDESLEEVE",
+        "SOLDERED",
+        "SWEDGE",
+        "THREADED",
+        "WELDED",
+        "OTHER",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_PolarizationMode",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DUALPOLARIZATION",
+        "SINGLEPOLARIZATION",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_PoleUsage",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "1P",
+        "1PN",
+        "2P",
+        "3P",
+        "3PN",
+        "4P",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_PowerSupplyMode",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "AC",
+        "DC",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_PressureGaugeType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DIAL",
+        "DIGITAL",
+        "MANOMETER",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_PriorityType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "HIGH",
+        "LOW",
+        "MEDIUM",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ProcessDirection",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "EXPORT",
+        "IMPORT",
+        "TRANSFER"
+      ]
+    },
+    {
+      "name": "PEnum_ProcessItem",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BARREL",
+        "CGT",
+        "PASSENGER",
+        "TEU",
+        "TONNE",
+        "VEHICLE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ProjectType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "MODIFICATION",
+        "NEWBUILD",
+        "OPERATIONMAINTENANCE",
+        "RENOVATION",
+        "REPAIR"
+      ]
+    },
+    {
+      "name": "PEnum_PropertyAgreementType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ASSIGNMENT",
+        "LEASE",
+        "TENANT",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_PumpBaseType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BASE",
+        "FRAME",
+        "NONE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_PumpDriveConnectionType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BELTDRIVE",
+        "COUPLING",
+        "DIRECTDRIVE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_RadiationPattern",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DIRECTIONAL",
+        "FANBEAM",
+        "OMNIDIRECTIONAL",
+        "PENCILBEAM",
+        "SHAPEDBEAM",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_RailCondition",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "NEWRAIL",
+        "REGENERATEDRAIL",
+        "REUSEDRAIL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_RailDeliveryState",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "HEATTREATMENT",
+        "HOTROLLING",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_RailElementaryLength",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "100M",
+        "108M",
+        "120M",
+        "12M",
+        "144M",
+        "18M",
+        "24M",
+        "25M",
+        "27M",
+        "30M",
+        "36M",
+        "400M",
+        "48M",
+        "54M",
+        "60M",
+        "6M",
+        "72M",
+        "75M",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_RailPadStiffness",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "MEDIUM",
+        "SOFT",
+        "STIFF",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_RailwayBaliseType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ACTIVEBALISE",
+        "PASSIVEBALISE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_RailwayCommunicationTerminalType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "IP",
+        "LEGACY",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_RailwaySignalType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "APPROACHSIGNAL",
+        "BLOCKSIGNAL",
+        "DISTANTSIGNAL",
+        "HOMESIGNAL",
+        "HUMPAUXILIARYSIGANL",
+        "HUMPSIGNAL",
+        "LEVELCROSSINGSIGNAL",
+        "OBSTRUCTIONSIGNAL",
+        "REPEATINGSIGNAL",
+        "SHUNTINGSIGNAL",
+        "STARTINGSIGNAL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_RainSensorType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "MICROWAVE",
+        "PIEZOELECTRIC",
+        "TIPPINGBUCKET",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_RefrigerantClass",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "AMMONIA",
+        "CFC",
+        "CO2",
+        "H2O",
+        "HCFC",
+        "HFC",
+        "HYDROCARBONS",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ReinforcementBarAllocationType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ALTERNATE",
+        "DOUBLE",
+        "SINGLE",
+        "OTHER",
+        "USERDEFINED",
+        "NOTDEFINED"
+      ]
+    },
+    {
+      "name": "PEnum_ReinforcementBarType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "RING",
+        "SPIRAL",
+        "OTHER",
+        "USERDEFINED",
+        "NOTDEFINED"
+      ]
+    },
+    {
+      "name": "PEnum_RelativePosition",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "LEFT",
+        "MIDDLE",
+        "RIGHT",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_RiskRating",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CONSIDERABLE",
+        "CRITICAL",
+        "HIGH",
+        "INSIGNIFICANT",
+        "LOW",
+        "MODERATE",
+        "SOME",
+        "VERYHIGH",
+        "VERYLOW",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_RiskType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ASBESTOSEFFECTS",
+        "ASPHIXIATION",
+        "BUSINESS",
+        "BUSINESSISSUES",
+        "CHEMICALEFFECTS",
+        "COMMERICALISSUES",
+        "CONFINEMENT",
+        "CRUSHING",
+        "DROWNINGANDFLOODING",
+        "ELECTRICSHOCK",
+        "ENVIRONMENTALISSUES",
+        "EVENT",
+        "FALL",
+        "FALLEDGE",
+        "FALLFRAGILEMATERIAL",
+        "FALLSCAFFOLD",
+        "FALL_LADDER",
+        "FIRE_EXPLOSION",
+        "HANDLING",
+        "HAZARD",
+        "HAZARDOUSDUST",
+        "HEALTHANDSAFETY",
+        "HEALTHISSUE",
+        "INSURANCE",
+        "INSURANCE_ISSUES",
+        "LEADEFFECTS",
+        "MACHINERYGUARDING",
+        "MATERIALEFFECTS",
+        "MATERIALSHANDLING",
+        "MECHANICALEFFECTS",
+        "MECHANICAL_LIFTING",
+        "MOBILE_ELEVATEDWORKPLATFORM",
+        "NOISE_EFFECTS",
+        "OPERATIONALISSUES",
+        "OTHERISSUES",
+        "OVERTURINGPLANT",
+        "PUBLICPROTECTIONISSUES",
+        "SAFETYISSUE",
+        "SILICADUST",
+        "SLIPTRIP",
+        "SOCIALISSUES",
+        "STRUCK",
+        "STRUCKFALLINFOBJECT",
+        "STRUCKVEHICLE",
+        "TOOLUSAGE",
+        "TRAPPED",
+        "UNINTENDEDCOLLAPSE",
+        "VIBRATION",
+        "WELFAREISSUE",
+        "WOODDUST",
+        "WORKINGOVERHEAD",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SanitaryMounting",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BACKTOWALL",
+        "COUNTERTOP",
+        "PEDESTAL",
+        "WALLHUNG",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SecondaryCurrentType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "AC",
+        "DC",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SectioningDeviceType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DIFFERENT_POWER_SUPPLY_SEPARATION",
+        "PHASE_SEPARATION",
+        "SAME_FEEDING_SECTION_SEPARATION",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SectionType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CLOSED",
+        "OPEN"
+      ]
+    },
+    {
+      "name": "PEnum_SelfTestType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CENTRAL",
+        "LOCAL",
+        "NONE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SerialInterfaceType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "RS_232",
+        "RS_422",
+        "RS_485",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ShapeEnum",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CIRCULARCONDUCTOR",
+        "HELICALCONDUCTOR",
+        "RECTANGULARCONDUCTOR",
+        "SECTORCONDUCTOR",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ShowerType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DRENCH",
+        "INDIVIDUAL",
+        "TUNNEL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SideType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BOTH",
+        "LEFT",
+        "RIGHT"
+      ]
+    },
+    {
+      "name": "PEnum_SignalIndicatorType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DEPARTUREINDICATOR",
+        "DEPARTUREROUTEINDICATOR",
+        "DERAILINDICATOR",
+        "ROLLINGSTOCKSTOPINDICATOR",
+        "ROUTEINDICATOR",
+        "SHUNTINGINDICATOR",
+        "SWITCHINDICATOR",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SinkType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BELFAST",
+        "BUCKET",
+        "CLEANERS",
+        "COMBINATION_DOUBLE",
+        "COMBINATION_LEFT",
+        "COMBINATION_RIGHT",
+        "DRIP",
+        "LABORATORY",
+        "LONDON",
+        "PLASTER",
+        "POT",
+        "RINSING",
+        "SHELF",
+        "VEGETABLEPREPARATION",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SleeperArrangement",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BETWEENSLEEPERS",
+        "TWINSLEEPER",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SleeperType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "COMPOSITESLEEPER",
+        "CONCRETESLEEPER",
+        "INSULATEDSTEELSLEEPER",
+        "MONOBLOCKCONCRETESLEEPER",
+        "NOTINSULATEDSTEELSLEEPER",
+        "TWOBLOCKCONCRETESLEEPER",
+        "WOODENSLEEPER",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SnowSensorType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "LASERIRRADIATION",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SoilCompositeFractions",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BOULDERS",
+        "BOULDERS_WITH_COBBLES",
+        "BOULDERS_WITH_FINER_SOILS",
+        "CLAY",
+        "CLAYEY_SILT",
+        "COBBLES",
+        "COBBLES_WITH_BOULDERS",
+        "COBBLES_WITH_FINER_SOILS",
+        "FILL",
+        "GRAVEL",
+        "GRAVELLY_SAND",
+        "GRAVEL_WITH_CLAY_OR_SILT",
+        "GRAVEL_WITH_COBBLES",
+        "ORGANIC_CLAY",
+        "ORGANIC_SILT",
+        "SAND",
+        "SANDY_CLAYEY_SILT",
+        "SANDY_GRAVEL",
+        "SANDY_GRAVELLY_CLAY",
+        "SANDY_GRAVELLY_SILT",
+        "SANDY_GRAVEL_WITH_COBBLES",
+        "SANDY_PEAT",
+        "SANDY_SILT",
+        "SAND_WITH_CLAY_AND_SILT",
+        "SILT",
+        "SILTY_CLAY",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SoundScale",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DBA",
+        "DBB",
+        "DBC",
+        "NC",
+        "NR"
+      ]
+    },
+    {
+      "name": "PEnum_SpaceHeaterConvectorType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FORCED",
+        "NATURAL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SpaceHeaterHeatTransferDimension",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "PATH",
+        "POINT",
+        "SURFACE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SpaceHeaterPlacementType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BASEBOARD",
+        "SUSPENDED",
+        "TOWELWARMER",
+        "WALL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SpaceHeaterRadiatorType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FINNEDTUBE",
+        "PANEL",
+        "SECTIONAL",
+        "TUBULAR",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SpaceHeaterTemperatureClassification",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "HIGHTEMPERATURE",
+        "LOWTEMPERATURE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SparkGapType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "AIRSPARKGAP",
+        "GASFILLEDSPARKGAP",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SprinklerActivation",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BULB",
+        "FUSIBLESOLDER",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SprinklerBulbLiquidColour",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BLUE",
+        "GREEN",
+        "MAUVE",
+        "ORANGE",
+        "RED",
+        "YELLOW",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SprinklerResponse",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "QUICK",
+        "STANDARD",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SprinklerType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CEILING",
+        "CONCEALED",
+        "CUTOFF",
+        "PENDANT",
+        "RECESSEDPENDANT",
+        "SIDEWALL",
+        "UPRIGHT",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_StarterType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "AUTOTRANSFORMER",
+        "DIRECTONLINE",
+        "FREQUENCY",
+        "MANUAL",
+        "NSTEP",
+        "RHEOSTATIC",
+        "STARDELTA",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SteadyDeviceType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "PULL_OFF",
+        "PUSH_OFF",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_StrataAssemblyPurpose",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DEPOSIT",
+        "ENVIRONMENTAL",
+        "FEEDSTOCK",
+        "GEOLOGICAL",
+        "GEOTHERMAL",
+        "HYDROCARBON",
+        "HYDROGEOLOGICAL",
+        "MINERAL",
+        "PEDOLOGICAL",
+        "SITE_INVESTIGATION",
+        "STORAGE",
+        "NOTKNOWN",
+        "USERDEFINED",
+        "NOTDEFINED"
+      ]
+    },
+    {
+      "name": "PEnum_StructureIndicator",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "COATED",
+        "COMPOSITE",
+        "HOMOGENEOUS"
+      ]
+    },
+    {
+      "name": "PEnum_SupportingSystemType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ENDCATENARYSUPPORT",
+        "HEADSPANSUPPORT",
+        "HERSE",
+        "MULTITRACKSUPPORT",
+        "RIGIDGANTRY",
+        "SIMPLESUPPORT",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SwitchActivation",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ACTUATOR",
+        "FOOT",
+        "HAND",
+        "PROXIMITY",
+        "SOUND",
+        "TWOHAND",
+        "WIRE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SwitchDisconnectorType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CENTERBREAK",
+        "DIVIDEDSUPPORT",
+        "DOUBLEBREAK",
+        "EARTHINGSWITCH",
+        "ISOLATOR",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SwitchFunctionType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DOUBLETHROWSWITCH",
+        "INTERMEDIATESWITCH",
+        "ONOFFSWITCH",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SwitchingDeviceDimmerSwitchType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ROCKER",
+        "SELECTOR",
+        "TWIST",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SwitchingDeviceEmergencyStopType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "MUSHROOM",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SwitchingDeviceKeypadType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BUTTONS",
+        "TOUCHSCREEN",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SwitchingDeviceMomentarySwitchType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BUTTON",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SwitchingDeviceToggleSwitchType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BREAKGLASS",
+        "CHANGEOVER",
+        "KEYOPERATED",
+        "MANUALPULL",
+        "PULLCORD",
+        "PUSHBUTTON",
+        "ROCKER",
+        "SELECTOR",
+        "TWIST",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_SwitchUsage",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "EMERGENCY",
+        "GUARD",
+        "LIMIT",
+        "START",
+        "STOP",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_TankAccessType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "LOOSECOVER",
+        "MANHOLE",
+        "NONE",
+        "SECUREDCOVER",
+        "SECUREDCOVERWITHMANHOLE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_TankComposition",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "COMPLEX",
+        "ELEMENT",
+        "PARTIAL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_TankPatternType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "HORIZONTALCYLINDER",
+        "RECTANGULAR",
+        "VERTICALCYLINDER",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_TankStorageType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FUEL",
+        "ICE",
+        "OIL",
+        "POTABLEWATER",
+        "RAINWATER",
+        "WASTEWATER",
+        "WATER",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_TemperatureSensorType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "HIGHLIMIT",
+        "LOWLIMIT",
+        "OPERATINGTEMPERATURE",
+        "OUTSIDETEMPERATURE",
+        "ROOMTEMPERATURE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ThermalTrippingUnitType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DIAZED",
+        "MINIZED",
+        "NEOZED",
+        "NH_FUSE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ThermometerType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DIAL",
+        "DIGITAL",
+        "STEM",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_TicketVendingMachineType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "TICKETREDEMPTIONMACHINE",
+        "TICKETREFUNDINGMACHINE",
+        "TICKETVENDINGMACHINE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ToiletPanType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "SIPHONIC",
+        "SQUAT",
+        "WASHDOWN",
+        "WASHOUT",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ToiletType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BEDPANWASHER",
+        "CHEMICAL",
+        "CLOSECOUPLED",
+        "LOOSECOUPLED",
+        "SLOPHOPPER",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ToleranceBasis",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "APPEARANCE",
+        "ASSEMBLY",
+        "DEFLECTION",
+        "EXPANSION",
+        "FUNCTIONALITY",
+        "SETTLEMENT",
+        "STRUCTURAL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_TrackCharacteristic",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FUNICULAR",
+        "NORMAL",
+        "RACK",
+        "RIGIDOVERHEAD",
+        "THIRDRAIL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_TrackFasteningElasticityType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ELASTIC_FASTENING",
+        "RIGID_FASTENING",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_TrackSupportingStructure",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BRIDGE",
+        "CONCRETE",
+        "ONSPECIALFOUNDATION",
+        "PAVEMENT",
+        "SUBGRADELAYER",
+        "TRANSITIONSECTION",
+        "TUNNEL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_TrackUsage",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CATCHSIDING",
+        "CLASSIFICATIONTRACK",
+        "CONNECTINGLINE",
+        "FREIGHTTRACK",
+        "LOCOMOTIVEHOLDTRACK",
+        "LOCOMOTIVERUNNINGTRACK",
+        "LOCOMOTIVESERVICETRACK",
+        "MAINTRACK",
+        "MULTIPLEUNITRUNNINGTRACK",
+        "RECEIVINGDEPARTURETRACK",
+        "REFUGESIDING",
+        "REPAIRSIDING",
+        "ROLLINGFORBIDDENTRACK",
+        "ROLLINGTRACK",
+        "ROUNDABOUTLINE",
+        "STORAGETRACK",
+        "SWITCHINGLEAD",
+        "UNTWININGLINE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_TrainCategory",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FREIGHT",
+        "PASSENGER",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_TransformerVectorGroup",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DD0",
+        "DD6",
+        "DY11",
+        "DY5",
+        "DZ0",
+        "DZ6",
+        "YD11",
+        "YD5",
+        "YY0",
+        "YY6",
+        "YZ11",
+        "YZ5",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_TransitionSuperelevationType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "LINEAR"
+      ]
+    },
+    {
+      "name": "PEnum_TransitionWidthType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CONST",
+        "LINEAR"
+      ]
+    },
+    {
+      "name": "PEnum_TransmissionType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FIBER",
+        "RADIO",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_TransmittedSignal",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CDMA",
+        "GSM",
+        "LTE",
+        "TD_SCDMA",
+        "WCDMA",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_TransportEquipmentAssemblyType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "FIXEDCONFIGURATION",
+        "MODULARCONFIGURATION",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_TransportEquipmentType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "MPLS_TP",
+        "OTN",
+        "PDH",
+        "SDH",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_TrapType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "NONE",
+        "P_TRAP",
+        "Q_TRAP",
+        "S_TRAP",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_TrippingCurveType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "LOWER",
+        "UPPER",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_TrippingUnitReleaseCurrent",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "10",
+        "100",
+        "1000",
+        "30",
+        "300",
+        "500",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_TurnoutHeaterType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ELECTRIC",
+        "GAS",
+        "GEOTHERMAL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_TurnoutPanelOrientation",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BACK",
+        "FRONT",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_TurnstileType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "SWINGGATEBRAKE",
+        "THREEPOLEROTARYBRAKE",
+        "WINGGATEBRAKE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_TypeOfCurvedTurnout",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CIRCULAR_ARC",
+        "STRAIGHT",
+        "TRANSITION",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_TypeOfDrivingDevice",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ELECTRIC",
+        "HYDRAULIC",
+        "MANUAL",
+        "MIXED",
+        "MOTORISED",
+        "PNEUMATIC",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_TypeOfJunction",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ISOLATED_JOINT",
+        "JOINTED",
+        "WELDED_AND_INSERTABLE",
+        "WELDED_AND_NOT_INSERTABLE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_TypeOfShaft",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DIVERSIONSHAFT",
+        "FLUSHINGCHAMBER",
+        "GATESHAFT",
+        "GULLY",
+        "INSPECTIONCHAMBER",
+        "PUMPSHAFT",
+        "ROOFWATERSHAFT",
+        "SHAFTWITHCHECKVALVE",
+        "SLURRYCOLLECTOR",
+        "SOAKAWAY",
+        "WELL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_TypeOfTurnout",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DERAILMENT_TURNOUT",
+        "DIAMOND_CROSSING",
+        "DOUBLE_SLIP_CROSSING",
+        "SCISSOR_CROSSOVER",
+        "SINGLE_SLIP_CROSSING",
+        "SLIP_TURNOUT_AND_SCISSORS_CROSSING",
+        "SYMMETRIC_TURNOUT",
+        "THREE_WAYS_TURNOUT",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_UncertaintyBasis",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ASSESSMENT",
+        "ESTIMATE",
+        "INTERPRETATION",
+        "MEASUREMENT",
+        "OBSERVATION",
+        "NOTKNOWN",
+        "USERDEFINED",
+        "NOTDEFINED"
+      ]
+    },
+    {
+      "name": "PEnum_UnderSleeperPadStiffness",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "MEDIUM",
+        "SOFT",
+        "STIFF",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_UnitaryControlElementApplication",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "LIFTARRIVALGONG",
+        "LIFTCARDIRECTIONLANTERN",
+        "LIFTFIRESYSTEMSPORT",
+        "LIFTHALLLANTERN",
+        "LIFTPOSITIONINDICATOR",
+        "LIFTVOICEANNOUNCER",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_UnitConnectionType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CHAIN",
+        "MIXED",
+        "RING",
+        "STAR",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_UrinalType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BOWL",
+        "SLAB",
+        "STALL",
+        "TROUGH",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_UsagePurpose",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "MAINTENANCE",
+        "RESCUESERVICES",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ValveMechanism",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BALL",
+        "BUTTERFLY",
+        "CONFIGUREDGATE",
+        "GLAND",
+        "GLOBE",
+        "LUBRICATEDPLUG",
+        "NEEDLE",
+        "PARALLELSLIDE",
+        "PLUG",
+        "WEDGEGATE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ValveOperation",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DROPWEIGHT",
+        "FLOAT",
+        "HYDRAULIC",
+        "LEVER",
+        "LOCKSHIELD",
+        "MOTORIZED",
+        "PNEUMATIC",
+        "SOLENOID",
+        "SPRING",
+        "THERMOSTATIC",
+        "WHEEL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_ValvePattern",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "ANGLED_2_PORT",
+        "CROSSOVER_4_PORT",
+        "SINGLEPORT",
+        "STRAIGHT_2_PORT",
+        "STRAIGHT_3_PORT",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_VaristorType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "METALOXIDE",
+        "ZINCOXIDE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_VendingMachineUserInterface",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "MOUSECHOOSETYPE",
+        "TOUCHSCREEN",
+        "TOUCH_TONE",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_VoltageLevels",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "U1000",
+        "U230",
+        "U400",
+        "U440",
+        "U525",
+        "U690",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_WashHandBasinType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "DENTALCUSPIDOR",
+        "HANDRINSE",
+        "HOSPITAL",
+        "TIPUP",
+        "WASHFOUNTAIN",
+        "WASHINGTROUGH",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_WaterMeterType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "COMPOUND",
+        "INFERENTIAL",
+        "PISTON",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_WindowPanelOperationEnum",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BOTTOMHUNG",
+        "FIXEDCASEMENT",
+        "OTHEROPERATION",
+        "PIVOTHORIZONTAL",
+        "PIVOTVERTICAL",
+        "REMOVABLECASEMENT",
+        "SIDEHUNGLEFTHAND",
+        "SIDEHUNGRIGHTHAND",
+        "SLIDINGHORIZONTAL",
+        "SLIDINGVERTICAL",
+        "TILTANDTURNLEFTHAND",
+        "TILTANDTURNRIGHTHAND",
+        "TOPHUNG",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_WindowPanelPositionEnum",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "BOTTOM",
+        "LEFT",
+        "MIDDLE",
+        "RIGHT",
+        "TOP",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_WindSensorType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "CUP",
+        "HOTWIRE",
+        "LASERDOPPLER",
+        "PLATE",
+        "SONIC",
+        "TUBE",
+        "WINDMILL",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
+    },
+    {
+      "name": "PEnum_WirePairType",
+      "inputType": "select",
+      "dataType": "ENUM",
+      "options": [
+        "COAXIAL",
+        "TWISTED",
+        "UNTWISTED",
+        "OTHER",
+        "NOTKNOWN",
+        "UNSET"
+      ]
     }
-    
-    
-
-]}
+  ]
+}
