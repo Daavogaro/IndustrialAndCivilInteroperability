@@ -12,7 +12,8 @@
     "preview": "vite preview",
     "generate:ifc-schema": "node scripts/generate-ifc-schema-from-xsd.cjs",
     "generate:psets": "node scripts/generate-psets-from-xml.cjs",
-    "generate:ifc-full": "npm run generate:ifc-schema && npm run generate:psets"
+    "generate:distribution-port": "node scripts/generate-distribution-port-from-xml.cjs",
+    "generate:ifc-full": "npm run generate:ifc-schema && npm run generate:psets && npm run generate:distribution-port"
   },
   "dependencies": {
     "@thatopen/components": "^3.4.2",

@@ -292,18 +292,20 @@ def create_hierarchy(node: dict, parent=None):
         for child in node.get("children", []):
             create_hierarchy(child, empty_obj)
 
-def create_empty_at_cursor_with_element_orientation( element: ifcopenshell.entity_instance) -> bpy.types.Object:
+def create_empty_at_cursor_with_element_orientation( element: ifcopenshell.entity_instance, port_name: str | None = None) -> bpy.types.Object:
     # Ensure BlenderBIM updates the placement first
     element_obj = tool.Ifc.get_object(element)
-    name = "Port_" + element.Name
+    # Take the port name from the node (distributionPort.name) when provided,
+    # falling back to "Port_<element name>".
+    name = port_name or ("Port_" + element.Name)
     obj = bpy.data.objects.new(name, None)
     # Now element_obj.matrix_world is correct
     obj.matrix_world = element_obj.matrix_world.copy()
     return obj
 
-def add_port(ifc: type[tool.Ifc], system: type[tool.System], element: ifcopenshell.entity_instance) -> bpy.types.Object:
+def add_port(ifc: type[tool.Ifc], system: type[tool.System], element: ifcopenshell.entity_instance, port_name: str | None = None) -> bpy.types.Object:
     system.load_ports(element, system.get_ports(element))
-    obj = create_empty_at_cursor_with_element_orientation(element)
+    obj = create_empty_at_cursor_with_element_orientation(element, port_name)
     port = system.run_root_assign_class(obj=obj, ifc_class="IfcDistributionPort", should_add_representation=False)
     ifc.run("system.assign_port", element=element, port=port)
     return obj
@@ -406,7 +408,59 @@ def node_conversion_in_ifc(node: dict, blender_node: bpy.types.Object, parent: b
                 new_ifc_element.matrix_world = matrix_world
             if ifc_class in {"IfcDistributionElement","IfcDistributionFlowElement", "IfcDistributionChamberElement","IfcEnergyConversionDevice","IfcFlowController","IfcFlowFitting","IfcFlowMovingDevice","IfcFlowSegment","IfcFlowStorageDevice","IfcFlowTerminal","IfcFlowTreatmentDevice",}:
                 ifc_obj=ifcTool.Ifc.get_entity(new_ifc_element)
-                port = add_port(tool.Ifc, tool.System, ifc_obj)
+                distribution_port = source_node.get("distributionPort") if isinstance(source_node, dict) else None
+                port_name = distribution_port.get("name") if isinstance(distribution_port, dict) else None
+                port = add_port(tool.Ifc, tool.System, ifc_obj, port_name)
+
+                # Set the port's attributes + property sets from the node's
+                # distributionPort data (enum values arrive as local names, e.g.
+                # "PIPE"/"SOURCE"/"AIRCONDITIONING").
+                if isinstance(distribution_port, dict):
+                    port_entity = ifcTool.Ifc.get_entity(port)
+                    if port_entity is not None:
+                        predefined = distribution_port.get("predefinedType")
+                        system_type = distribution_port.get("systemType")
+                        flow_direction = distribution_port.get("flowDirection")
+                        if predefined:
+                            port_entity.PredefinedType = _enum_from_uri(predefined)
+                            print(f"        Port PredefinedType: {port_entity.PredefinedType}")
+                        if system_type:
+                            port_entity.SystemType = _enum_from_uri(system_type)
+                            print(f"        Port SystemType: {port_entity.SystemType}")
+                        if flow_direction:
+                            port_entity.FlowDirection = _enum_from_uri(flow_direction)
+                            print(f"        Port FlowDirection: {port_entity.FlowDirection}")
+
+                        port_psets = distribution_port.get("psets")
+                        if isinstance(port_psets, dict):
+                            for pset_name, pset_data in port_psets.items():
+                                if not isinstance(pset_data, dict):
+                                    continue
+                                if pset_name.startswith("Pset_"):
+                                    ifc_pset = ifcTool.Ifc.run("pset.add_pset", product=port_entity, name=pset_name)
+                                    print(f"        Added Port Pset: {pset_name}")
+                                    for prop_name, prop_value in pset_data.items():
+                                        final_value = _normalize_property_value(prop_value)
+                                        if final_value is None:
+                                            continue
+                                        try:
+                                            ifcTool.Ifc.run("pset.edit_pset", pset=ifc_pset, properties={prop_name: final_value})
+                                            print(f"            Added Property: {prop_name} with value: {final_value}")
+                                        except (ValueError, TypeError) as exc:
+                                            print(f"            Skipped Property: {prop_name} (value={final_value!r}) due to cast error: {exc}")
+                                elif pset_name.startswith("Qto_"):
+                                    ifc_qto = ifcTool.Ifc.run("pset.add_qto", product=port_entity, name=pset_name)
+                                    print(f"        Added Port Qto: {pset_name}")
+                                    for prop_name, prop_value in pset_data.items():
+                                        final_value = _normalize_property_value(prop_value)
+                                        if final_value is None:
+                                            continue
+                                        try:
+                                            ifcTool.Ifc.run("pset.edit_qto", qto=ifc_qto, properties={prop_name: final_value})
+                                            print(f"            Added Quantity: {prop_name} with value: {final_value}")
+                                        except (ValueError, TypeError) as exc:
+                                            print(f"            Skipped Quantity: {prop_name} (value={final_value!r}) due to cast error: {exc}")
+
                 port.parent = new_ifc_element
                 port.matrix_parent_inverse = new_ifc_element.matrix_world.inverted()
             

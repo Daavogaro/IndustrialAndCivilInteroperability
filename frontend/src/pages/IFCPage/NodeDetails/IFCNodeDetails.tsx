@@ -4,6 +4,7 @@ import { StatusString } from "../../../components/Sidebar/MessagePanel";
 import { DownloadIFCButton } from "./DownloadIFCButton";
 import ifcPropertySchemaData from "./ifcPropertySchema.json";
 import resourcesSchemaData from "./resourcesIFCSchema.json";
+import ifcDistributionPortData from "./ifcDistributionPort.json";
 import { useProject } from "../../../context/ProjectContext";
 
 type PropertyInputType = "text" | "number" | "boolean" | "select";
@@ -50,9 +51,27 @@ type IFCPropertySchema = {
   classes: IFCClassSchema[];
 };
 
+type DistributionPortSchema = {
+  name: string;
+  attributes: {
+    PredefinedType: string[];
+    SystemType: string[];
+    FlowDirection: string[];
+  };
+  propertySets: PSetSpec[];
+};
+
 const IFC_PROPERTY_SCHEMA = ifcPropertySchemaData as IFCPropertySchema;
 const IFC_RESOURCES_SCHEMA = resourcesSchemaData as IFCResourcesSchema;
+const IFC_DISTRIBUTION_PORT = ifcDistributionPortData as DistributionPortSchema;
 const IFC_CLASSES = IFC_PROPERTY_SCHEMA.classes.map((item) => item.name);
+
+// Classes that own an IfcDistributionPort connector. Kept as an array so more
+// port-capable classes can be added later without touching the rest of the flow.
+const PORT_CAPABLE_CLASSES = [
+  "IfcDistributionElement",
+  "IfcDistributionControlElement",
+];
 
 const IFC_RESOURCE_BY_NAME: Record<string, ResourceSpec> =
   IFC_RESOURCES_SCHEMA.classes.reduce<Record<string, ResourceSpec>>(
@@ -121,6 +140,276 @@ const normalizeIfcName = (value?: string | null): string => {
   return value.split("#").pop() ?? value;
 };
 
+// A predefined-type-restricted set is only selectable/submittable when the
+// current predefined type is one of its allowed types.
+const isPsetApplicableFor = (pset: PSetSpec, predefinedType: string) =>
+  !pset.predefinedTypes ||
+  pset.predefinedTypes.length === 0 ||
+  pset.predefinedTypes.includes(predefinedType);
+
+const getDefaultPropertyValue = (
+  property: PropertySpec,
+): string | number | boolean => {
+  const inputType = resolvePropertyInputType(property);
+
+  if (inputType === "boolean") {
+    return false;
+  }
+  if (inputType === "select") {
+    return property.options?.[0] ?? "";
+  }
+  return "";
+};
+
+type PsetListProps = {
+  specs: PSetSpec[];
+  selected: Record<string, boolean>;
+  setSelected: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+  values: Record<string, Record<string, string | number | boolean>>;
+  setValues: React.Dispatch<
+    React.SetStateAction<
+      Record<string, Record<string, string | number | boolean>>
+    >
+  >;
+  predefinedType: string;
+};
+
+// Shared renderer for a list of property sets (used by both the IFC class block
+// and the IfcDistributionPort block). Owns selection toggling, value editing,
+// and pruning of predefined-type-restricted sets when the predefined type
+// changes.
+function PsetList({
+  specs,
+  selected,
+  setSelected,
+  values,
+  setValues,
+  predefinedType,
+}: PsetListProps) {
+  const togglePsetSelection = (psetName: string, checked: boolean) => {
+    setSelected((prev) => ({ ...prev, [psetName]: checked }));
+
+    if (!checked) {
+      setValues((prev) => {
+        const next = { ...prev };
+        delete next[psetName];
+        return next;
+      });
+      return;
+    }
+
+    const pset = specs.find((item) => item.name === psetName);
+    if (!pset) {
+      return;
+    }
+
+    setValues((prev) => {
+      if (prev[psetName]) {
+        return prev;
+      }
+      const defaults: Record<string, string | number | boolean> = {};
+      pset.properties.forEach((property) => {
+        defaults[property.name] = getDefaultPropertyValue(property);
+      });
+      return { ...prev, [psetName]: defaults };
+    });
+  };
+
+  const updatePropertyValue = (
+    psetName: string,
+    propertyName: string,
+    value: string | number | boolean,
+  ) => {
+    setValues((prev) => ({
+      ...prev,
+      [psetName]: {
+        ...(prev[psetName] ?? {}),
+        [propertyName]: value,
+      },
+    }));
+  };
+
+  // When the predefined type changes, deselect any predefined-type-restricted
+  // set that no longer applies and clear its property values, so stale data for
+  // the wrong predefined type isn't sent to the Blender scripts.
+  useEffect(() => {
+    const noLongerApplicable = specs.filter(
+      (pset) =>
+        selected[pset.name] &&
+        pset.predefinedTypes &&
+        pset.predefinedTypes.length > 0 &&
+        !pset.predefinedTypes.includes(predefinedType),
+    );
+    if (noLongerApplicable.length === 0) {
+      return;
+    }
+    setSelected((prev) => {
+      const next = { ...prev };
+      noLongerApplicable.forEach((pset) => {
+        delete next[pset.name];
+      });
+      return next;
+    });
+    setValues((prev) => {
+      const next = { ...prev };
+      noLongerApplicable.forEach((pset) => {
+        delete next[pset.name];
+      });
+      return next;
+    });
+  }, [predefinedType]);
+
+  return (
+    <div style={{ display: "grid", gap: 10 }}>
+      {specs.map((pset) => {
+        // Predefined-type-restricted sets are listed but only selectable when
+        // the current predefined type matches.
+        const requiredPredefinedTypes = pset.predefinedTypes ?? [];
+        const isPredefinedTypeRestricted = requiredPredefinedTypes.length > 0;
+        const isApplicable = isPsetApplicableFor(pset, predefinedType);
+
+        return (
+          <div
+            key={pset.name}
+            className="ifc-card"
+            style={{
+              border: "1px solid var(--grey-3)",
+              opacity: isApplicable ? 1 : 0.55,
+            }}>
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                marginBottom: isPredefinedTypeRestricted ? 4 : 10,
+                cursor: isApplicable ? "pointer" : "not-allowed",
+              }}>
+              <input
+                type="checkbox"
+                checked={!!selected[pset.name]}
+                disabled={!isApplicable}
+                onChange={(e) =>
+                  togglePsetSelection(pset.name, e.target.checked)
+                }
+              />
+              <strong>{pset.name}</strong>
+              <InfoTooltip definition={pset.definition} />
+            </label>
+
+            {isPredefinedTypeRestricted && (
+              <div
+                style={{
+                  marginBottom: 10,
+                  fontSize: 12,
+                  color: isApplicable
+                    ? "var(--grey-6)"
+                    : "var(--warning, #b8860b)",
+                }}>
+                Only for PredefinedType: {requiredPredefinedTypes.join(", ")}
+                {!isApplicable &&
+                  ` (current: ${predefinedType || "NOTDEFINED"})`}
+              </div>
+            )}
+
+            {selected[pset.name] && isApplicable && (
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+                  gap: 10,
+                }}>
+                {pset.properties.map((property) => {
+                  const inputType = resolvePropertyInputType(property);
+                  const primitiveDataType =
+                    resolvePropertyPrimitiveDataType(property);
+                  const value = values[pset.name]?.[property.name];
+
+                  return (
+                    <div
+                      key={property.name}
+                      style={{
+                        border: "1px solid var(--grey-3)",
+                        padding: 10,
+                        borderRadius: 5,
+                        backgroundColor: "var(--background-100)",
+                      }}>
+                      <label
+                        htmlFor={`${pset.name}-${property.name}`}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 4,
+                          marginBottom: 4,
+                        }}>
+                        {property.name}
+                        <InfoTooltip definition={property.definition} />
+                      </label>
+                      <div
+                        style={{
+                          marginBottom: 8,
+                          color: "var(--grey-6)",
+                          fontSize: 12,
+                        }}>
+                        <div>Resource: {property.dataType}</div>
+                        <div>Datatype: {primitiveDataType}</div>
+                      </div>
+                      {inputType === "boolean" ? (
+                        <input
+                          id={`${pset.name}-${property.name}`}
+                          type="checkbox"
+                          checked={!!value}
+                          onChange={(e) =>
+                            updatePropertyValue(
+                              pset.name,
+                              property.name,
+                              e.target.checked,
+                            )
+                          }
+                        />
+                      ) : inputType === "select" ? (
+                        <select
+                          id={`${pset.name}-${property.name}`}
+                          value={String(value ?? "")}
+                          onChange={(e) =>
+                            updatePropertyValue(
+                              pset.name,
+                              property.name,
+                              e.target.value,
+                            )
+                          }>
+                          {(property.options ?? []).map((option) => (
+                            <option key={option} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          id={`${pset.name}-${property.name}`}
+                          type={inputType}
+                          value={String(value ?? "")}
+                          onChange={(e) =>
+                            updatePropertyValue(
+                              pset.name,
+                              property.name,
+                              e.target.value,
+                            )
+                          }
+                          style={{ width: "100%" }}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 type IFCNodeDetailsProps = {
   uris: string[];
   tree: TreeNode[];
@@ -180,6 +469,16 @@ export function IFCNodeDetails({
   const [propertyValues, setPropertyValues] = useState<
     Record<string, Record<string, string | number | boolean>>
   >({});
+  // IfcDistributionPort connector state (only relevant for port-capable classes).
+  const [portSystemType, setPortSystemType] = useState<string>("");
+  const [portPredefinedType, setPortPredefinedType] = useState<string>("");
+  const [portFlowDirection, setPortFlowDirection] = useState<string>("");
+  const [portSelectedPsets, setPortSelectedPsets] = useState<
+    Record<string, boolean>
+  >({});
+  const [portPropertyValues, setPortPropertyValues] = useState<
+    Record<string, Record<string, string | number | boolean>>
+  >({});
   const { activeProject } = useProject();
   const graphName = activeProject?.graphUri ?? "";
 
@@ -194,70 +493,7 @@ export function IFCNodeDetails({
   const availablePsets =
     ifcClass === "None" ? [] : (IFC_CLASS_TO_PSETS[ifcClass] ?? []);
 
-  // A predefined-type-restricted set is only selectable/submittable when the
-  // current predefined type is one of its allowed types.
-  const isPsetApplicableFor = (pset: PSetSpec) =>
-    !pset.predefinedTypes ||
-    pset.predefinedTypes.length === 0 ||
-    pset.predefinedTypes.includes(predefinedType);
-
-  const getDefaultPropertyValue = (property: PropertySpec) => {
-    const inputType = resolvePropertyInputType(property);
-
-    if (inputType === "boolean") {
-      return false;
-    }
-    if (inputType === "number") {
-      return "";
-    }
-    if (inputType === "select") {
-      return property.options?.[0] ?? "";
-    }
-    return "";
-  };
-
-  const togglePsetSelection = (psetName: string, checked: boolean) => {
-    setSelectedPsets((prev) => ({ ...prev, [psetName]: checked }));
-
-    if (!checked) {
-      setPropertyValues((prev) => {
-        const next = { ...prev };
-        delete next[psetName];
-        return next;
-      });
-      return;
-    }
-
-    const pset = availablePsets.find((item) => item.name === psetName);
-    if (!pset) {
-      return;
-    }
-
-    setPropertyValues((prev) => {
-      if (prev[psetName]) {
-        return prev;
-      }
-      const defaults: Record<string, string | number | boolean> = {};
-      pset.properties.forEach((property) => {
-        defaults[property.name] = getDefaultPropertyValue(property);
-      });
-      return { ...prev, [psetName]: defaults };
-    });
-  };
-
-  const updatePropertyValue = (
-    psetName: string,
-    propertyName: string,
-    value: string | number | boolean,
-  ) => {
-    setPropertyValues((prev) => ({
-      ...prev,
-      [psetName]: {
-        ...(prev[psetName] ?? {}),
-        [propertyName]: value,
-      },
-    }));
-  };
+  const isPortCapable = PORT_CAPABLE_CLASSES.includes(ifcClass);
 
   const onIFCPropertiesFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -267,42 +503,63 @@ export function IFCNodeDetails({
       return;
     }
 
-    const selectedPropertySets: Record<
-      string,
-      Record<string, PropertyPayload>
-    > = {};
-
-    Object.entries(selectedPsets)
-      .filter(([, isSelected]) => isSelected)
-      .forEach(([psetName]) => {
-        const psetSpec = availablePsets.find((item) => item.name === psetName);
-        if (!psetSpec || !isPsetApplicableFor(psetSpec)) {
-          return;
-        }
-
-        const propertyPayload: Record<string, PropertyPayload> = {};
-
-        psetSpec.properties.forEach((property) => {
-          propertyPayload[property.name] = {
-            value: propertyValues[psetName]?.[property.name] ?? "",
-            ifc_value: property.dataType,
-            data_type: resolvePropertyPrimitiveDataType(property),
-          };
+    // Build the API payload + in-memory pset map for a (specs, selected, values,
+    // predefinedType) tuple — shared by the IFC class psets and the port psets.
+    const buildPsetPayloads = (
+      specs: PSetSpec[],
+      selected: Record<string, boolean>,
+      values: Record<string, Record<string, string | number | boolean>>,
+      activePredefinedType: string,
+    ) => {
+      const payload: Record<string, Record<string, PropertyPayload>> = {};
+      const flat: NonNullable<TreeNode["psets"]> = {};
+      Object.entries(selected)
+        .filter(([, isSelected]) => isSelected)
+        .forEach(([psetName]) => {
+          const psetSpec = specs.find((item) => item.name === psetName);
+          if (!psetSpec || !isPsetApplicableFor(psetSpec, activePredefinedType)) {
+            return;
+          }
+          const propertyPayload: Record<string, PropertyPayload> = {};
+          psetSpec.properties.forEach((property) => {
+            propertyPayload[property.name] = {
+              value: values[psetName]?.[property.name] ?? "",
+              ifc_value: property.dataType,
+              data_type: resolvePropertyPrimitiveDataType(property),
+            };
+          });
+          payload[psetName] = propertyPayload;
+          flat[psetName] = { ...(values[psetName] ?? {}) };
         });
+      return { payload, flat };
+    };
 
-        selectedPropertySets[psetName] = propertyPayload;
-      });
+    const { payload: selectedPropertySets, flat: updatedPsets } =
+      buildPsetPayloads(
+        availablePsets,
+        selectedPsets,
+        propertyValues,
+        predefinedType,
+      );
 
-    const updatedPsets: NonNullable<TreeNode["psets"]> = {};
-    Object.entries(selectedPsets)
-      .filter(([, isSelected]) => isSelected)
-      .forEach(([psetName]) => {
-        const psetSpec = availablePsets.find((item) => item.name === psetName);
-        if (!psetSpec || !isPsetApplicableFor(psetSpec)) {
-          return;
+    // IfcDistributionPort payload (only for port-capable classes).
+    const { payload: portPropertySets, flat: updatedPortPsets } = isPortCapable
+      ? buildPsetPayloads(
+          IFC_DISTRIBUTION_PORT.propertySets,
+          portSelectedPsets,
+          portPropertyValues,
+          portPredefinedType,
+        )
+      : { payload: {}, flat: {} };
+
+    const distributionPortPayload = isPortCapable
+      ? {
+          system_type: portSystemType || null,
+          predefined_type: portPredefinedType || null,
+          flow_direction: portFlowDirection || null,
+          property_sets: portPropertySets,
         }
-        updatedPsets[psetName] = { ...(propertyValues[psetName] ?? {}) };
-      });
+      : null;
 
     const results = await Promise.all(
       uris.map(async (uri) => {
@@ -314,6 +571,7 @@ export function IFCNodeDetails({
           predefined_type: predefinedType,
           userdefined_type: objectType,
           property_sets: selectedPropertySets,
+          distribution_port: distributionPortPayload,
         };
 
         const res = await fetch("/api/add-ifc-properties", {
@@ -335,6 +593,41 @@ export function IFCNodeDetails({
       return;
     }
 
+    // Mirror the backend "create only if filled" rule in the in-memory tree: a
+    // port is attached only when an attribute or a port pset was provided;
+    // otherwise it is cleared.
+    const hasPortContent =
+      isPortCapable &&
+      (!!portSystemType ||
+        !!portPredefinedType ||
+        !!portFlowDirection ||
+        Object.keys(updatedPortPsets).length > 0);
+
+    const buildDistributionPort = (
+      uri: string,
+    ): TreeNode["distributionPort"] => {
+      if (!hasPortContent) {
+        return undefined;
+      }
+      const localName = uri.split("#").pop() ?? uri;
+      const port: NonNullable<TreeNode["distributionPort"]> = {
+        name: `Port_${localName}`,
+      };
+      if (portSystemType) {
+        port.systemType = portSystemType;
+      }
+      if (portPredefinedType) {
+        port.predefinedType = portPredefinedType;
+      }
+      if (portFlowDirection) {
+        port.flowDirection = portFlowDirection;
+      }
+      if (Object.keys(updatedPortPsets).length > 0) {
+        port.psets = updatedPortPsets;
+      }
+      return port;
+    };
+
     let updatedTree = tree;
     for (const uri of uris) {
       updatedTree = updateNodeInTree(updatedTree, uri, (node) => ({
@@ -343,13 +636,21 @@ export function IFCNodeDetails({
         predefinedType,
         objectType,
         psets: updatedPsets,
+        distributionPort: buildDistributionPort(uri),
       }));
     }
     setTree(updatedTree);
 
     setPrimaryNodeData((prev) =>
       prev
-        ? { ...prev, ifcClass, predefinedType, objectType, psets: updatedPsets }
+        ? {
+            ...prev,
+            ifcClass,
+            predefinedType,
+            objectType,
+            psets: updatedPsets,
+            distributionPort: buildDistributionPort(prev.id),
+          }
         : prev,
     );
 
@@ -358,6 +659,14 @@ export function IFCNodeDetails({
       text: `IFC properties applied to ${uris.length} node(s)`,
     });
     onClearSelection();
+  };
+
+  const resetPortState = () => {
+    setPortSystemType("");
+    setPortPredefinedType("");
+    setPortFlowDirection("");
+    setPortSelectedPsets({});
+    setPortPropertyValues({});
   };
 
   const onIfcClassChange = (selectedIfcClass: string) => {
@@ -369,38 +678,13 @@ export function IFCNodeDetails({
     setPredefinedType(nextTypes[0]);
     setSelectedPsets({});
     setPropertyValues({});
+    resetPortState();
   };
 
+  // Pruning of no-longer-applicable predefined-type-restricted psets is handled
+  // inside PsetList when the predefined type changes.
   const onPredefinedTypeChange = (nextPredefinedType: string) => {
     setPredefinedType(nextPredefinedType);
-
-    // Deselect any predefined-type-restricted pset that no longer applies to
-    // the new predefined type, and clear its property values, so stale data
-    // for the wrong predefined type isn't sent to the Blender scripts.
-    const noLongerApplicable = availablePsets.filter(
-      (pset) =>
-        selectedPsets[pset.name] &&
-        pset.predefinedTypes &&
-        pset.predefinedTypes.length > 0 &&
-        !pset.predefinedTypes.includes(nextPredefinedType),
-    );
-    if (noLongerApplicable.length === 0) {
-      return;
-    }
-    setSelectedPsets((prev) => {
-      const next = { ...prev };
-      noLongerApplicable.forEach((pset) => {
-        delete next[pset.name];
-      });
-      return next;
-    });
-    setPropertyValues((prev) => {
-      const next = { ...prev };
-      noLongerApplicable.forEach((pset) => {
-        delete next[pset.name];
-      });
-      return next;
-    });
   };
 
   const onIFCPropertiesFormReset = () => {
@@ -409,6 +693,7 @@ export function IFCNodeDetails({
     setobjectType("");
     setSelectedPsets({});
     setPropertyValues({});
+    resetPortState();
   };
 
   useEffect(() => {
@@ -473,11 +758,41 @@ export function IFCNodeDetails({
       nextPropertyValues[psetSpec.name] = values;
     });
 
+    // Hydrate the IfcDistributionPort section from an already-filled port.
+    const existingPort = primaryNodeData.distributionPort;
+    const nextPortSelectedPsets: Record<string, boolean> = {};
+    const nextPortPropertyValues: Record<
+      string,
+      Record<string, string | number | boolean>
+    > = {};
+    if (existingPort?.psets) {
+      IFC_DISTRIBUTION_PORT.propertySets.forEach((psetSpec) => {
+        const existingPsetValues = existingPort.psets?.[psetSpec.name];
+        if (!existingPsetValues) {
+          return;
+        }
+        nextPortSelectedPsets[psetSpec.name] = true;
+        const values: Record<string, string | number | boolean> = {};
+        psetSpec.properties.forEach((property) => {
+          values[property.name] =
+            existingPsetValues[property.name] !== undefined
+              ? existingPsetValues[property.name]
+              : getDefaultPropertyValue(property);
+        });
+        nextPortPropertyValues[psetSpec.name] = values;
+      });
+    }
+
     setIfcClass(nextIfcClass);
     setPredefinedType(nextPredefinedType);
     setobjectType(primaryNodeData.objectType ?? "");
     setSelectedPsets(nextSelectedPsets);
     setPropertyValues(nextPropertyValues);
+    setPortSystemType(normalizeIfcName(existingPort?.systemType));
+    setPortPredefinedType(normalizeIfcName(existingPort?.predefinedType));
+    setPortFlowDirection(normalizeIfcName(existingPort?.flowDirection));
+    setPortSelectedPsets(nextPortSelectedPsets);
+    setPortPropertyValues(nextPortPropertyValues);
     initializedForKey.current = selectionKey;
   }, [primaryNodeData]);
 
@@ -595,157 +910,87 @@ export function IFCNodeDetails({
             Select an IFC Class to configure Property Sets.
           </p>
         ) : (
-          <div style={{ display: "grid", gap: 10 }}>
-            {availablePsets.map((pset) => {
-              // Predefined-type-restricted sets are listed but only selectable
-              // when the current predefined type matches.
-              const requiredPredefinedTypes = pset.predefinedTypes ?? [];
-              const isPredefinedTypeRestricted =
-                requiredPredefinedTypes.length > 0;
-              const isPsetApplicable = isPsetApplicableFor(pset);
+          <PsetList
+            specs={availablePsets}
+            selected={selectedPsets}
+            setSelected={setSelectedPsets}
+            values={propertyValues}
+            setValues={setPropertyValues}
+            predefinedType={predefinedType}
+          />
+        )}
 
-              return (
-              <div
-                key={pset.name}
-                className="ifc-card"
-                style={{
-                  border: "1px solid var(--grey-3)",
-                  opacity: isPsetApplicable ? 1 : 0.55,
-                }}>
-                <label
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    marginBottom: isPredefinedTypeRestricted ? 4 : 10,
-                    cursor: isPsetApplicable ? "pointer" : "not-allowed",
-                  }}>
-                  <input
-                    type="checkbox"
-                    checked={!!selectedPsets[pset.name]}
-                    disabled={!isPsetApplicable}
-                    onChange={(e) =>
-                      togglePsetSelection(pset.name, e.target.checked)
-                    }
-                  />
-                  <strong>{pset.name}</strong>
-                  <InfoTooltip definition={pset.definition} />
-                </label>
-
-                {isPredefinedTypeRestricted && (
-                  <div
-                    style={{
-                      marginBottom: 10,
-                      fontSize: 12,
-                      color: isPsetApplicable
-                        ? "var(--grey-6)"
-                        : "var(--warning, #b8860b)",
-                    }}>
-                    Only for PredefinedType:{" "}
-                    {requiredPredefinedTypes.join(", ")}
-                    {!isPsetApplicable &&
-                      ` (current: ${predefinedType || "NOTDEFINED"})`}
-                  </div>
-                )}
-
-                {selectedPsets[pset.name] && isPsetApplicable && (
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns:
-                        "repeat(auto-fill, minmax(220px, 1fr))",
-                      gap: 10,
-                    }}>
-                    {pset.properties.map((property) => {
-                      const inputType = resolvePropertyInputType(property);
-                      const primitiveDataType =
-                        resolvePropertyPrimitiveDataType(property);
-                      const value = propertyValues[pset.name]?.[property.name];
-
-                      return (
-                        <div
-                          key={property.name}
-                          style={{
-                            border: "1px solid var(--grey-3)",
-                            padding: 10,
-                            borderRadius: 5,
-                            backgroundColor: "var(--background-100)",
-                          }}>
-                          <label
-                            htmlFor={`${pset.name}-${property.name}`}
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 4,
-                              marginBottom: 4,
-                            }}>
-                            {property.name}
-                            <InfoTooltip definition={property.definition} />
-                          </label>
-                          <div
-                            style={{
-                              marginBottom: 8,
-                              color: "var(--grey-6)",
-                              fontSize: 12,
-                            }}>
-                            <div>Resource: {property.dataType}</div>
-                            <div>Datatype: {primitiveDataType}</div>
-                          </div>
-                          {inputType === "boolean" ? (
-                            <input
-                              id={`${pset.name}-${property.name}`}
-                              type="checkbox"
-                              checked={!!value}
-                              onChange={(e) =>
-                                updatePropertyValue(
-                                  pset.name,
-                                  property.name,
-                                  e.target.checked,
-                                )
-                              }
-                            />
-                          ) : inputType === "select" ? (
-                            <select
-                              id={`${pset.name}-${property.name}`}
-                              value={String(value ?? "")}
-                              onChange={(e) =>
-                                updatePropertyValue(
-                                  pset.name,
-                                  property.name,
-                                  e.target.value,
-                                )
-                              }>
-                              {(property.options ?? []).map((option) => (
-                                <option key={option} value={option}>
-                                  {option}
-                                </option>
-                              ))}
-                            </select>
-                          ) : (
-                            <input
-                              id={`${pset.name}-${property.name}`}
-                              type={inputType}
-                              value={String(value ?? "")}
-                              onChange={(e) =>
-                                updatePropertyValue(
-                                  pset.name,
-                                  property.name,
-                                  inputType === "number"
-                                    ? e.target.value
-                                    : e.target.value,
-                                )
-                              }
-                              style={{ width: "100%" }}
-                            />
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+        {isPortCapable && (
+          <div
+            style={{
+              marginTop: 16,
+              borderTop: "1px solid var(--grey-3)",
+              paddingTop: 12,
+            }}>
+            <h4 style={{ paddingBottom: 10 }}>IfcDistributionPort</h4>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr 1fr",
+                gap: 10,
+              }}>
+              <div className="ifc-card">
+                <h5 style={{ paddingBottom: 10 }}>System Type</h5>
+                <select
+                  value={portSystemType}
+                  onChange={(e) => setPortSystemType(e.target.value)}
+                  style={{ height: 23 }}>
+                  <option value="">— (not set) —</option>
+                  {IFC_DISTRIBUTION_PORT.attributes.SystemType.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
               </div>
-              );
-            })}
+              <div className="ifc-card">
+                <h5 style={{ paddingBottom: 10 }}>Predefined Type</h5>
+                <select
+                  value={portPredefinedType}
+                  onChange={(e) => setPortPredefinedType(e.target.value)}
+                  style={{ height: 23 }}>
+                  <option value="">— (not set) —</option>
+                  {IFC_DISTRIBUTION_PORT.attributes.PredefinedType.map(
+                    (option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ),
+                  )}
+                </select>
+              </div>
+              <div className="ifc-card">
+                <h5 style={{ paddingBottom: 10 }}>Flow Direction</h5>
+                <select
+                  value={portFlowDirection}
+                  onChange={(e) => setPortFlowDirection(e.target.value)}
+                  style={{ height: 23 }}>
+                  <option value="">— (not set) —</option>
+                  {IFC_DISTRIBUTION_PORT.attributes.FlowDirection.map(
+                    (option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ),
+                  )}
+                </select>
+              </div>
+            </div>
+
+            <h5 style={{ padding: "10px 0" }}>Port Property Sets</h5>
+            <PsetList
+              specs={IFC_DISTRIBUTION_PORT.propertySets}
+              selected={portSelectedPsets}
+              setSelected={setPortSelectedPsets}
+              values={portPropertyValues}
+              setValues={setPortPropertyValues}
+              predefinedType={portPredefinedType}
+            />
           </div>
         )}
         <div
