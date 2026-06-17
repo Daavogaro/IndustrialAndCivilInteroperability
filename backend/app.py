@@ -49,6 +49,4 @@ app.include_router(product_inventory.router, prefix="/api")
 app.include_router(product_hierarchy.router, prefix="/api")
 app.include_router(projects.router, prefix="/api")
 
-app.mount("/api/glb", StaticFiles(directory="tmp/GLB"), name="glb")
-app.mount("/api/static", StaticFiles(directory="tmp"), name="static")
 
