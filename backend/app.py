@@ -8,6 +8,7 @@ from api.routes import add_child
 from api.routes import update_deletion
 from api.routes import update_simplification
 from api.routes import add_fundamental_node
+from api.routes import remove_fundamental_node
 from api.routes import add_ifc_prop
 from api.routes import gltf_upload
 from api.routes import ifc_conversion
@@ -37,6 +38,7 @@ app.include_router(add_child.router, prefix="/api")
 app.include_router(update_deletion.router, prefix="/api")
 app.include_router(update_simplification.router, prefix="/api")
 app.include_router(add_fundamental_node.router, prefix="/api")
+app.include_router(remove_fundamental_node.router, prefix="/api")
 app.include_router(add_ifc_prop.router, prefix="/api")
 app.include_router(ifc_conversion.router, prefix="/api")
 app.include_router(mayo.router, prefix="/api")

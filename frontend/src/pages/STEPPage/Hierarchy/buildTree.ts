@@ -27,6 +27,19 @@ export type TreeNode = {
   children: TreeNode[];
 };
 
+/** True when the node carries any IFC-namespace data (class, predefined/object
+ * type, element property sets or a distribution port). Used to warn the user
+ * that undoing a fundamental node will also remove this data. */
+export function nodeHasIfcData(node: TreeNode): boolean {
+  return Boolean(
+    node.ifcClass ||
+      node.predefinedType ||
+      node.objectType ||
+      (node.psets && Object.keys(node.psets).length > 0) ||
+      node.distributionPort,
+  );
+}
+
 export function buildTree(
   edges: {
     parent: string;

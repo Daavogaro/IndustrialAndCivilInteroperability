@@ -3,7 +3,7 @@ import { StatusString } from "../../../components/Sidebar/MessagePanel";
 import { FundamentalNodeButton } from "../../STEPPage/gLTFViewer/FundamentalNodeButton";
 import { AssemblyView } from "./AssemblyView/AssemblyView";
 import { FundamentalNodeView } from "./FundamentalNodeView/FundamentalNodeView";
-import { TreeNode } from "../../STEPPage/Hierarchy/buildTree";
+import { TreeNode, nodeHasIfcData } from "../../STEPPage/Hierarchy/buildTree";
 import { refreshStepHierarchy } from "../../STEPPage/Hierarchy/HierarchyButtons/buttons/UpdateHierarchyButton";
 import { useProject } from "../../../context/ProjectContext";
 
@@ -235,18 +235,18 @@ export function NodeDetails({
           display: "flex",
           flexDirection: "column",
         }}>
-        {treeNodeData.isFundamental ? null : (
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <h3 style={{ marginBottom: 10 }}>
-              {treeNodeData.metadata.split("#")[1]}
-            </h3>
-            <FundamentalNodeButton
-              metadata={treeNodeData.metadata}
-              setMessage={setMessage}
-              onUpdated={() => refreshStepHierarchy(activeProject?.graphUri ?? "", setTree, setMessage)}
-            />
-          </div>
-        )}
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <h3 style={{ marginBottom: 10 }}>
+            {treeNodeData.metadata.split("#")[1]}
+          </h3>
+          <FundamentalNodeButton
+            metadata={treeNodeData.metadata}
+            isFundamental={treeNodeData.isFundamental ?? false}
+            hasIfcData={nodeHasIfcData(treeNodeData)}
+            setMessage={setMessage}
+            onUpdated={() => refreshStepHierarchy(activeProject?.graphUri ?? "", setTree, setMessage)}
+          />
+        </div>
 
         {treeNodeData.cadType ===
           "https://www.web3d.org/specifications/X3dOntology4.0#CADPart" && (
