@@ -189,7 +189,9 @@ export async function refreshStepHierarchy(
       display: e.display,
       dimensions: e.dimensions,
       attrib: e.attrib,
-      fileUrl: e.fileUrl.replace("file:///",""),
+      fileUrl: e.fileUrl
+        ? e.fileUrl.replace("file:///", "")
+        : e.fileUrl,
     }));
     const ifcData = await fetchQuery(ifcQuery);
     const ifcs = ifcData.map((i: any) => ({

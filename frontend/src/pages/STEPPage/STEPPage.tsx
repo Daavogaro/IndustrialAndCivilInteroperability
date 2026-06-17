@@ -1,5 +1,5 @@
 import { Topbar } from "../../components/Topbar";
-import { TreeNode } from "./Hierarchy/buildTree";
+import { TreeNode, nodeHasIfcData } from "./Hierarchy/buildTree";
 import { TreeList } from "./Hierarchy/TreeList";
 import { AddChildModal } from "./AddChildModal";
 import { HierarchyButtons } from "./Hierarchy/HierarchyButtons/HierarchyButtons";
@@ -122,6 +122,8 @@ export function STEPPage({
                 <h2>{nodeData?.metadata.split("#")[1]}</h2>
                 <FundamentalNodeButton
                   metadata={nodeData?.metadata || ""}
+                  isFundamental={nodeData?.isFundamental ?? false}
+                  hasIfcData={nodeData ? nodeHasIfcData(nodeData) : false}
                   setMessage={setMessage}
                   onUpdated={() =>
                     refreshStepHierarchy(activeProject?.graphUri ?? "", setTree, setMessage)
