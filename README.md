@@ -1,5 +1,6 @@
 # Industrial & Civil Interoperability Platform
 
+
 Convert and browse 3D CAD models (STEP → GLTF → IFC) with a web UI, backed by a
 Virtuoso RDF database. **Everything runs in Docker** — you only need to install
 Docker, drop in one file, and run a single command.
