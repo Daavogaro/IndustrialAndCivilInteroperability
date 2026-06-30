@@ -244,12 +244,38 @@ def select_hierarchy(obj):
         selected.extend(select_hierarchy(child))
 
     return selected
+def resolve_gltf_path(file_url: str) -> str:
+    """Map a stored gLTF location to its real path inside this environment.
+
+    The fileUrl in the node comes from RDF and may be a host-absolute Windows
+    path baked in on a previous run (e.g. "C:/.../tmp/gLTF/x.gltf"), or a path
+    that lost its leading slash when "file:///" was stripped (e.g.
+    "app/tmp/gLTF/x.gltf"). All assets always live under <BASE>/tmp/..., so
+    rebase everything from the "/tmp/" segment onto this install's base dir
+    (parents[5] == the same base used for IFC_FOLDER below). This also handles
+    per-project subfolders such as tmp/projects/<id>/gLTF/.
+    """
+    base = Path(__file__).resolve().parents[5]
+    path = file_url.replace("\\", "/")
+    if os.path.isfile(path):
+        return path
+    idx = path.rfind("/tmp/")
+    if idx != -1:
+        candidate = str(base / path[idx + 1:])  # path[idx+1:] starts with "tmp/"
+        if os.path.isfile(candidate):
+            return candidate
+        # Return the remapped path anyway so the error names the expected file.
+        print(f"WARNING: gLTF not found at {candidate} (from {file_url})")
+        return candidate
+    return path
+
+
 def create_hierarchy(node: dict, parent=None):
 
     file_url = node.get("fileUrl")
 
     if file_url:
-        bpy.ops.import_scene.gltf(filepath=file_url)
+        bpy.ops.import_scene.gltf(filepath=resolve_gltf_path(file_url))
         node_obj = bpy.context.view_layer.objects.active
 
         world_matrix = node_obj.matrix_world.copy()
@@ -627,3 +653,10 @@ if save_blend:
     print(f"STATUS: GLTF imported and saved to {output_blend}")
 else:
     print("STATUS: GLTF import completed without saving a blend file")
+
+# This script runs Blender in GUI mode (it needs a VIEW_3D window/area for the
+# BIM and mesh operators), launched under a virtual display in Docker. GUI
+# Blender would otherwise stay in its event loop forever after the script ends,
+# so the backend subprocess would never return. Quit explicitly now that the
+# IFC has been written.
+bpy.ops.wm.quit_blender()

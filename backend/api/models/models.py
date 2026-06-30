@@ -5,15 +5,18 @@ from pathlib import Path
 from typing import Dict
 
 
-MAYO_EXE = r"C:\Program Files\Fougue\Mayo\mayo-conv.exe"
-BLENDER_EXE = r"C:\Program Files\Blender Foundation\Blender 5.0\blender.exe"
+# Blender executable: resolved on PATH inside the container (default "blender").
+# On a Windows host, set the BLENDER_EXE env var to the full blender.exe path.
+BLENDER_EXE = os.getenv("BLENDER_EXE", "blender")
 
-MAYO_SERVICE_URL = "http://localhost:8000/api/convert"
 BLENDER_SERVICE_URL = "http://localhost:8000/api/blender_run_scripts"
 
 BASE_DIR = Path(__file__).resolve().parents[3]
 
-INI_FILE = BASE_DIR / "backend" / "api" / "services" / "importing_STEP" / "mayo-gui.ini"
+# Absolute, OS-independent paths to the Blender Python scripts. Built from
+# BASE_DIR so they do not depend on the process working directory.
+BLENDER_SCRIPT_DIR = BASE_DIR / "backend" / "api" / "services" / "ifc_conversion" / "blender_script"
+IMPORT_GLTF_SCRIPT = str(BLENDER_SCRIPT_DIR / "import_gltf.py")
 
 STEP_FOLDER = str(BASE_DIR / "tmp" / "STEP")
 GLTF_FOLDER = str(BASE_DIR / "tmp" / "gLTF")

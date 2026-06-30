@@ -12,7 +12,6 @@ from api.routes import remove_fundamental_node
 from api.routes import add_ifc_prop
 from api.routes import gltf_upload
 from api.routes import ifc_conversion
-from api.services.importing_STEP import mayo
 from api.services.ifc_conversion import blender
 from api.routes import update_STEP
 from api.routes import product_inventory
@@ -41,7 +40,6 @@ app.include_router(add_fundamental_node.router, prefix="/api")
 app.include_router(remove_fundamental_node.router, prefix="/api")
 app.include_router(add_ifc_prop.router, prefix="/api")
 app.include_router(ifc_conversion.router, prefix="/api")
-app.include_router(mayo.router, prefix="/api")
 app.include_router(blender.router, prefix="/api")
 app.include_router(gltf_upload.router, prefix="/api")
 app.include_router(update_STEP.router, prefix="/api")

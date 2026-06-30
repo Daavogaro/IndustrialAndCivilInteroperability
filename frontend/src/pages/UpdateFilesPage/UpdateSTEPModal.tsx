@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { apiWebSocketUrl } from "../../utils/apiWebSocket";
 import { toogleModal } from "../../utils/htmlFunctions";
 import { StatusString } from "../../components/Sidebar/MessagePanel";
 import { TreeNode } from "../STEPPage/Hierarchy/buildTree";
@@ -57,7 +58,7 @@ export function UpdateSTEPModal({ fileName, tree, setMessage }: UpdateSTEPModalP
       const uploadedFilename = uploadData.filename;
 
       // Step 3: apri WebSocket per conversione + gerarchia
-      const websocket = new WebSocket("ws://localhost:8000/api/ws/update");
+      const websocket = new WebSocket(apiWebSocketUrl("/api/ws/update"));
       websocket.onopen = () => {
         setMessage({ status: "info", text: "WebSocket connected" });
          websocket.send(

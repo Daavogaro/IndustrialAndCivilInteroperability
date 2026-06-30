@@ -1,84 +1,167 @@
-# How to install
+# Industrial & Civil Interoperability Platform
 
-## Visual Studio Code
+Convert and browse 3D CAD models (STEP → GLTF → IFC) with a web UI, backed by a
+Virtuoso RDF database. **Everything runs in Docker** — you only need to install
+Docker, drop in one file, and run a single command.
 
-1. Go to the offical [VS Code Website](https://code.visualstudio.com/download) and download the installer
-2. Open the installer and install VS Code
-3. Open VS Code to verify the installation
+> ⚠️ This setup is meant for **local / trusted use only**. It has no login or
+> passwords protecting the app, so don't expose these ports to the open internet.
 
-## Conda
+---
 
-[Conda](https://github.com/conda/conda) is a package manager that allows user to create independent environment for their libraries. The Conda Common Line Interface (CLI) is written entirely in Python. The backend is written in Python, that's why we need it.
+## How to start it the first time
 
-### Installation of Miniforge
+Follow these steps in order. Don't skip any.
 
-[Miniforge](https://github.com/conda-forge/miniforge) is a minimal installer distribution of Conda.
+### Step 1 — Install Docker
 
-1. Install it using the [Miniforge installer](https://conda-forge.org/download/)
-2. After the installation open **Miniforge Prompt**: this is the CLI of Miniforge
-3. Run the code `conda init powershell` to enable Conda's command also in Windows PowerShell terminal
-4. Close Miniforge Prompt
-5. To verify the installation open Windows PowerShell and try to run `conda`, if there are no problems and it returns a list of commands you are ok
+1. Download **Docker Desktop**: https://www.docker.com/products/docker-desktop/
+2. Install it and **start Docker Desktop** (wait until it says it's running).
+3. Check it works: open a terminal (PowerShell on Windows) and run:
 
-### Installation of libraries
+   ```
+   docker --version
+   ```
 
-1. Open this GitHub folder in VSCode
-2. Open a new terminal
-3. Run `conda create -n OCC python=3.12`: we are creating an independent environment based on the version 3.12 of Python
-4. Run `conda activate OCC`: we are activating our environment
-5. Run `conda install fastapi uvicorn requests SPARQLWrapper python-multipart pygltflib numpy httpx ifcopenshell rdflib pythonocc-core`: with this command we are installing all the libraries that we need
-6. Close the terminal
+   If you see a version number, you're good. ✅
 
-## Docker
+### Step 2 — Put the Bonsai file in place
 
-Docker is a platform for building, shipping, and running applications inside **containers**. A container packages an application together with everything it needs to run—libraries, dependencies, runtime, and configuration—so it behaves the same way on any machine. It is really useful for running complete applications. In our case we are running [Openlink Virtuoso](https://virtuoso.openlinksw.com/) that is a graph database.
+The app needs a big Blender add-on file called **Bonsai**. It is too large to
+keep in this project on GitHub, so you must place it yourself.
 
-### Installation of Docker
+1. Get the file named **`add-on-bonsai-v0.8.4-linux-x64.zip`**.
+2. Put it exactly here, inside the project:
 
-1. Download the [Docker Desktop Installer](https://www.docker.com/products/docker-desktop/)
-2. Launch Docker Desktop
-3. To verify the installation open Windows PowerShell and run `docker`, if there are no problems and it returns a list of commands you are ok
+   ```
+   backend/bonsai/add-on-bonsai-v0.8.4-linux-x64.zip
+   ```
 
-### Setting up the database
+   That folder already exists. Just drop the file into it. (Don't rename it.)
 
-1. Open this GitHub folder in VSCode
-2. Open a new terminal and run `docker-compose up --build`
-3. Open on your Web Browser http://localhost:8890/ if you can see the Virtuoso page the database is running
-4. Click on [Conductor](http://localhost:8890/conductor/) and you can login into the database with the credential:
-   - Account: `dba`
-   - Password: `ddd`
-5. Click on `Database >> Interactive SQL` and in the panel write `grant SPARQL_UPDATE to "SPARQL"` in order to have the permissions to write triples in the graph database
-6. Close the terminal
+### Step 3 — Build and start everything
 
-## Node.js
+1. Open a terminal **in the project folder** (the folder that has this README).
+2. Run:
 
-**Node.js** is an open-source JavaScript runtime that lets you run JavaScript outside of a web browser. This tool allow us to run the frontend.
+   ```
+   docker compose up --build
+   ```
 
-### Installation of Node.js
+3. ⏳ **The first time is slow** (it downloads Blender and installs Bonsai — this
+   can take many minutes). This is normal. Just let it finish. You'll know it's
+   ready when the messages stop scrolling and stay quiet.
 
-1. Download the [Node.js Windows Installer](https://nodejs.org/en/download?utm_source=chatgpt.com)
-2. To verify the installation open Windows PowerShell and run `node -v`, if there are no problems and it returns the version of Node.js you are ok
+### Step 4 — Open the app
 
-### Installation of libraries
+Open your web browser and go to:
 
-1. Open this GitHub folder in VSCode
-2. Open a new terminal and run
-   - `cd frontend`: to change the folder
-   - `npm install`: to install all the libraries
-3. Close the terminal
+```
+http://localhost:3000
+```
 
-## Blender
+That's it! The website, the server, the database, and Blender are **all running
+inside Docker** for you. 🎉
 
-[Blender](https://www.blender.org/) is a free, open-source 3D creation suite used for creating 3D models, animations, visual effects, simulations, video editing, and more.
+### Step 5 — (Almost never needed) Database write permission
 
-### Installation of Blender
+The database is set up to allow writing automatically. **Only** if saving data
+fails, do this once:
 
-1. Download the version 5.0 of Blender from the official website Blender Download
-2. Be sure that the installation folder is `C:\Program Files\Blender Foundation\Blender 5.0\blender.exe`
-3. Install the [Bonsai](https://bonsaibim.org/) extension: this is a powerful tool for IFC editing in Blender. Follow the instructions here to set it up: [Bonsai Download](https://docs.bonsaibim.org/quickstart/installation.html)
+1. Go to http://localhost:8890/conductor/
+2. Log in with — Account: `dba`, Password: `ddd`
+3. Open **Database → Interactive SQL**, paste this, and run it:
 
-# How to execute
+   ```
+   grant SPARQL_UPDATE to "SPARQL"
+   ```
 
-**Backend**: 1. open a new terminal and run - `conda activate OCC` : we are activating the Conda environment - `python backend\run.py` : we run the backend 2. If we see as last message `INFO:     Application startup complete.` the backend is running
-**Database**: 1. Open a new terminal and run `docker-compose up --build` 2. Open on your Web Browser http://localhost:8890/ if you can see the Virtuoso page the database is running
-**Frontend**: 1. open a new terminal and run - `cd frontend`: we enter in the frontend folder - `npm run dev`: we run the frontend 2. Open on your Web Browser http://localhost:3000/ if you can see the Web Application page the frontend is running
+---
+
+## How to run it every day (after the first time)
+
+- **Start the app:** in the project folder, run
+
+  ```
+  docker compose up
+  ```
+
+  (no `--build` needed unless you changed the code)
+
+- **Stop the app:** press `Ctrl+C` in that terminal, then run
+
+  ```
+  docker compose down
+  ```
+
+- **After you change the code:** run `docker compose up --build` again.
+
+Your database keeps its data between restarts.
+
+---
+
+## Where your files go
+
+Everything you upload or generate (STEP, GLTF, GLB, IFC, JSON, RDF) appears in
+the **`tmp/`** folder inside the project, so you can open them directly on your
+computer.
+
+| What's running | Address |
+|---|---|
+| Web app (use this) | http://localhost:3000 |
+| Backend API (for debugging) | http://localhost:8000 |
+| Virtuoso database | http://localhost:8890 |
+
+---
+
+## Advanced: run without Docker
+
+You normally **don't need this**. The Docker setup above is the recommended way.
+This section is only for developers who want to run each piece directly on their
+machine.
+
+You will need: [VS Code](https://code.visualstudio.com/download), a Conda
+environment, [Node.js](https://nodejs.org/en/download), Docker (for the database
+only), and a local install of [Blender 5.0](https://www.blender.org/) with the
+[Bonsai](https://bonsaibim.org/) add-on enabled.
+
+### Backend (Conda)
+
+1. Install [Miniforge](https://conda-forge.org/download/) and run
+   `conda init powershell`, then reopen your terminal.
+2. Create and activate the environment:
+
+   ```
+   conda create -n OCC python=3.12
+   conda activate OCC
+   conda install -c conda-forge fastapi uvicorn websockets requests sparqlwrapper python-multipart pygltflib numpy httpx ifcopenshell rdflib pythonocc-core
+   ```
+
+3. Tell the backend where Blender is (PowerShell):
+
+   ```
+   $env:BLENDER_EXE = "C:\Program Files\Blender Foundation\Blender 5.0\blender.exe"
+   ```
+
+4. Start it: `python backend/run.py` — ready when you see
+   `Application startup complete.`
+
+### Database (Docker)
+
+```
+docker compose up virtuoso
+```
+
+Open http://localhost:8890/ to confirm it's running.
+
+### Frontend (Node.js)
+
+```
+cd frontend
+npm install
+npm run dev
+```
+
+Open http://localhost:3000/. The dev server proxies `/api` to the backend at
+`http://localhost:8000` (override with the `VITE_API_TARGET` environment
+variable if your backend is elsewhere).

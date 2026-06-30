@@ -1,25 +1,6 @@
 services:
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #     target: development
-  #   ports:
-  #     - "3000:80"
-  #   depends_on:
-  #     - backend
-
-  # backend:
-  #   build: ./backend
-  #   ports:
-  #     - "8000:8000"
-  #   depends_on:
-  #     - virtuoso
-  #   environment:
-  #     - DB_HOST=virtuoso
-  #     - DB_USER=dba
-  #     - DB_PASSWORD=ddd
-  #     - DB_PATH=
-
+  # RDF triple store. SPARQL_UPDATE=true auto-grants write permission to the
+  # SPARQL user so no manual Conductor step is needed on first boot.
   virtuoso:
     image: tenforce/virtuoso
     ports:
@@ -27,12 +8,36 @@ services:
       - "1111:1111"
     environment:
       DBA_PASSWORD: ddd
-      SPARQL_UPDATE: 1
-        - DB_HOST=virtuoso
-        - DB_USER=dba
-        - DB_PASSWORD=ddd
+      SPARQL_UPDATE: "true"
     volumes:
       - virtuoso-data:/data
+
+  # FastAPI + pythonocc-core + Blender/Bonsai (all inside the image).
+  backend:
+    build: ./backend
+    depends_on:
+      - virtuoso
+    environment:
+      DB_HOST: virtuoso
+      # Must be the Xvfb wrapper (not plain "blender"): the IFC conversion runs
+      # Blender in GUI mode, which needs a virtual X display inside the container.
+      BLENDER_EXE: blender-xvfb
+    volumes:
+      # Generated STEP/GLTF/GLB/IFC/JSON/RDF files are visible on the host.
+      - ./tmp:/app/tmp
+    ports:
+      # Published for direct API debugging; the browser uses the nginx proxy.
+      - "8000:8000"
+
+  # Production SPA served by nginx, which reverse-proxies /api to the backend.
+  frontend:
+    build:
+      context: ./frontend
+      target: production
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
 
 volumes:
   virtuoso-data:

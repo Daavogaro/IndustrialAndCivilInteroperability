@@ -1,5 +1,6 @@
 import { StatusString } from "../../../components/Sidebar/MessagePanel";
 import { TreeNode } from "../../STEPPage/Hierarchy/buildTree";
+import { apiWebSocketUrl } from "../../../utils/apiWebSocket";
 
 type DownloadIFCButtonProps = {
   node: TreeNode;
@@ -17,7 +18,7 @@ export function DownloadIFCButton({
     console.log("Starting IFC conversion for node:", node);
     try {
       const websocket = new WebSocket(
-        "ws://localhost:8000/api/ws/blender_run_scripts",
+        apiWebSocketUrl("/api/ws/blender_run_scripts"),
       );
       websocket.onopen = () => {
         setMessage({ status: "info", text: "WebSocket connected" });

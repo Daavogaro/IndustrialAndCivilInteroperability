@@ -32,5 +32,8 @@ tmp/IFC/*
 !tmp/IFC/Base_Model.ifc
 
 
+# Large Bonsai extension zip — must be placed locally, never committed.
+backend/bonsai/*.zip
+
 .vscode
 venv

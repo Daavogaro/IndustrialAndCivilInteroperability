@@ -1,0 +1,12 @@
+# Keep the build context small. NOTE: bonsai/ is intentionally NOT ignored —
+# the Dockerfile needs the Bonsai extension zip from it.
+__pycache__/
+**/__pycache__/
+*.pyc
+db/
+tmp/
+*.blend
+*.blend1
+venv/
+.venv/
+.pytest_cache/
