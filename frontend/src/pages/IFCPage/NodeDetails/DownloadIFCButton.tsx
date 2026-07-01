@@ -1,6 +1,7 @@
 import { StatusString } from "../../../components/Sidebar/MessagePanel";
 import { TreeNode } from "../../STEPPage/Hierarchy/buildTree";
 import { apiWebSocketUrl } from "../../../utils/apiWebSocket";
+import { useProject } from "../../../context/ProjectContext";
 
 type DownloadIFCButtonProps = {
   node: TreeNode;
@@ -12,6 +13,7 @@ export function DownloadIFCButton({
   setMessage,
 }: DownloadIFCButtonProps) {
   const saveBlend = false;
+  const { activeProject } = useProject();
 
   const handleConversion = async (node: TreeNode) => {
     setMessage({ status: "info", text: "Start converting in IFC file..." });
@@ -26,6 +28,7 @@ export function DownloadIFCButton({
           JSON.stringify({
             node: node,
             save_blend: saveBlend,
+            project_id: activeProject?.id ?? null,
           }),
         );
       };

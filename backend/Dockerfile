@@ -76,6 +76,20 @@ RUN blender --background --command extension install-file \
         | grep -q "BONSAI_IMPORT_OK"
 
 # ---------------------------------------------------------------------------
+# 3b. gltfpack (meshoptimizer) — compresses GLTF -> GLB for the web viewer.
+#     The frontend pins the npm "gltfpack" (a Node/WASM wrapper); this image has
+#     no Node, so install the standalone native binary on PATH instead. Without
+#     it, the STEP-import pipeline throws at the compression step and never
+#     reaches the RDF import (so no triples land in Virtuoso).
+# ---------------------------------------------------------------------------
+ARG GLTFPACK_VERSION=1.2
+RUN wget -q "https://github.com/zeux/meshoptimizer/releases/download/v${GLTFPACK_VERSION}/gltfpack-ubuntu.zip" \
+        -O /tmp/gltfpack.zip \
+    && python -c "import zipfile; zipfile.ZipFile('/tmp/gltfpack.zip').extractall('/tmp/gltfpack')" \
+    && install -m 0755 "$(find /tmp/gltfpack -name gltfpack -type f | head -1)" /usr/local/bin/gltfpack \
+    && rm -rf /tmp/gltfpack /tmp/gltfpack.zip
+
+# ---------------------------------------------------------------------------
 # 4. Application. Code lives at /app/backend so models.BASE_DIR (parents[3])
 #    resolves to /app and runtime files land in /app/tmp (the compose volume).
 # ---------------------------------------------------------------------------

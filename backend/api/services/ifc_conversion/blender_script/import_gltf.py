@@ -614,7 +614,10 @@ argv = argv[argv.index("--") + 1:]  # only args after --
 
 
 json_path = os.path.abspath(argv[0])
-save_blend = len(argv) > 2 and argv[1].strip().lower() in {"1", "true", "yes"}
+save_blend = len(argv) > 1 and argv[1].strip().lower() in {"1", "true", "yes"}
+# Optional 3rd arg: the active project id. When set, the generated IFC is saved
+# under tmp/projects/<project_id>/IFC/ instead of the flat tmp/IFC/.
+project_id = argv[2].strip() if len(argv) > 2 and argv[2].strip() else None
 
 with open(json_path, encoding="utf-8") as f:
     node:dict = json.load(f)
@@ -625,7 +628,13 @@ with open(json_path, encoding="utf-8") as f:
 # bpy.ops.wm.read_factory_settings(use_empty=True)
 # bpy.ops.bim.create_project()
 # bpy.ops.bim.new_project(preset='metric_m')
-IFC_FOLDER =Path(__file__).resolve().parents[5] / "tmp" / "IFC"
+# Base_Model.ifc is a shared template in the flat tmp/IFC folder; the generated
+# IFC is written to the active project's own IFC folder (falling back to the
+# flat folder when no project is given).
+BASE_TMP = Path(__file__).resolve().parents[5] / "tmp"
+IFC_FOLDER = BASE_TMP / "IFC"
+OUTPUT_IFC_FOLDER = (BASE_TMP / "projects" / project_id / "IFC") if project_id else IFC_FOLDER
+OUTPUT_IFC_FOLDER.mkdir(parents=True, exist_ok=True)
 file_path = str(IFC_FOLDER / "Base_Model.ifc")
 bpy.ops.bim.load_project(filepath=file_path, is_advanced=False, use_relative_path=False, should_start_fresh_session=True)
 bpy.ops.bim.load_project_elements()
@@ -642,7 +651,7 @@ if blender_node:
 
 print("STATUS: GLTF import completed")
 file_name = node["id"].split("#")[1] + ".ifc"
-save_file_path = str(IFC_FOLDER / file_name)
+save_file_path = str(OUTPUT_IFC_FOLDER / file_name)
 bpy.ops.bim.save_project(filepath=save_file_path, should_save_as=True, use_relative_path=False)
 # sys.exit()
 
@@ -655,8 +664,14 @@ else:
     print("STATUS: GLTF import completed without saving a blend file")
 
 # This script runs Blender in GUI mode (it needs a VIEW_3D window/area for the
-# BIM and mesh operators), launched under a virtual display in Docker. GUI
-# Blender would otherwise stay in its event loop forever after the script ends,
-# so the backend subprocess would never return. Quit explicitly now that the
-# IFC has been written.
-bpy.ops.wm.quit_blender()
+# BIM and mesh operators), launched under a virtual display (Xvfb) in Docker.
+# Blender's normal shutdown segfaults during post-save teardown under that
+# headless display (a GL/cleanup crash), even though the IFC has already been
+# written and flushed to disk. A plain quit (bpy.ops.wm.quit_blender) hits that
+# crash and returns a non-zero code, making the backend treat a successful
+# conversion as a failure. Everything is on disk by now, so terminate the
+# process immediately with os._exit(0), skipping Blender's crashing cleanup and
+# giving the parent a clean exit code.
+sys.stdout.flush()
+sys.stderr.flush()
+os._exit(0)

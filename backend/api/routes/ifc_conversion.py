@@ -26,6 +26,7 @@ async def websocket_ifc_convert(websocket: WebSocket):
         data = await websocket.receive_json() # Aspettiamo di ricevere un messaggio JSON dal client. Ci aspettiamo che questo messaggio contenga il nome del file STEP che l'utente ha caricato e che vogliamo convertire.
         node = data.get("node")
         save_blend = bool(data.get("save_blend", False))
+        project_id = data.get("project_id")
                     
         await websocket.send_json({"status": "wip", "text": "Starting conversion"}) # Inviamo un messaggio al client per indicare che la conversione è iniziata. Il client può usare questo messaggio per mostrare un indicatore di caricamento o aggiornare lo stato dell'interfaccia utente.
 
@@ -42,7 +43,7 @@ async def websocket_ifc_convert(websocket: WebSocket):
             partial(
                 run_blender_scripts,
                 [IMPORT_GLTF_SCRIPT],
-                [[tmp_path, str(save_blend).lower()]]
+                [[tmp_path, str(save_blend).lower(), project_id or ""]]
             )
         )
         runner_task = asyncio.create_task(runner)

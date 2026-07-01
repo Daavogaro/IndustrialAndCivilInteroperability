@@ -26,19 +26,30 @@ Follow these steps in order. Don't skip any.
 
    If you see a version number, you're good. ✅
 
-### Step 2 — Put the Bonsai file in place
+### Step 2 — Get the big Bonsai file (Git LFS)
 
-The app needs a big Blender add-on file called **Bonsai**. It is too large to
-keep in this project on GitHub, so you must place it yourself.
+The app needs a large Blender add-on called **Bonsai** (about 138 MB). Because
+it's big, the project stores it with **Git LFS** (Git's system for large files).
+You need to fetch it **once**.
 
-1. Get the file named **`add-on-bonsai-v0.8.4-linux-x64.zip`**.
-2. Put it exactly here, inside the project:
+1. Install Git LFS: https://git-lfs.com
+   (On Windows, download and run the installer.)
+2. Open a terminal **in the project folder** and run:
+
+   ```
+   git lfs install
+   git lfs pull
+   ```
+
+3. Make sure the real file arrived. Check the size of:
 
    ```
    backend/bonsai/add-on-bonsai-v0.8.4-linux-x64.zip
    ```
 
-   That folder already exists. Just drop the file into it. (Don't rename it.)
+   It should be **about 138 MB**. If it's only a few hundred **bytes**, Git LFS
+   didn't download it yet — run `git lfs pull` again. ⚠️ (A tiny file here is
+   the #1 reason the build fails with a Bonsai error.)
 
 ### Step 3 — Build and start everything
 
