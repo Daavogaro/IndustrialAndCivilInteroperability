@@ -8,12 +8,19 @@ import requests
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from ..models.models import VIRTUOSO_URL
+from ..models.models import VIRTUOSO_URL, BASE_DIR
 
 router = APIRouter()
 
 _LOCK = threading.Lock()
-_PROJECTS_FILE = Path(__file__).resolve().parents[4] / "tmp" / "projects.json"
+# Persist alongside the other runtime files in the bind-mounted tmp/ (BASE_DIR is
+# /app in Docker). The previous parents[4] resolved to /tmp inside the container
+# — ephemeral and wiped on every recreate, so created projects kept vanishing.
+_PROJECTS_FILE = BASE_DIR / "tmp" / "projects.json"
+
+# localhost graphs that are Virtuoso internals, not user projects.
+_SYSTEM_GRAPH_IDS = {"DAV", "sparql"}
+_GRAPH_PREFIX = "http://localhost:8890/"
 
 _SEED = [
     {
@@ -25,12 +32,63 @@ _SEED = [
 ]
 
 
+def _discover_projects_from_virtuoso() -> list[dict]:
+    """Best-effort rebuild of project entries from the graphs already in
+    Virtuoso. Used only to seed the list the first time the file is missing, so
+    projects created before this file existed (or on a previous machine)
+    reappear. Returns [] if Virtuoso is unreachable so first load never breaks.
+    """
+    try:
+        resp = requests.get(
+            VIRTUOSO_URL,
+            params={
+                "query": (
+                    "SELECT DISTINCT ?g WHERE { GRAPH ?g { ?s ?p ?o } "
+                    f'FILTER(STRSTARTS(STR(?g), "{_GRAPH_PREFIX}")) }}'
+                )
+            },
+            headers={"Accept": "application/sparql-results+json"},
+            timeout=10,
+        )
+        resp.raise_for_status()
+        bindings = resp.json()["results"]["bindings"]
+    except Exception:
+        return []
+
+    discovered: list[dict] = []
+    for b in bindings:
+        uri = b["g"]["value"]
+        project_id = uri[len(_GRAPH_PREFIX):].strip("/")
+        if not project_id or project_id in _SYSTEM_GRAPH_IDS:
+            continue
+        discovered.append(
+            {
+                "id": project_id,
+                "name": project_id,
+                "graphUri": uri,
+                "createdAt": datetime.now(timezone.utc).isoformat(),
+            }
+        )
+    return discovered
+
+
+def _seed_projects() -> list[dict]:
+    projects = list(_SEED)
+    known_graphs = {p["graphUri"] for p in projects}
+    for proj in _discover_projects_from_virtuoso():
+        if proj["graphUri"] not in known_graphs:
+            projects.append(proj)
+            known_graphs.add(proj["graphUri"])
+    return projects
+
+
 def _read_projects() -> list[dict]:
     with _LOCK:
         if not _PROJECTS_FILE.exists() or _PROJECTS_FILE.stat().st_size == 0:
+            projects = _seed_projects()
             _PROJECTS_FILE.parent.mkdir(parents=True, exist_ok=True)
-            _PROJECTS_FILE.write_text(json.dumps(_SEED, indent=2))
-            return list(_SEED)
+            _PROJECTS_FILE.write_text(json.dumps(projects, indent=2))
+            return list(projects)
         return json.loads(_PROJECTS_FILE.read_text())
 
 
