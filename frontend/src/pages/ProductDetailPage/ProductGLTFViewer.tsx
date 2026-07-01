@@ -179,12 +179,13 @@ export function ProductGLTFViewer({
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.0;
+    renderer.toneMappingExposure = 0.85;
     renderer.shadowMap.enabled = false;
     viewerContainer.append(renderer.domElement);
 
     const pmremGenerator = new THREE.PMREMGenerator(renderer);
     scene.environment = pmremGenerator.fromScene(new RoomEnvironment()).texture;
+    scene.environmentIntensity = 0.35;
     pmremGenerator.dispose();
 
     function resizeViewer() {
@@ -203,10 +204,10 @@ export function ProductGLTFViewer({
     window.addEventListener("resize", resizeViewer);
     resizeViewer();
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 2.2);
-    const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0xf2f6ff, 1.3);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+    const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0xf2f6ff, 0.5);
     hemisphereLight.position.set(0, 10, 0);
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
     directionalLight.position.set(5, 8, 5);
     scene.add(ambientLight, hemisphereLight, directionalLight);
 

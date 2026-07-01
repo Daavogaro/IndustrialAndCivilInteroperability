@@ -227,11 +227,11 @@ export function GLTFViewer({ uri, hoverUri = null }: GLTFViewerProps) {
   
     resizeViewer()
   
-    const ambientLight = new THREE.AmbientLight(0xffffff, 2.2)
-    const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0xf2f6ff, 1.3)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2)
+    const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0xf2f6ff, 0.5)
     hemisphereLight.position.set(0, 10, 0)
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2)
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5)
     directionalLight.position.set(5, 8, 5)
     
   
