@@ -1,6 +1,6 @@
 import json
-from bpy import context # pyright: ignore[reportMissingModuleSource]
-import bpy # pyright: ignore[reportMissingModuleSource]
+from bpy import context # pyright: ignore[reportMissingImports, reportMissingModuleSource]
+import bpy # pyright: ignore[reportMissingImports, reportMissingModuleSource]
 import sys
 import os
 import ifcopenshell
