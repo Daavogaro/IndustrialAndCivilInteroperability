@@ -664,14 +664,20 @@ else:
     print("STATUS: GLTF import completed without saving a blend file")
 
 # This script runs Blender in GUI mode (it needs a VIEW_3D window/area for the
-# BIM and mesh operators), launched under a virtual display (Xvfb) in Docker.
-# Blender's normal shutdown segfaults during post-save teardown under that
-# headless display (a GL/cleanup crash), even though the IFC has already been
-# written and flushed to disk. A plain quit (bpy.ops.wm.quit_blender) hits that
-# crash and returns a non-zero code, making the backend treat a successful
-# conversion as a failure. Everything is on disk by now, so terminate the
-# process immediately with os._exit(0), skipping Blender's crashing cleanup and
-# giving the parent a clean exit code.
+# BIM and mesh operators). In Docker it is launched under a virtual display
+# (Xvfb), and Blender's normal shutdown segfaults during post-save teardown
+# under that headless display (a GL/cleanup crash), even though the IFC has
+# already been written and flushed to disk. That crash returns a non-zero code,
+# making the backend treat a successful conversion as a failure. Everything is
+# on disk by now, so in the container we terminate the process immediately with
+# os._exit(0), skipping Blender's crashing cleanup and giving the parent a clean
+# exit code.
+#
+# On a localhost host (real display, no Xvfb) that teardown does not crash, so
+# we do a normal quit and let Blender shut down cleanly.
 sys.stdout.flush()
 sys.stderr.flush()
-os._exit(0)
+
+in_docker = os.getenv("IN_DOCKER") == "1" or os.path.exists("/.dockerenv")
+if in_docker:
+    os._exit(0)

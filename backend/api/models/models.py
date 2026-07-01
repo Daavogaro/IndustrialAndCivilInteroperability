@@ -1,13 +1,41 @@
 import os
+import shutil
 
 from rdflib import Namespace
 from pathlib import Path
 from typing import Dict
 
 
-# Blender executable: resolved on PATH inside the container (default "blender").
-# On a Windows host, set the BLENDER_EXE env var to the full blender.exe path.
-BLENDER_EXE = os.getenv("BLENDER_EXE", "blender")
+def _resolve_blender_exe() -> str:
+    """Locate the Blender executable across Docker and Windows-host setups.
+
+    Order of precedence:
+      1. Explicit BLENDER_EXE env var (used by the Docker image).
+      2. "blender" on PATH (Linux container / anyone who added it to PATH).
+      3. Known Windows install locations, newest version first.
+    Falls back to "blender" so the failure message stays meaningful.
+    """
+    env = os.getenv("BLENDER_EXE")
+    if env:
+        return env
+
+    on_path = shutil.which("blender")
+    if on_path:
+        return on_path
+
+    for candidate in (
+        r"C:\Program Files\Blender Foundation\Blender 5.0\blender.exe",
+        r"C:\Program Files\Blender Foundation\Blender 4.5\blender.exe",
+    ):
+        if os.path.isfile(candidate):
+            return candidate
+
+    return "blender"
+
+
+# Blender executable: resolved on PATH inside the container, or from the known
+# Windows install path on a host. Override with the BLENDER_EXE env var.
+BLENDER_EXE = _resolve_blender_exe()
 
 BLENDER_SERVICE_URL = "http://localhost:8000/api/blender_run_scripts"
 
