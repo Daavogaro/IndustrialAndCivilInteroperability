@@ -5,7 +5,7 @@ import uuid
 from functools import partial
 from fastapi import APIRouter, WebSocket
 from fastapi.concurrency import run_in_threadpool
-from ..models.models import JSON_FOLDER
+from ..models.models import JSON_FOLDER, IMPORT_GLTF_SCRIPT
 from ..services.ifc_conversion.blender import run_blender_script, run_blender_scripts
 
 def generate_temp_file(folder: str, node: dict):
@@ -16,10 +16,6 @@ def generate_temp_file(folder: str, node: dict):
             json.dump(node, f)
         return tmp_path
 
-IMPORT_GLTF_SCRIPT = r"backend\api\services\ifc_conversion\blender_script\import_gltf.py"
-CONVERT_IFC_SCRIPT = r"backend\api\services\ifc_conversion\blender_script\ifc_conversion.py"
-
-GLTF_PATH = r"tmp\gLTF\PSI_SLS2_Girder_Superbend.gltf"
 router = APIRouter()
 # Un websocket è una connessione bidirezionale tra client e server che permette di inviare dati in tempo reale. In questo caso, lo usiamo per comunicare con il frontend React durante tutto il processo di conversione e parsing, in modo da poter aggiornare l'utente sullo stato dell'operazione.
 @router.websocket("/ws/blender_run_scripts")
@@ -30,6 +26,7 @@ async def websocket_ifc_convert(websocket: WebSocket):
         data = await websocket.receive_json() # Aspettiamo di ricevere un messaggio JSON dal client. Ci aspettiamo che questo messaggio contenga il nome del file STEP che l'utente ha caricato e che vogliamo convertire.
         node = data.get("node")
         save_blend = bool(data.get("save_blend", False))
+        project_id = data.get("project_id")
                     
         await websocket.send_json({"status": "wip", "text": "Starting conversion"}) # Inviamo un messaggio al client per indicare che la conversione è iniziata. Il client può usare questo messaggio per mostrare un indicatore di caricamento o aggiornare lo stato dell'interfaccia utente.
 
@@ -46,7 +43,7 @@ async def websocket_ifc_convert(websocket: WebSocket):
             partial(
                 run_blender_scripts,
                 [IMPORT_GLTF_SCRIPT],
-                [[tmp_path, str(save_blend).lower()]]
+                [[tmp_path, str(save_blend).lower(), project_id or ""]]
             )
         )
         runner_task = asyncio.create_task(runner)

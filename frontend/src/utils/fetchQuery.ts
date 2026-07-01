@@ -1,7 +1,7 @@
 import { parseSparqlBindings } from "./parseSparqlQuery";
 
 export const fetchQuery = async (query: string) => {
-  const res = await fetch("http://localhost:8000/api/sparql-query", {
+  const res = await fetch("/api/sparql-query", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ query }),

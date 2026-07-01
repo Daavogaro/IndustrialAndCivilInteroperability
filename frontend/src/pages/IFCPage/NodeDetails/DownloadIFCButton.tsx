@@ -1,5 +1,7 @@
 import { StatusString } from "../../../components/Sidebar/MessagePanel";
 import { TreeNode } from "../../STEPPage/Hierarchy/buildTree";
+import { apiWebSocketUrl } from "../../../utils/apiWebSocket";
+import { useProject } from "../../../context/ProjectContext";
 
 type DownloadIFCButtonProps = {
   node: TreeNode;
@@ -11,13 +13,14 @@ export function DownloadIFCButton({
   setMessage,
 }: DownloadIFCButtonProps) {
   const saveBlend = false;
+  const { activeProject } = useProject();
 
   const handleConversion = async (node: TreeNode) => {
     setMessage({ status: "info", text: "Start converting in IFC file..." });
     console.log("Starting IFC conversion for node:", node);
     try {
       const websocket = new WebSocket(
-        "ws://localhost:8000/api/ws/blender_run_scripts",
+        apiWebSocketUrl("/api/ws/blender_run_scripts"),
       );
       websocket.onopen = () => {
         setMessage({ status: "info", text: "WebSocket connected" });
@@ -25,6 +28,7 @@ export function DownloadIFCButton({
           JSON.stringify({
             node: node,
             save_blend: saveBlend,
+            project_id: activeProject?.id ?? null,
           }),
         );
       };

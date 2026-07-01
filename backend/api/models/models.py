@@ -1,19 +1,50 @@
 import os
+import shutil
 
 from rdflib import Namespace
 from pathlib import Path
 from typing import Dict
 
 
-MAYO_EXE = r"C:\Program Files\Fougue\Mayo\mayo-conv.exe"
-BLENDER_EXE = r"C:\Program Files\Blender Foundation\Blender 5.0\blender.exe"
+def _resolve_blender_exe() -> str:
+    """Locate the Blender executable across Docker and Windows-host setups.
 
-MAYO_SERVICE_URL = "http://localhost:8000/api/convert"
+    Order of precedence:
+      1. Explicit BLENDER_EXE env var (used by the Docker image).
+      2. "blender" on PATH (Linux container / anyone who added it to PATH).
+      3. Known Windows install locations, newest version first.
+    Falls back to "blender" so the failure message stays meaningful.
+    """
+    env = os.getenv("BLENDER_EXE")
+    if env:
+        return env
+
+    on_path = shutil.which("blender")
+    if on_path:
+        return on_path
+
+    for candidate in (
+        r"C:\Program Files\Blender Foundation\Blender 5.0\blender.exe",
+        r"C:\Program Files\Blender Foundation\Blender 4.5\blender.exe",
+    ):
+        if os.path.isfile(candidate):
+            return candidate
+
+    return "blender"
+
+
+# Blender executable: resolved on PATH inside the container, or from the known
+# Windows install path on a host. Override with the BLENDER_EXE env var.
+BLENDER_EXE = _resolve_blender_exe()
+
 BLENDER_SERVICE_URL = "http://localhost:8000/api/blender_run_scripts"
 
 BASE_DIR = Path(__file__).resolve().parents[3]
 
-INI_FILE = BASE_DIR / "backend" / "api" / "services" / "importing_STEP" / "mayo-gui.ini"
+# Absolute, OS-independent paths to the Blender Python scripts. Built from
+# BASE_DIR so they do not depend on the process working directory.
+BLENDER_SCRIPT_DIR = BASE_DIR / "backend" / "api" / "services" / "ifc_conversion" / "blender_script"
+IMPORT_GLTF_SCRIPT = str(BLENDER_SCRIPT_DIR / "import_gltf.py")
 
 STEP_FOLDER = str(BASE_DIR / "tmp" / "STEP")
 GLTF_FOLDER = str(BASE_DIR / "tmp" / "gLTF")

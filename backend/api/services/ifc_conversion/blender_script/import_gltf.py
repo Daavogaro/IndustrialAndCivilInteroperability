@@ -244,12 +244,38 @@ def select_hierarchy(obj):
         selected.extend(select_hierarchy(child))
 
     return selected
+def resolve_gltf_path(file_url: str) -> str:
+    """Map a stored gLTF location to its real path inside this environment.
+
+    The fileUrl in the node comes from RDF and may be a host-absolute Windows
+    path baked in on a previous run (e.g. "C:/.../tmp/gLTF/x.gltf"), or a path
+    that lost its leading slash when "file:///" was stripped (e.g.
+    "app/tmp/gLTF/x.gltf"). All assets always live under <BASE>/tmp/..., so
+    rebase everything from the "/tmp/" segment onto this install's base dir
+    (parents[5] == the same base used for IFC_FOLDER below). This also handles
+    per-project subfolders such as tmp/projects/<id>/gLTF/.
+    """
+    base = Path(__file__).resolve().parents[5]
+    path = file_url.replace("\\", "/")
+    if os.path.isfile(path):
+        return path
+    idx = path.rfind("/tmp/")
+    if idx != -1:
+        candidate = str(base / path[idx + 1:])  # path[idx+1:] starts with "tmp/"
+        if os.path.isfile(candidate):
+            return candidate
+        # Return the remapped path anyway so the error names the expected file.
+        print(f"WARNING: gLTF not found at {candidate} (from {file_url})")
+        return candidate
+    return path
+
+
 def create_hierarchy(node: dict, parent=None):
 
     file_url = node.get("fileUrl")
 
     if file_url:
-        bpy.ops.import_scene.gltf(filepath=file_url)
+        bpy.ops.import_scene.gltf(filepath=resolve_gltf_path(file_url))
         node_obj = bpy.context.view_layer.objects.active
 
         world_matrix = node_obj.matrix_world.copy()
@@ -588,7 +614,10 @@ argv = argv[argv.index("--") + 1:]  # only args after --
 
 
 json_path = os.path.abspath(argv[0])
-save_blend = len(argv) > 2 and argv[1].strip().lower() in {"1", "true", "yes"}
+save_blend = len(argv) > 1 and argv[1].strip().lower() in {"1", "true", "yes"}
+# Optional 3rd arg: the active project id. When set, the generated IFC is saved
+# under tmp/projects/<project_id>/IFC/ instead of the flat tmp/IFC/.
+project_id = argv[2].strip() if len(argv) > 2 and argv[2].strip() else None
 
 with open(json_path, encoding="utf-8") as f:
     node:dict = json.load(f)
@@ -599,7 +628,13 @@ with open(json_path, encoding="utf-8") as f:
 # bpy.ops.wm.read_factory_settings(use_empty=True)
 # bpy.ops.bim.create_project()
 # bpy.ops.bim.new_project(preset='metric_m')
-IFC_FOLDER =Path(__file__).resolve().parents[5] / "tmp" / "IFC"
+# Base_Model.ifc is a shared template in the flat tmp/IFC folder; the generated
+# IFC is written to the active project's own IFC folder (falling back to the
+# flat folder when no project is given).
+BASE_TMP = Path(__file__).resolve().parents[5] / "tmp"
+IFC_FOLDER = BASE_TMP / "IFC"
+OUTPUT_IFC_FOLDER = (BASE_TMP / "projects" / project_id / "IFC") if project_id else IFC_FOLDER
+OUTPUT_IFC_FOLDER.mkdir(parents=True, exist_ok=True)
 file_path = str(IFC_FOLDER / "Base_Model.ifc")
 bpy.ops.bim.load_project(filepath=file_path, is_advanced=False, use_relative_path=False, should_start_fresh_session=True)
 bpy.ops.bim.load_project_elements()
@@ -616,7 +651,7 @@ if blender_node:
 
 print("STATUS: GLTF import completed")
 file_name = node["id"].split("#")[1] + ".ifc"
-save_file_path = str(IFC_FOLDER / file_name)
+save_file_path = str(OUTPUT_IFC_FOLDER / file_name)
 bpy.ops.bim.save_project(filepath=save_file_path, should_save_as=True, use_relative_path=False)
 # sys.exit()
 
@@ -627,3 +662,22 @@ if save_blend:
     print(f"STATUS: GLTF imported and saved to {output_blend}")
 else:
     print("STATUS: GLTF import completed without saving a blend file")
+
+# This script runs Blender in GUI mode (it needs a VIEW_3D window/area for the
+# BIM and mesh operators). In Docker it is launched under a virtual display
+# (Xvfb), and Blender's normal shutdown segfaults during post-save teardown
+# under that headless display (a GL/cleanup crash), even though the IFC has
+# already been written and flushed to disk. That crash returns a non-zero code,
+# making the backend treat a successful conversion as a failure. Everything is
+# on disk by now, so in the container we terminate the process immediately with
+# os._exit(0), skipping Blender's crashing cleanup and giving the parent a clean
+# exit code.
+#
+# On a localhost host (real display, no Xvfb) that teardown does not crash, so
+# we do a normal quit and let Blender shut down cleanly.
+sys.stdout.flush()
+sys.stderr.flush()
+
+in_docker = os.getenv("IN_DOCKER") == "1" or os.path.exists("/.dockerenv")
+if in_docker:
+    os._exit(0)

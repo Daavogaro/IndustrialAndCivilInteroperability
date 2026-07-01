@@ -45,7 +45,15 @@ def run_blender_script(script: str, script_args: list[str] | None = None, on_out
     print(f"{script} finished with return code {return_code}")
 
     if return_code != 0:
-        recent_output = "\n".join(output_lines[-10:])
+        # Blender prints a wall of "Freeing memory after the leak detector..."
+        # / "Not freed memory blocks" noise on a non-zero exit; the real Python
+        # traceback is above it. Drop the noise so the actual error survives the
+        # tail truncation.
+        noise = ("Freeing memory after the leak detector",
+                 "Not freed memory blocks",
+                 "construct on first use")
+        meaningful = [l for l in output_lines if not any(n in l for n in noise)]
+        recent_output = "\n".join(meaningful[-25:])
         raise RuntimeError(f"Blender script failed: {script}\n{recent_output}")
 
 

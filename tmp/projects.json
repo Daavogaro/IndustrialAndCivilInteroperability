@@ -1,0 +1,20 @@
+[
+  {
+    "id": "elettra2",
+    "name": "Elettra 2.0",
+    "graphUri": "http://localhost:8890/Elettra2/",
+    "createdAt": "2024-01-01T00:00:00+00:00"
+  },
+  {
+    "id": "nuovo",
+    "name": "nuovo",
+    "graphUri": "http://localhost:8890/nuovo/",
+    "createdAt": "2026-07-01T09:08:52.182989+00:00"
+  },
+  {
+    "id": "docker",
+    "name": "docker",
+    "graphUri": "http://localhost:8890/docker/",
+    "createdAt": "2026-07-01T09:08:52.182991+00:00"
+  }
+]
